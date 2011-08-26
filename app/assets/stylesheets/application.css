@@ -5,3 +5,18 @@
  *= require_self
  *= require_tree . 
 */
+
+
+table td {
+  border: 1px solid silver;
+  margin: 0;
+  padding: 4px 10px;
+  vertical-align: top;
+  }
+
+table {
+  border-collapse: collapse;
+  }  
+  
+  
+  

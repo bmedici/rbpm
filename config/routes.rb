@@ -1,4 +1,9 @@
 Rbpm::Application.routes.draw do
+  get "graph/workflow", :as => :workflow_graph
+
+  resources :links
+  resources :steps
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

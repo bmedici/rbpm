@@ -1,0 +1,27 @@
+<h1>Listing links</h1>
+
+<table>
+  <tr>
+    <th>Label</th>
+    <th>Step</th>
+    <th>Next</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @links.each do |link| %>
+  <tr>
+    <td><%= link.label %></td>
+    <td><%= link.step.label unless link.step.nil? %></td>
+    <td><%= link.next.label unless link.next.nil? %></td>
+    <td><%= link_to 'Show', link %></td>
+    <td><%= link_to 'Edit', edit_link_path(link) %></td>
+    <td><%= link_to 'Destroy', link, :confirm => 'Are you sure?', :method => :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Link', new_link_path %>

@@ -1,0 +1,20 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Label:</b>
+  <%= @step.label %>
+</p>
+
+<p>
+  <b>Mode:</b>
+  <%= @step.mode %>
+</p>
+
+<p>
+  <b>Params:</b>
+  <%= @step.params %>
+</p>
+
+
+<%= link_to 'Edit', edit_step_path(@step) %> |
+<%= link_to 'Back', steps_path %>

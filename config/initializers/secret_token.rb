@@ -4,4 +4,4 @@
 # If you change this key, all old signed cookies will become invalid!
 # Make sure the secret is at least 30 characters and all random,
 # no regular words or you'll be exposed to dictionary attacks.
-Rbpm::Application.config.secret_token = 'c68fefe1787ba17310430d6b7fdb1320a944502baa7970acad322457b20519f0bb247c2e7249ede6ce00541088faebec47876fc68b92af635f740f28948dec54'
+Rbpm::Application.config.secret_token = '121156b9ed933b4f8bbf59ceb4268afc96eb0bf401c03b15752f00745d5e701f5cea46aa888ad4785e8c59ae270071e00315b9f5ba2a1ff83190d05b590028e7'
