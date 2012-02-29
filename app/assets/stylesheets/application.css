@@ -17,6 +17,28 @@ table td {
 table {
   border-collapse: collapse;
   }  
+
+table th {
+  text-align: left;
+  }  
+  
+
+/* two columns layout */
+table.twocols {
+  width: 100%;
+  }
+table.twocols tr td.first {
+  border: none;
+  padding-right: 15px;
+  vertical-align: top;
+  }
+table.twocols tr td.second {
+  border: none;
+  border-left: 1px dotted silver;
+  padding-left: 15px;
+  vertical-align: top;
+  }
+
   
   
   
