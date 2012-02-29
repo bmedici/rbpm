@@ -1,35 +1,68 @@
 require 'graphviz'
 
 class GraphController < ApplicationController
+
+  def map
+    self.map_graph(params[:id])
+  end
+
+protected
   
-  
-  def workflow
+  def map_graph(active_step_id = nil)
     #render :text => GraphViz::Constants::FORMATS.to_yaml
     #return
     
-    g = GraphViz::new("G")
-
-    main        = g.add_node( Time.to_s )
-    parse       = g.add_node( "parse" )
-    execute     = g.add_node( "execute" )
-    init        = g.add_node( "init" )
-    cleanup     = g.add_node( "cleanup" )
-    make_string = g.add_node( "make_string" )
-    printf      = g.add_node( "printf" )
-    compare     = g.add_node( "compare" )
-
-    g.add_edge( main, parse )
-    g.add_edge( parse, execute )
-    g.add_edge( main, init )
-    g.add_edge( main, cleanup )
-    g.add_edge( execute, make_string )
-    g.add_edge( execute, printf )
-    g.add_edge( init, make_string )
-    g.add_edge( main, printf )
-    g.add_edge( execute, compare )
+    # Build new graph
+    g = GraphViz::new("G", :rankdir => "LR", :margin => "0,0", :path => GRAPHVIZ_BINPATH)
     
-    #data = g.output(:png => :nil)
-    data = g.to_s
+    # set global node options
+    #g.node[:color]    = "#ddaa66"
+    g.node[:color]    = "#AAAAAA"
+    g.node[:style]    = "filled"
+    g.node[:shape]    = "box"
+    g.node[:penwidth] = "1"
+    g.node[:fontname] = "Trebuchet MS"
+    g.node[:fontsize] = "9"
+    g.node[:fillcolor]= "#ffeecc"
+    g.node[:fontcolor]= "#775500"
+    g.node[:margin]   = "0.1"
+
+    # set global edge options
+    g.edge[:color]    = "#BBBBBB"
+    g.edge[:weight]   = "1"
+    g.edge[:fontsize] = "8"
+    g.edge[:fontcolor]= "#999999"
+    g.edge[:fontname] = "Verdana"
+    g.edge[:dir]      = "forward"
+    g.edge[:arrowsize]= "0.8"    
+    
+    # Transpose all steps as nodes
+    step_node = []
+    Step.all.each do |step|
+      if (step.id == active_step_id.to_i)
+        penwidth = 2
+        color = '#444444'
+      end
+      
+      fillcolor = step.color
+    
+      step_node[step.id] = g.add_node(step.label.to_s, :color => color, :fillcolor => fillcolor, :penwidth => penwidth )
+      #:shape => :box
+    end
+    
+    # Transpose all links as edges
+    Link.all.each do |link|
+      node_origin = step_node[link.step_id]
+      node_target = step_node[link.next_id]
+      g.add_edge(node_origin, node_target, :label => link.label.to_s)
+    end
+
+
+    # Fetch all links with corresponding steps
+    steps = Step.all
+    
+    # Debug dot file
+    #render :text => "<xmp>" +  g.to_s + "</cmp>" and return
     
     # Generate output to temp file
     tempfile = Tempfile::open( File.basename(__FILE__) )
@@ -40,12 +73,9 @@ class GraphController < ApplicationController
                 :filename      =>  tempfile.path,
                 :type          =>  'image/png',
                 :disposition  =>  'inline')
-    #render :text => tempfile.path
     
     # And finally, remove it
     File.unlink(tempfile.path)
-    return
-    #send_data data, :type => "image/png", :disposition => "inline"
   end
 
 end

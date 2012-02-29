@@ -1,0 +1,25 @@
+- @sidebar = 'authoring'
+%h1 Listing links
+
+%table
+  %tr
+    %th ID
+    %th Coming from
+    %th Going to
+    %th Label
+    %th
+    %th
+    %th
+
+  - @links.each do |link|
+    %tr
+      %td= "l#{link.id}"
+      %td= link.step.label unless link.step.nil?
+      %td= link.next.label unless link.next.nil?
+      %td= link.label
+      %td= link_to 'Show', link
+      %td= link_to 'Edit', edit_link_path(link)
+      %td= link_to 'Destroy', link, :confirm => 'Are you sure?', :method => :delete
+
+%br
+= link_to 'New Link', new_link_path

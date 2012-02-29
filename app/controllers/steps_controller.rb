@@ -1,6 +1,6 @@
 class StepsController < ApplicationController
-  # GET /steps
-  # GET /steps.json
+
+
   def index
     @steps = Step.all
 
@@ -10,8 +10,6 @@ class StepsController < ApplicationController
     end
   end
 
-  # GET /steps/1
-  # GET /steps/1.json
   def show
     @step = Step.find(params[:id])
 
@@ -21,8 +19,6 @@ class StepsController < ApplicationController
     end
   end
 
-  # GET /steps/new
-  # GET /steps/new.json
   def new
     @step = Step.new
 
@@ -32,19 +28,16 @@ class StepsController < ApplicationController
     end
   end
 
-  # GET /steps/1/edit
   def edit
     @step = Step.find(params[:id])
   end
 
-  # POST /steps
-  # POST /steps.json
   def create
     @step = Step.new(params[:step])
 
     respond_to do |format|
       if @step.save
-        format.html { redirect_to @step, :notice => 'Step was successfully created.' }
+        format.html { redirect_to steps_path, :notice => 'Step was successfully created.' }
         format.json { render :json => @step, :status => :created, :location => @step }
       else
         format.html { render :action => "new" }
@@ -53,8 +46,6 @@ class StepsController < ApplicationController
     end
   end
 
-  # PUT /steps/1
-  # PUT /steps/1.json
   def update
     @step = Step.find(params[:id])
 
@@ -69,8 +60,6 @@ class StepsController < ApplicationController
     end
   end
 
-  # DELETE /steps/1
-  # DELETE /steps/1.json
   def destroy
     @step = Step.find(params[:id])
     @step.destroy

@@ -1,35 +1,35 @@
+- @sidebar = 'authoring'
 %h1 Listing steps
 
 %table
   %tr
+    %th ID
     %th Label
-    %th Mode
+    %th Description
+    %th Prev steps
+    %th Next steps
+    %th Type
     %th Params
-    %th Previous
-    %th Next
     %th
     %th
     %th
 
   - @steps.each do |step|
     %tr
+      %td= "s#{step.id}"
       %td= step.label
-      %td= step.mode
-      %td= step.params
+      %td= step.description
       %td
         - step.previouses.each do |p|
           %li= p.label
       %td
         - step.nexts.each do |n|
           %li= n.label
+      %td= step.type
+      %td= step.params
       %td= link_to 'Show', step
       %td= link_to 'Edit', edit_step_path(step)
       %td= link_to 'Destroy', step, :confirm => 'Are you sure?', :method => :delete
       
+%br
 = link_to 'New Step', new_step_path
-
-= image_tag workflow_graph_path
-
--# %object{ :data => }
--# <object data="data:image/svg+xml;base64,<%=Base64.encode64(@org_chart.svg)%>"
--#  width="<%=@org_chart.width%>" height="<%=@org_chart.height%>" />

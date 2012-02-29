@@ -1,0 +1,47 @@
+- @sidebar = 'execution'
+%h1 Listing runs
+
+%table
+  %tr
+    %th ID
+    %th Start
+    %th Created
+    %th Updated
+    %th Completed
+    %th Actions
+    %th
+    %th
+    %th
+
+  - @runs.each do |run|
+    %tr
+      %td= "r#{run.id}"
+      %td= run.step_id
+      %td= run.created_at
+      %td= run.updated_at
+      %td= run.completed_at
+      %td
+        %table
+          %tr
+            %th
+            %th
+            %th
+            %th
+            %th
+            %th
+        - run.actions.each do |action|
+          %tr
+            %td= "a#{run.id}"
+            %td= action.step.id
+            %td= action.step.label
+            %td= action.created_at
+            %td= action.updated_at
+            %td= action.completed_at
+          
+      %td= link_to 'Show', run
+      %td= link_to 'Edit', edit_run_path(run)
+      %td= link_to 'Destroy', run, :confirm => 'Are you sure?', :method => :delete
+
+%br
+
+= link_to 'New Run', new_run_path

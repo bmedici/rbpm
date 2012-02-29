@@ -24,4 +24,7 @@ Rbpm::Application.configure do
 
   # Do not compress assets
   config.assets.compress = false
+  
+  
+  GRAPHVIZ_BINPATH = '/usr/local/bin/'
 end

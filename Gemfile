@@ -1,14 +1,14 @@
 source 'http://rubygems.org'
 
-gem 'rails', '3.1.0.rc5'
-gem 'haml', '3.0.18'
+gem 'rails', '3.1.0'
 gem 'mysql'
 gem 'json'
 gem 'capistrano'
-gem 'jquery-rails'
 gem 'hirb'
 gem 'wirble'
 gem 'ruby-graphviz'
+gem 'delayed_job'
+
 # Views
 gem "haml-rails"
 gem 'jquery-rails'

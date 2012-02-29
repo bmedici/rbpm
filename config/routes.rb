@@ -1,8 +1,26 @@
 Rbpm::Application.routes.draw do
-  get "graph/workflow", :as => :workflow_graph
 
-  resources :links
+  resources :runs
+
+  resources :actions
+
+  get "webservice/getdate"
+  get "webservice/wait"
+  get "webservice/encode"
+  get "webservice/checksum"
+
+  get "graph/map" => "graph#map", :as => :map_graph
+  get "graph/map/:id" => "graph#map"
+  get "status/map" => "status#map", :as => :map_status
+
+  root :to => 'status#map'
+
   resources :steps
+  resources :links  
+  # See https://gist.github.com/1713398 for a more generic method
+  resources :steps
+  resources :step_noops, :controller => :steps
+  resources :step_waiters, :controller => :steps
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
@@ -39,8 +57,7 @@ Rbpm::Application.routes.draw do
   # Sample resource route with more complex sub-resources
   #   resources :products do
   #     resources :comments
-  #     resources :sales do
-  #       get 'recent', :on => :collection
+  #     resources :sales do  #       get 'recent', :on => :collection
   #     end
   #   end
 

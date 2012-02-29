@@ -1,0 +1,12 @@
+%p#notice= notice
+
+%p
+  %b Start step:
+  = @run.start_step_id
+%p
+  %b Completed at:
+  = @run.completed_at
+
+= link_to 'Edit', edit_run_path(@run)
+\|
+= link_to 'Back', runs_path
