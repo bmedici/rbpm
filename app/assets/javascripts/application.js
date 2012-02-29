@@ -8,3 +8,22 @@
 //= require jquery_ujs
 //= require twitter/bootstrap
 //= require_tree .
+
+$.fn.reloadSrc = function(){
+var $this = $(this);
+var src = $this.attr("src");
+if(src != undefined){
+$this.attr("src", src + (src.indexOf('?') >= 0 ? "&" : "?") + "tq=" + (new Date()).getTime());
+}
+}
+
+function UpdateMap() {
+	$('.autorefresh').reloadSrc();
+	//alert('ok');
+  setTimeout(UpdateMap, 500);
+	}
+
+$(document).ready(function() {
+	UpdateMap();
+  //setTimeout(UpdateMap, 2000);
+});

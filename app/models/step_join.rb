@@ -1,11 +1,7 @@
-class StepRestws < Step
+class StepJoin < Step
 
   def color
-    '#B7E3C0'
-  end
-  
-  def shape
-    :note
+    '#B8D0DD'
   end
   
   def run

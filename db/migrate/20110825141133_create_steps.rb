@@ -4,6 +4,7 @@ class CreateSteps < ActiveRecord::Migration
       t.string :label
       t.text :description
       t.text :params
+      t.string :type
       t.timestamps
     end
   end

@@ -30,6 +30,7 @@ class StepsController < ApplicationController
 
   def edit
     @step = Step.find(params[:id])
+    #@step.becomes(Step)
   end
 
   def create
@@ -48,6 +49,7 @@ class StepsController < ApplicationController
 
   def update
     @step = Step.find(params[:id])
+    #@step.becomes(Step)
 
     respond_to do |format|
       if @step.update_attributes(params[:step])

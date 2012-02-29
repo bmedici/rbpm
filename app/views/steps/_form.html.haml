@@ -1,0 +1,22 @@
+= form_for @step, :as => :step do |f|
+  -if @step.errors.any?
+    #error_explanation
+      %h2= "#{pluralize(@step.errors.count, "error")} prohibited this step from being saved:"
+      %ul
+        - @step.errors.full_messages.each do |msg|
+          %li= msg
+
+  .field
+    = f.label :label
+    = f.text_field :label
+  .field
+    = f.label :description
+    = f.text_area :description, :rows => 2
+  .field
+    = f.label :params
+    = f.text_area :params, :rows => 2
+  .field
+    = f.label :class
+    = f.select :type, STEP_CLASSES, {:include_blank => true}
+  .actions
+    = f.submit 'Save'

@@ -2,7 +2,8 @@ class RunsController < ApplicationController
   # GET /runs
   # GET /runs.json
   def index
-    @runs = Run.all
+    #@runs = Run.order('id DESC').includes(:actions)
+    @runs = Run.order('id DESC')
 
     respond_to do |format|
       format.html # index.html.erb
@@ -14,6 +15,9 @@ class RunsController < ApplicationController
   # GET /runs/1.json
   def show
     @run = Run.find(params[:id])
+
+    @all_actions = @run.actions.order('actions.id DESC')
+    @running_actions = @run.actions.order('actions.id DESC').where(:completed_at => :nil).order(:id)
 
     respond_to do |format|
       format.html # show.html.erb

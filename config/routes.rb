@@ -1,26 +1,30 @@
 Rbpm::Application.routes.draw do
 
   resources :runs
-
   resources :actions
+  resources :steps
+  resources :links  
+  # See https://gist.github.com/1713398 for a more generic method
+  resources :steps
+  
+  # Dynamically create resources for Step's
+  STEP_CLASSES.each do |class_name|
+    resource_name = class_name.underscore.pluralize.to_sym
+    resources resource_name, :controller => :steps
+  end
 
   get "webservice/getdate"
   get "webservice/wait"
   get "webservice/encode"
   get "webservice/checksum"
 
-  get "graph/map" => "graph#map", :as => :map_graph
-  get "graph/map/:id" => "graph#map"
-  get "status/map" => "status#map", :as => :map_status
+  get "graph/workflow" => "graph#workflow", :as => :workflow_graph
+  get "graph/run/:id" => "graph#run", :as => :run_graph
+  #get "graph/map/:id" => "graph#map"
 
-  root :to => 'status#map'
+  get "status/workflow" => "status#workflow", :as => :workflow_status
 
-  resources :steps
-  resources :links  
-  # See https://gist.github.com/1713398 for a more generic method
-  resources :steps
-  resources :step_noops, :controller => :steps
-  resources :step_waiters, :controller => :steps
+  root :to => 'status#workflow'
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
@@ -33,7 +37,7 @@ Rbpm::Application.routes.draw do
   #   match 'products/:id/purchase' => 'catalog#purchase', :as => :purchase
   # This route can be invoked with purchase_url(:id => product.id)
 
-  # Sample resource route (maps HTTP verbs to controller actions automatically):
+  # Sample resource route (map { |e|  }s HTTP verbs to controller actions automatically):
   #   resources :products
 
   # Sample resource route with options:

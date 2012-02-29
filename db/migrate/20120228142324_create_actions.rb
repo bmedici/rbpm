@@ -3,9 +3,9 @@ class CreateActions < ActiveRecord::Migration
     create_table :actions do |t|
       t.references :run
       t.references :step
-      t.text :output
+      t.text :output, :default => nil, :null => true
+      t.integer :retcode, :default => nil, :null => true
       t.datetime :completed_at
-      t.boolean :running => false
       t.timestamps
     end
   end

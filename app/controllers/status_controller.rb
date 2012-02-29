@@ -1,6 +1,6 @@
 class StatusController < ApplicationController
   
-  def map
+  def workflow
   end  
   
 end

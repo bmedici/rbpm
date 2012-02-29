@@ -1,14 +1,44 @@
 require 'graphviz'
+COLOR_COMPLETED = '#44BB44'
+COLOR_FAILED = '#FF0000'
+COLOR_RUNNING = '#ff7000'
+COLOR_DEFAULT = '#BBBBBB'
+
 
 class GraphController < ApplicationController
 
-  def map
-    self.map_graph(params[:id])
+  def workflow
+    self.map_graph
+  end
+
+  def run
+    # Fin the current run
+    run = Run.find(params[:id])
+    
+    # Browse actions and sort by status
+    step_attributes = []
+    run.actions.each do |action|
+      if action.retcode.to_i>0
+        border_color = COLOR_FAILED
+      elsif action.completed_at.nil?
+        border_color = COLOR_RUNNING
+      else
+        border_color = COLOR_COMPLETED
+      end
+      step_attributes[action.step_id] = {
+        :border_color => border_color,
+        :retcode => action.retcode
+        }
+    end
+    
+    # Graph all this
+    self.map_graph(step_attributes)
+    
   end
 
 protected
   
-  def map_graph(active_step_id = nil)
+  def map_graph(step_attributes = nil)
     #render :text => GraphViz::Constants::FORMATS.to_yaml
     #return
     
@@ -36,17 +66,39 @@ protected
     g.edge[:dir]      = "forward"
     g.edge[:arrowsize]= "0.8"    
     
+    
+    # Timestamp
+    g.add_node(Time.now.to_s)
+    
     # Transpose all steps as nodes
     step_node = []
     Step.all.each do |step|
-      if (step.id == active_step_id.to_i)
-        penwidth = 2
-        color = '#444444'
+      # Default values
+      pen_width = nil
+      border_color = nil
+      label1 = "s#{step.id.to_s}"
+      label2 = step.label.to_s
+      
+      
+      # Add a colored border if status given
+      unless step_attributes.nil?
+        attributes = step_attributes[step.id]
+        unless attributes.nil?
+          border_color = attributes[:border_color] ||= COLOR_DEFAULT
+          pen_width = 2
+          
+          
+          label1 = "s#{step.id.to_s}: err #{attributes[:retcode]}" unless attributes[:retcode].to_i.zero?
+        end
       end
       
-      fillcolor = step.color
-    
-      step_node[step.id] = g.add_node(step.label.to_s, :color => color, :fillcolor => fillcolor, :penwidth => penwidth )
+      # Get fill color from object class
+      fill_color = step.color
+      shape = step.shape unless step.shape.nil?
+      
+      # Add a new node to the graph
+      label = "#{label1}\n#{label2}"
+      step_node[step.id] = g.add_node(label, :color => border_color, :fillcolor => fill_color, :penwidth => pen_width, :shape => shape )
       #:shape => :box
     end
     

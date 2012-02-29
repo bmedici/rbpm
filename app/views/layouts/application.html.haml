@@ -31,21 +31,22 @@
           %a.brand{:href => "#"}Rbpm
           .container.nav-collapse
             %ul.nav
-              %li= link_to "authoring", map_status_path
+              %li= link_to "authoring", workflow_status_path
               %li= link_to "execution", runs_path
 
     .container
 
       .content
         .row
-          .span10
-            = yield
-          .span1 &nbsp;
-          .span2
-            - unless @sidebar.nil?
+          - if @sidebar.nil?
+            .span12
+              = yield
+          - else
+            .span10
+              = yield
+            .span2
               .well.sidebar-nav
                 %ul.nav.nav-list
-                  -# sidebar_name = @sidebar.strip! 
                   = render :partial => "layouts/#{@sidebar}" unless @sidebar.blank?
     
       %footer
