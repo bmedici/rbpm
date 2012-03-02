@@ -18,7 +18,7 @@ Rbpm::Application.routes.draw do
   get "webservice/encode"
   get "webservice/checksum"
 
-  get "graph/workflow" => "graph#workflow", :as => :workflow_graph
+  get "graph/map/:id" => "graph#map", :as => :map_graph
   get "graph/run/:id" => "graph#run", :as => :run_graph
   #get "graph/map/:id" => "graph#map"
 

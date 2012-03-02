@@ -1,6 +1,7 @@
 class Action < ActiveRecord::Base
   belongs_to :step
   belongs_to :run
+  has_many :vars, :dependent => :destroy
   
   # def run
   #   #self.started_at = TIme.now

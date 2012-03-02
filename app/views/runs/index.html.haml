@@ -10,8 +10,6 @@
     %th Completed
     %th Actions
     %th
-    %th
-    %th
 
   - @runs.each do |run|
     %tr
@@ -40,9 +38,11 @@
           = "(s#{action.step.id}) #{action.step.label}" 
           %br
           
-      %td= link_to 'Show', run
-      %td= link_to 'Edit', edit_run_path(run)
-      %td= link_to 'Destroy', run, :confirm => 'Are you sure?', :method => :delete
+      %td
+        = link_to 'show', run
+        |
+        =# link_to 'Edit', edit_run_path(run)
+        = link_to 'destroy', run, :confirm => 'Are you sure?', :method => :delete
 
 %br
 

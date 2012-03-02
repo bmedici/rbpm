@@ -17,7 +17,8 @@ class RunsController < ApplicationController
     @run = Run.find(params[:id])
 
     @all_actions = @run.actions.order('actions.id DESC')
-    @running_actions = @run.actions.order('actions.id DESC').where(:completed_at => :nil).order(:id)
+    @vars = @run.vars.order(:name)
+    @running_actions = @run.actions.order('actions.id DESC').where('completed_at IS NULL').order(:id)
 
     respond_to do |format|
       format.html # show.html.erb

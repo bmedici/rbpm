@@ -1,7 +1,7 @@
 source 'http://rubygems.org'
 
 gem 'rails', '3.1.0'
-gem 'mysql'
+gem 'mysql2'
 gem 'json'
 gem 'capistrano'
 gem 'hirb'
@@ -30,3 +30,6 @@ end
 
 # To use debugger
 # gem 'ruby-debug'
+
+
+gem "rest-client"

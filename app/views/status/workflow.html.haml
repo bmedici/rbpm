@@ -1,3 +1,4 @@
 - @sidebar = 'authoring'
-%h1 Workflow graph
-= image_tag workflow_graph_path
+- @root_steps.each do |root_step|
+  %h2= "Workflow starting from step (s#{root_step.id}) #{root_step.label}"
+  = image_tag map_graph_path(root_step)

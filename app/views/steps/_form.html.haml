@@ -1,3 +1,5 @@
+-# pretty_json = JSON.pretty_generate(@step.params)
+-# pretty_json = @step.params.to_yaml
 = form_for @step, :as => :step do |f|
   -if @step.errors.any?
     #error_explanation
@@ -14,7 +16,8 @@
     = f.text_area :description, :rows => 2
   .field
     = f.label :params
-    = f.text_area :params, :rows => 2
+    = f.text_area :params_json, :rows => 16
+    =# text_area_tag :params, pretty_json, :rows => 5
   .field
     = f.label :class
     = f.select :type, STEP_CLASSES, {:include_blank => true}

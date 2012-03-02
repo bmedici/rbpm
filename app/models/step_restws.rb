@@ -8,12 +8,7 @@ class StepRestws < Step
     :note
   end
   
-  def run
-  end
-  
-  private
-  
-  def check_params
+  def run(current_run, current_action)
   end
   
 end

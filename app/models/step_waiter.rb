@@ -8,13 +8,12 @@ class StepWaiter < Step
     :note
   end
 
-  def run
+  def run(current_run, current_action)
     # Init
-    check_params
     puts "        - StepWaiter.run start"
     
     # Execute
-    delay = params.to_f
+    delay = params['time'].to_f
     puts "        - waiting (#{delay}) seconds"
     sleep delay
     
@@ -23,10 +22,8 @@ class StepWaiter < Step
     return 0, "waited #{delay} seconds"
   end
   
-  private
-  
-  def check_params
-    return 1 if is_numeric? params
+  def validate_params?
+    return 1 unless is_numeric? params['time']
     return false
   end
   

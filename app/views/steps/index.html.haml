@@ -5,20 +5,23 @@
   %tr
     %th ID
     %th Label
-    %th Description
     %th Prev steps
     %th Next steps
     %th Class
-    %th Params
-    %th
-    %th
     %th
 
   - @steps.each do |step|
+    - has_subrow = !step.params.blank?
     %tr
-      %td= "s#{step.id}"
-      %td= step.label
-      %td= step.description
+      %td{:rowspan => (has_subrow ? 2 : 1)}
+        = "s#{step.id}"
+      %td{:rowspan => (has_subrow ? 2 : 1)}
+        = link_to step.label, edit_step_path(step)
+        %br
+        %sub
+          %i
+            = step.description
+        
       %td
         - step.previouses.each do |p|
           %li= p.label
@@ -26,10 +29,17 @@
         - step.nexts.each do |n|
           %li= n.label
       %td= step.type
-      %td= step.params
-      %td= link_to 'Show', step
-      %td= link_to 'Edit', edit_step_path(step)
-      %td= link_to 'Destroy', step, :confirm => 'Are you sure?', :method => :delete
+      %td{:rowspan => (has_subrow ? 2 : 1)}
+        =# link_to 'Show', step
+        = link_to 'edit', edit_step_path(step)
+        |
+        = link_to 'destroy', step, :confirm => 'Are you sure?', :method => :delete
+    - unless step.params.blank?
+      %tr
+        %td{:colspan => 4}
+          %b
+            params
+          = step.params.to_json
       
 %br
 = link_to 'New Step', new_step_path

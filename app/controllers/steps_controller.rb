@@ -1,8 +1,8 @@
 class StepsController < ApplicationController
 
-
   def index
-    @steps = Step.all
+    @steps = Step.includes(:links, :nexts, :previouses)
+    #@steps = Step..all
 
     respond_to do |format|
       format.html # index.html.erb
@@ -53,7 +53,9 @@ class StepsController < ApplicationController
 
     respond_to do |format|
       if @step.update_attributes(params[:step])
-        format.html { redirect_to steps_path, :notice => 'Step was successfully updated.' }
+        #format.html { render :action => "edit" }
+        format.html { render :action => "edit" }
+        #format.html { redirect_to edit_step_path(@step), :notice => 'Step was successfully updated.' }
         format.json { head :ok }
       else
         format.html { render :action => "edit" }

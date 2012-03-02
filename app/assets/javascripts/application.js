@@ -13,7 +13,8 @@ $.fn.reloadSrc = function(){
 var $this = $(this);
 var src = $this.attr("src");
 if(src != undefined){
-$this.attr("src", src + (src.indexOf('?') >= 0 ? "&" : "?") + "tq=" + (new Date()).getTime());
+//$this.attr("src", src + (src.indexOf('?') >= 0 ? "&" : "?") + "tq=" + (new Date()).getTime());
+$this.attr("src", src);
 }
 }
 

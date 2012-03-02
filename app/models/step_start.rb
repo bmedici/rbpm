@@ -4,12 +4,7 @@ class StepStart < Step
     '#F8F087'
   end
   
-  def run
+  def run(current_run, current_action)
   end
-  
-  private
-  
-  def check_params
-  end
-  
+
 end

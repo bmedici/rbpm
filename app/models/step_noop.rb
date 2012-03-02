@@ -8,9 +8,9 @@ class StepNoop < Step
     :box
   end
   
-  def run
+  def run(current_run, current_action)
     puts "        - StepNoop.run doing nothing as expected"
-    return 1, "done nothing, and did it right"
+    return 0, "done nothing, and did it right"
   end
   
 end

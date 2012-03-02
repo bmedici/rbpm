@@ -1,1 +1,1 @@
-STEP_CLASSES = %w(StepGeturl StepNoop StepRestws StepStart StepWaiter StepJoin)
+STEP_CLASSES = %w(StepGeturl StepNoop StepRestws StepStart StepWaiter StepJoin StepFailer)

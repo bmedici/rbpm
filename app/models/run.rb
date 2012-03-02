@@ -1,6 +1,7 @@
 class Run < ActiveRecord::Base
   belongs_to :start_step, :class_name => 'Step'
   has_many :actions, :dependent => :destroy
+  has_many :vars, :dependent => :destroy
 
   def execute_step(step)
     # Init
@@ -11,31 +12,36 @@ class Run < ActiveRecord::Base
     #action.active = true
     action.save
 
+    # Validate step parameters
+    if step.validate_params?
+      puts "    - s#{step.id}: exiting: error with step parameters" 
+      action.retcode = "-1"
+      action.output = "exiting: error with step parameters"
+      action.save
+      return
+    end
+
     # Run this step
-    puts "    - action (a#{action.id}): running step (s#{self.id})"
-    retcode, output = step.run
+    puts "    - s#{step.id}: created action (a#{action.id})"
+    action.retcode, action.output = step.run(self, action)
 
     # Closing action
-    # End
     action.completed_at = Time.now
-    #action.active = false
-    action.retcode = retcode
-    action.output = output
     action.save
 
     # Loop through next links and follow them
-    puts "    - step (s#{step.id}) has (#{step.nexts.size}) next steps"
+    puts "    - s#{step.id}: step has (#{step.nexts.size}) next steps"
     threads = [] 
     step.nexts.each do |next_step|
       # Evaluate conditions if any
       
       # Fork for each of the threads
       threads << Thread.new() {
-        puts "    - threading to execute step (s#{next_step.id}) (s#{next_step.id}) #{next_step.label}"
+        puts "    - s#{step.id}: threading to execute (s#{next_step.id}) #{next_step.label}"
 
         # Recurse to this sub-step
         self.execute_step(next_step)
-        puts "    - thread ending for step (s#{next_step.id})"
+        puts "    - s#{step.id}: thread ending for (s#{next_step.id})"
         }
 
     end
@@ -44,7 +50,7 @@ class Run < ActiveRecord::Base
     threads.map { |thread| thread.join}      
 
     # Finished
-    puts "- finished with step (s#{step.id})"
+    puts "- s#{step.id}: finished"
   end
   
 end
