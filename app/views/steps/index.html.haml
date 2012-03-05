@@ -8,38 +8,36 @@
     %th Prev steps
     %th Next steps
     %th Class
+    %th Params
+    %th
     %th
 
   - @steps.each do |step|
-    - has_subrow = !step.params.blank?
     %tr
-      %td{:rowspan => (has_subrow ? 2 : 1)}
+      %td
         = "s#{step.id}"
-      %td{:rowspan => (has_subrow ? 2 : 1)}
+      %td
         = link_to step.label, edit_step_path(step)
         %br
-        %sub
-          %i
-            = step.description
+        %small
+          = step.description
         
       %td
         - step.previouses.each do |p|
-          %li= p.label
+          = p.label
+          %br
       %td
         - step.nexts.each do |n|
-          %li= n.label
+          = n.label
+          %br
       %td= step.type
-      %td{:rowspan => (has_subrow ? 2 : 1)}
-        =# link_to 'Show', step
+      %td
+        %small
+          = step.pretty_json
+      %td
         = link_to 'edit', edit_step_path(step)
-        |
+      %td
         = link_to 'destroy', step, :confirm => 'Are you sure?', :method => :delete
-    - unless step.params.blank?
-      %tr
-        %td{:colspan => 4}
-          %b
-            params
-          = step.params.to_json
       
 %br
 = link_to 'New Step', new_step_path

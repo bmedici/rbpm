@@ -10,7 +10,7 @@
 table td {
   border: 1px solid silver;
   margin: 0;
-  padding: 4px 10px;
+  padding: 3px 6px;
   vertical-align: top;
   }
 
@@ -39,6 +39,12 @@ table.twocols tr td.second {
   vertical-align: top;
   }
 
-  
-  
-  
+/*
+.largecol {
+  width: 400px;
+}
+*/
+
+.nowrap {
+  white-space: nowrap;
+}

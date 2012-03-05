@@ -3,12 +3,13 @@
 
 %table
   %tr
-    %th ID
-    %th Start
+    %th Run
+    %th Step
     %th Created
     %th Updated
     %th Completed
     %th Actions
+    %th
     %th
 
   - @runs.each do |run|
@@ -34,16 +35,13 @@
         - run.actions.order('id DESC').each do |action|
           %b
             = my_datetime action.created_at
-          = " "
-          = "(s#{action.step.id}) #{action.step.label}" 
+          = " (s#{action.step.id}) #{action.step.label}" 
           %br
           
       %td
         = link_to 'show', run
-        |
-        =# link_to 'Edit', edit_run_path(run)
+      %td
         = link_to 'destroy', run, :confirm => 'Are you sure?', :method => :delete
 
-%br
 
 = link_to 'New Run', new_run_path

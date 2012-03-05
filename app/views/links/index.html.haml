@@ -4,21 +4,24 @@
 %table
   %tr
     %th ID
+    %th Label
     %th Coming from
     %th Going to
-    %th Label
+    %th
     %th
 
   - @links.each do |link|
     %tr
       %td= "l#{link.id}"
+      %td
+        - unless link.label.blank?
+          = link_to link.label, edit_link_path(link)
       %td= link.step.label unless link.step.nil?
       %td= link.next.label unless link.next.nil?
-      %td= link.label
       -#%td= link_to 'Show', link
       %td
         = link_to 'edit', edit_link_path(link)
-        |
+      %td
         = link_to 'destroy', link, :confirm => 'Are you sure?', :method => :delete
 
 %br

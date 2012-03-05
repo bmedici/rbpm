@@ -49,6 +49,10 @@ class Step < ActiveRecord::Base
     return !(self.params.is_a? Hash)
   end
 
+  def pretty_json
+    self.params_json
+  end
+
   protected 
 
   def init_params    
