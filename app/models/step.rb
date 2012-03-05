@@ -7,7 +7,9 @@ class Step < ActiveRecord::Base
   serialize :params, JSON
   #before_save :json_serialize  
   #after_save  :json_deserialize
-  after_find  :init_params
+  #after_find  :init_params
+  #after_create  :init_params
+  after_initialize  :init_params
   
   attr_accessible :type, :label, :description, :params_yaml, :params_json
 
@@ -31,7 +33,8 @@ class Step < ActiveRecord::Base
   
   
   # Steps where no link are pointing TO them
-  scope :roots, joins('LEFT OUTER JOIN links ON links.next_id = steps.id').where(:links => {:step_id => nil}).order(:id)
+  #scope :roots, joins('LEFT OUTER JOIN links ON links.next_id = steps.id').where(:links => {:step_id => nil}).order(:id)
+  scope :roots, where(:type => StepStart).order(:id)
   
   
   def self.select_options
@@ -56,7 +59,8 @@ class Step < ActiveRecord::Base
   def params_yaml    
     self.params.to_yaml
   end
-  def params_json  
+  def params_json
+    #self.params ||= {}
     JSON.pretty_generate(self.params)
   end
   def params_yaml=(text)    
@@ -70,6 +74,8 @@ class Step < ActiveRecord::Base
         self.params = parsed
     end
   end
+  
+  
   # 
   # def json_serialize    
   #   self.attributes[:params] = self.params.to_json

@@ -44,6 +44,26 @@
 = image_tag run_graph_path, :class => map_class
 %br
 
+
+%h3 Variables
+%table
+  %tr
+    %th Name
+    %th Value
+    %th Created
+    %th Updated
+    %th at step
+    %th at action
+  - @vars.each do |var|
+    %tr
+      %td= var.name
+      %td= var.value
+      %td= my_datetime var.created_at
+      %td= my_datetime var.updated_at
+      %td= "s#{var.step.id} #{var.step.label}"  unless var.step.nil?
+      %td= "a#{var.action.id}" unless var.action.nil?
+%br
+
 %h3 Actions
 %table
   %tr
@@ -63,25 +83,6 @@
       %td= my_datetime action.completed_at
       %td= action.retcode
       %td= action.output
-%br
-
-%h3 Variables
-%table
-  %tr
-    %th Name
-    %th Value
-    %th Created
-    %th Updated
-    %th at step
-    %th at action
-  - @vars.each do |var|
-    %tr
-      %td= var.name
-      %td= var.value
-      %td= my_datetime var.created_at
-      %td= my_datetime var.updated_at
-      %td= "s#{var.step.id} #{var.step.label}" 
-      %td= "a#{var.action.id}" 
 %br
 
 

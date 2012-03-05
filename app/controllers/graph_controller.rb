@@ -17,11 +17,14 @@ class GraphController < ApplicationController
 
   def run
     # Fin the current run
-    run = Run.includes(:actions).find(params[:id])
+    run = Run.find(params[:id])
+    
+    all_run_actions_sorted_by_id = run.actions.order('id ASC')
     
     # Browse actions and sort by status
+    # FIXME: the latest action on a specific step overrides the data for the same previous instance of this step
     step_attributes = []
-    run.actions.each do |action|
+    all_run_actions_sorted_by_id.each do |action|
       if action.retcode.to_i >0
         border_color = COLOR_FAILED
       elsif action.completed_at.nil?
@@ -129,10 +132,11 @@ protected
   #   File.unlink(tempfile.path)
   end
 
-  def map_sub_graph_recurse(g, step_id, step_attributes=nil)
+  def map_sub_graph_recurse(g, step_id, step_attributes, step_history = [])
     # Default values
     pen_width = nil
     border_color = nil
+    step_history ||= []
     
     # Read this step
     step = Step.includes(:links).find(step_id)
@@ -157,8 +161,15 @@ protected
     
     # Do the same job for every child of this node
     step.links.each do |next_link|
+      # Skip if this node has already been added
+      next if step_history.include? next_link.id
+
+      # Add this step to the step history
+      step_history << next_link.id
+      step_history.uniq!
+
       # Handle the next step
-      next_step_node = map_sub_graph_recurse(g, next_link.next_id, step_attributes)
+      next_step_node = map_sub_graph_recurse(g, next_link.next_id, step_attributes, step_history)
 
       # Add a link between the current step and the newly created step
       g.add_edge(current_step_node, next_step_node, :label => next_link.label.to_s)

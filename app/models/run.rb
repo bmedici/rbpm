@@ -2,6 +2,8 @@ class Run < ActiveRecord::Base
   belongs_to :start_step, :class_name => 'Step'
   has_many :actions, :dependent => :destroy
   has_many :vars, :dependent => :destroy
+  
+  #scope :latest_actions, includes(:actions)
 
   def execute_step(step)
     # Init
@@ -51,6 +53,25 @@ class Run < ActiveRecord::Base
 
     # Finished
     puts "- s#{step.id}: finished"
+  end
+  
+  def set_var(name, value, step = nil, action = nil)
+    #step_id = step.id unless step.nil?
+    #action_id = step.id unless action.nil?
+    #action_id = action.id unless action.nil?
+    #self.vars.find_or_create_by_name_and_run_id(name, run_id, :value => match.to_s, :action => action_id)
+    var = self.vars.find_or_create_by_name(name.to_s, :value => value.to_s, :step => step, :action => action)
+    var.value = value.to_s
+    var.step = step
+    var.action = action
+    var.save
+    return var
+  end
+  
+  def get_var(name)
+    #run_id = run.id unless run.nil?
+    record = self.vars.find_by_name(name)
+    return record[:value] unless record.nil?
   end
   
 end

@@ -3,6 +3,8 @@ class Action < ActiveRecord::Base
   belongs_to :run
   has_many :vars, :dependent => :destroy
   
+  scope :latest, group(:step_id).order('id DESC')
+  
   # def run
   #   #self.started_at = TIme.now
   #   #self.running = true

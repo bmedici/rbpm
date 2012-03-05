@@ -10,18 +10,16 @@ class StepGeturl < Step
   end
   
   def run(current_run, current_action)
-    #url = params[:url]
-    # Prepare connection
-    #uri = URI(params)
-    puts "        - getting #{self.params['url']}"
+    # Prepare the resource
     resource = RestClient::Resource.new self.params['url'], :user => self.params['user'], :password => self.params['password']
 
     # Get the data
+    puts "        - getting #{self.params['url']}"
     body = resource.get
     puts "        - received (#{body.size}) bytes"
     
     # Parse the XML response
-    xml_grab = params['grab']
+    xml_grab = params['grab_with_xpath']
     
     # Parse as XML only if GRAB is a hash
     if xml_grab.is_a? Hash
@@ -39,7 +37,9 @@ class StepGeturl < Step
       
         unless match.nil?
           #var = self.vars.find_or_create_by_name(variable, :value => match.to_s, :run => run, :action => action)
-          var = self.vars.find_or_create_by_name_and_run_id(variable, current_run.id, :value => match.to_s, :action => current_action)
+          #self.set_var(variable, match.to_s, current_run, current_action)
+          current_run.set_var(variable, match.to_s, self, current_action)
+          #var = self.vars.find_or_create_by_name_and_run_id(variable, current_run.id, :value => match.to_s, :action => current_action)
           puts "          matched (#{match}) to variable (v#{var.id})"
         end
       end
