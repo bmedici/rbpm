@@ -1,5 +1,8 @@
-- @sidebar = 'authoring'
+-# @sidebar = 'authoring'
 %h1 Listing links
+= link_to 'new link', new_link_path
+%br
+%br
 
 %table
   %tr
@@ -23,6 +26,3 @@
         = link_to 'edit', edit_link_path(link)
       %td
         = link_to 'destroy', link, :confirm => 'Are you sure?', :method => :delete
-
-%br
-= link_to 'New Link', new_link_path

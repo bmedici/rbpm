@@ -1,5 +1,8 @@
-- @sidebar = 'authoring'
+-# @sidebar = 'authoring'
 %h1 Listing steps
+= link_to 'new step', new_step_path
+%br
+%br
 
 %table
   %tr
@@ -40,4 +43,3 @@
         = link_to 'destroy', step, :confirm => 'Are you sure?', :method => :delete
       
 %br
-= link_to 'New Step', new_step_path

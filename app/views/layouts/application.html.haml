@@ -31,11 +31,14 @@
           %a.brand{:href => "#"}Rbpm
           .container.nav-collapse
             %ul.nav
-              %li= link_to "authoring", workflow_status_path
-              %li= link_to "execution", runs_path
+              %li= link_to "workflows", workflow_status_path
+              %li= link_to "steps", steps_path
+              %li= link_to "links", links_path
+              %li= link_to "-"
+              %li= link_to "runs", runs_path
+
 
     .container
-
       .content
         .row
           - if @sidebar.nil?
