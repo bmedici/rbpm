@@ -18,5 +18,9 @@
     = f.label :next
     %br
     = f.select :next_id, @steps, { :include_blank => '' }, :class => "large_field"
+  .field
+    = f.label 'Condition (ruby code, use vars[:name])'
+    = f.text_area :condition, :rows => 20
+    =# text_area_tag :params, pretty_json, :rows => 5
   .actions
     = f.submit

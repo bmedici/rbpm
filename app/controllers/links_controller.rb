@@ -2,7 +2,7 @@ class LinksController < ApplicationController
   before_filter :options_for_steps, :only => [:new, :edit, :index, :update, :create]
 
   def index
-    @links = Link.includes(:step, :next)
+    @links = Link.includes(:step, :next).order(:step_id, :next_id)
 
     respond_to do |format|
       format.html # index.html.erb
@@ -74,7 +74,7 @@ private
 
   def options_for_steps
     #@steps = Step.find(:all, :order =>  'label ASC').collect {|j| [ "#{j.label} (#{j.id})", j.id ] }
-    @steps = Step.find(:all, :order =>  'label ASC').collect {|j| [ "#{j.label} (s#{j.id})", j.id ] }
+    @steps = Step.find(:all, :order =>  'id ASC').collect {|j| [ "s#{j.id} - #{j.label}", j.id ] }
   end
 
 end

@@ -2,43 +2,44 @@
 %h1 Listing runs
 
 %table
-  %tr
-    %th Run
-    %th Step
-    %th Created
-    %th Updated
-    %th Completed
-    %th Actions
-    %th
-    %th
-
-  - @runs.each do |run|
+  %thead
     %tr
-      %td= "r#{run.id}"
-      %td= "s#{run.start_step_id}"
-      %td
-        = my_datetime run.created_at
-        %br
-        %i= seconds_ago(Time.now - run.created_at)
-      %td
-        = my_datetime run.updated_at
-        %br
-        %i= seconds_ago(Time.now - run.updated_at)
-      %td
-        - if run.completed_at.nil?
-          ="-"
-        - else
-          = my_datetime run.completed_at
+      %th ID
+      %th Step
+      %th Created
+      %th Updated
+      %th Completed
+      %th Actions
+      %th
+      %th
+  %tbody
+    - @runs.each do |run|
+      %tr
+        %td= "r#{run.id}"
+        %td= "s#{run.start_step_id}"
+        %td
+          = my_datetime run.created_at
           %br
-          %i= "took #{run.completed_at - run.created_at}s"
-      %td
-        - run.actions.order('id DESC').each do |action|
-          %b
-            = my_datetime action.created_at
-          = " (s#{action.step.id}) #{action.step.label}" 
+          %i= seconds_ago(Time.now - run.created_at)
+        %td
+          = my_datetime run.updated_at
           %br
+          %i= seconds_ago(Time.now - run.updated_at)
+        %td
+          - if run.completed_at.nil?
+            ="-"
+          - else
+            = my_datetime run.completed_at
+            %br
+            %i= "took #{run.completed_at - run.created_at}s"
+        %td
+          - run.actions.order('id DESC').each do |action|
+            %b
+              = my_datetime action.created_at
+            = " (s#{action.step.id}) #{action.step.label}" 
+            %br
           
-      %td
-        = link_to 'show', run
-      %td
-        = link_to 'destroy', run, :confirm => 'Are you sure?', :method => :delete
+        %td
+          = link_to 'show', run
+        %td
+          = link_to 'destroy', run, :confirm => 'Are you sure?', :method => :delete

@@ -45,6 +45,13 @@ table.twocols tr td.second {
 }
 */
 
+.step {
+  border: 1px solid gray;
+  width: 100px;
+  height: 60px;
+  display: block;
+}
+
 .nowrap {
   white-space: nowrap;
 }

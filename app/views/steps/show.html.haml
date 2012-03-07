@@ -1,0 +1,13 @@
+%label{:class => "label"}= t("activerecord.attributes.step.label", :default => t("activerecord.labels.label", :default => "Label")) + ":"
+%p= @step.label
+%label{:class => "label"}= t("activerecord.attributes.step.description", :default => t("activerecord.labels.description", :default => "Description")) + ":"
+%p= @step.description
+%label{:class => "label"}= t("activerecord.attributes.step.params", :default => t("activerecord.labels.params", :default => "Params")) + ":"
+%p= @step.params
+%label{:class => "label"}= t("activerecord.attributes.step.type", :default => t("activerecord.labels.type", :default => "Type")) + ":"
+%p= @step.type
+
+.form-actions
+  = link_to "Back", steps_path, :class => 'btn'
+  = link_to "Edit", edit_step_path(@step), :class => 'btn'
+  = link_to "Delete", step_path(@step), :method => "delete", :confirm => "#{t("web-app-theme.confirm", :default => "Are you sure?")}", :class => 'btn'

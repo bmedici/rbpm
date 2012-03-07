@@ -6,7 +6,7 @@ require 'rexml/document'
 class StepGeturl < Step
 
   def color
-    '#C6B299'
+    '#B7E3C0'
   end
   
   def run(current_run, current_action)

@@ -5,41 +5,41 @@
 %br
 
 %table
-  %tr
-    %th ID
-    %th Label
-    %th Prev steps
-    %th Next steps
-    %th Class
-    %th Params
-    %th
-    %th
-
-  - @steps.each do |step|
+  %thead
     %tr
-      %td
-        = "s#{step.id}"
-      %td
-        = link_to step.label, edit_step_path(step)
-        %br
-        %small
-          = step.description
+      %th ID
+      %th Label
+      %th Prev steps
+      %th Next steps
+      %th Class
+      %th Params
+      %th
+      %th
+  %tbody
+
+    - @steps.each do |step|
+      %tr
+        %td
+          = "s#{step.id}"
+        %td
+          = link_to step.label, edit_step_path(step)
+          %br
+          %small
+            = step.description
         
-      %td
-        - step.previouses.each do |p|
-          = p.label
-          %br
-      %td
-        - step.nexts.each do |n|
-          = n.label
-          %br
-      %td= step.type
-      %td
-        %small
-          = step.pretty_json
-      %td
-        = link_to 'edit', edit_step_path(step)
-      %td
-        = link_to 'destroy', step, :confirm => 'Are you sure?', :method => :delete
-      
-%br
+        %td
+          - step.previouses.each do |p|
+            = p.label
+            %br
+        %td
+          - step.nexts.each do |n|
+            = n.label
+            %br
+        %td= step.type
+        %td
+          %small
+            = step.pretty_json
+        %td
+          = link_to 'edit', edit_step_path(step)
+        %td
+          = link_to 'destroy', step, :confirm => 'Are you sure?', :method => :delete

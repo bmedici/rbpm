@@ -1,6 +1,6 @@
 #require "json/ext"
 class Step < ActiveRecord::Base
-  COLORS = %w(#FFF4E3 #B8D0DD #DBBAE5)
+  COLORS = %w(#C6B299 #B8D0DD #DBBAE5)
 
   has_many :vars, :dependent => :destroy
   
@@ -34,7 +34,7 @@ class Step < ActiveRecord::Base
   
   # Steps where no link are pointing TO them
   #scope :roots, joins('LEFT OUTER JOIN links ON links.next_id = steps.id').where(:links => {:step_id => nil}).order(:id)
-  scope :roots, where(:type => StepStart).order(:id)
+  scope :roots, where(:type => StepStart)
   
   
   def self.select_options

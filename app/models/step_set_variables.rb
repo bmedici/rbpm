@@ -1,15 +1,14 @@
-class StepStart < Step
+class StepSetVariable < Step
 
   def color
-    '#F8F087'
+    '#FFF4E3'
   end
   
   def run(current_run, current_action)
     
     # Gather variables as mentionned in the configuration
-    param_set = params['set']
-    if param_set.is_a? Hash
-      param_set.each do |name, value|
+    if params.is_a? Hash
+      params.each do |name, value|
         puts "        - set variable (#{name}) to (#{value})"
         current_run.set_var(name, value, self, current_action)
         end    

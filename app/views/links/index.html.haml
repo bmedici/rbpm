@@ -5,24 +5,25 @@
 %br
 
 %table
-  %tr
-    %th ID
-    %th Label
-    %th Coming from
-    %th Going to
-    %th
-    %th
-
-  - @links.each do |link|
+  %thead
     %tr
-      %td= "l#{link.id}"
-      %td
-        - unless link.label.blank?
-          = link_to link.label, edit_link_path(link)
-      %td= link.step.label unless link.step.nil?
-      %td= link.next.label unless link.next.nil?
-      -#%td= link_to 'Show', link
-      %td
-        = link_to 'edit', edit_link_path(link)
-      %td
-        = link_to 'destroy', link, :confirm => 'Are you sure?', :method => :delete
+      %th ID
+      %th Coming from
+      %th Label
+      %th Going to
+      %th
+      %th
+  %tbody
+    - @links.each do |link|
+      %tr
+        %td= "l#{link.id}"
+        %td= "s#{link.step.id} - #{link.step.label}" unless link.step.nil?
+        %td
+          - unless link.label.blank?
+            = link_to link.label, edit_link_path(link)
+        %td= "s#{link.next.id} - #{link.next.label}" unless link.next.nil?
+        -#%td= link_to 'Show', link
+        %td
+          = link_to 'edit', edit_link_path(link)
+        %td
+          = link_to 'destroy', link, :confirm => 'Are you sure?', :method => :delete

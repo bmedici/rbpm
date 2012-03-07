@@ -1,1 +1,1 @@
-STEP_CLASSES = %w(StepGeturl StepNoop StepRestws StepStart StepWaiter StepJoin StepFailer StepWatchfolder StepHttpPost StepMd5)
+STEP_CLASSES = %w(StepGeturl StepNoop StepRestws StepStart StepWaiter StepJoin StepFailer StepWatchfolder StepHttpPost StepMd5 StepSetVariable)

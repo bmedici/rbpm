@@ -19,6 +19,7 @@ class GraphController < ApplicationController
     # Fin the current run
     run = Run.find(params[:id])
     
+    # Find all run actions associated to this run
     all_run_actions_sorted_by_id = run.actions.order('id ASC')
     
     # Browse actions and sort by status
@@ -213,12 +214,13 @@ protected
   def map_render(g)
     # Generate output to temp file
     tempfile = Tempfile::open( File.basename(__FILE__) )
-    g.output( :png => tempfile.path )
+    g.output( :svg => tempfile.path )
     
     # Send the generated file
     send_file(tempfile.path ,
                 :filename      =>  tempfile.path,
-                :type          =>  'image/png',
+                #:type          =>  'image/png',
+                :type          =>  'image/svg+xml',
                 :disposition  =>  'inline')
     
     # And finally, remove it

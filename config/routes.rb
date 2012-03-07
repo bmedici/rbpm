@@ -23,6 +23,7 @@ Rbpm::Application.routes.draw do
   #get "graph/map/:id" => "graph#map"
 
   get "status/workflow" => "status#workflow", :as => :workflow_status
+  get "status/editor" => "status#editor", :as => :workflow_editor
 
   root :to => 'status#workflow'
 
