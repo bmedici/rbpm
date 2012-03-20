@@ -7,7 +7,6 @@ gem 'capistrano'
 gem 'hirb'
 gem 'wirble'
 gem 'ruby-graphviz'
-gem 'delayed_job'
 
 # Views
 gem "haml-rails"

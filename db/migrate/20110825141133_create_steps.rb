@@ -3,7 +3,7 @@ class CreateSteps < ActiveRecord::Migration
     create_table :steps do |t|
       t.string :label
       t.text :description
-      t.text :params
+      t.text :params_old
       t.string :type
       t.timestamps
     end

@@ -1,9 +1,0 @@
-# Read about fixtures at http://api.rubyonrails.org/classes/Fixtures.html
-
-one:
-  start_step_id: 
-  completed_at: 2012-02-28 15:23:23
-
-two:
-  start_step_id: 
-  completed_at: 2012-02-28 15:23:23

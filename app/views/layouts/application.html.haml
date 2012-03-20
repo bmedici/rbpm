@@ -35,7 +35,7 @@
               %li= link_to "steps", steps_path
               %li= link_to "links", links_path
               %li= link_to "-"
-              %li= link_to "runs", runs_path
+              %li= link_to "jobs", jobs_path
 
 
     .container
@@ -53,6 +53,8 @@
                   = render :partial => "layouts/#{@sidebar}" unless @sidebar.blank?
     
       %footer
+        %br
+        %brand
         %p &copy; Bruno Medici 2011-2012
     /
       Le javascript

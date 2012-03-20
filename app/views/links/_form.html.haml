@@ -1,4 +1,4 @@
-= form_for(@link) do |f|
+= form_for @link, :as => :link do |f|
   - if @link.errors.any?
     #error_explanation
       %h2= pluralize(@link.errors.count, "error") + "prohibited this link from being saved"
@@ -19,8 +19,11 @@
     %br
     = f.select :next_id, @steps, { :include_blank => '' }, :class => "large_field"
   .field
-    = f.label 'Condition (ruby code, use vars[:name])'
-    = f.text_area :condition, :rows => 20
+    = f.label :class
+    = f.select :type, LINK_CLASSES, {:include_blank => false}
+  .field
+    = f.label 'Params (ruby code, use vars[:name])'
+    = f.text_area :params, :rows => 20
     =# text_area_tag :params, pretty_json, :rows => 5
   .actions
     = f.submit

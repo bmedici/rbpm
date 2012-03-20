@@ -1,5 +1,11 @@
 class StepWaiter < Step
   
+  def paramdef
+    {
+      :time => { :description => "Seconds to wait", :format => :number  },
+    }
+  end
+    
   def color
     '#E6D5C1'
   end
@@ -8,12 +14,13 @@ class StepWaiter < Step
     :note
   end
 
-  def run(current_run, current_action)
+  def run(current_job, current_action)
     # Init
     puts "        - StepWaiter.run start"
+    # Init
+    delay = self.pval(:time)
     
     # Execute
-    delay = params['time'].to_f
     puts "        - waiting (#{delay}) seconds"
     sleep delay
     
@@ -23,7 +30,7 @@ class StepWaiter < Step
   end
   
   def validate_params?
-    return 1 unless is_numeric? params['time']
+    return 1 unless is_numeric? self.pval(:time)
     return false
   end
   

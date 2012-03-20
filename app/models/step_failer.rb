@@ -8,7 +8,7 @@ class StepFailer < Step
     :box
   end
   
-  def run(current_run, current_action)
+  def run(current_job, current_action)
     puts "        - StepFailer.run failing as expected"
     return 1, "failed the perfect way"
   end

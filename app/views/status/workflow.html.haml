@@ -1,4 +1,12 @@
 -# @sidebar = 'authoring'
-- @root_steps.each do |root_step|
-  %h1= "From (s#{root_step.id}) #{root_step.label}"
-  = image_tag map_graph_path(root_step)
+%h1 Available workflows
+
+%ul
+  - @root_steps.each do |root_step|
+    %hr
+    - job = Job.new(:step => root_step)
+    = image_tag map_graph_path(root_step)
+    = form_for job do |f|
+      = f.hidden_field :step_id
+      = f.submit "Create job from #{root_step.label} (s#{root_step.id})"
+    

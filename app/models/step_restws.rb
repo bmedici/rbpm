@@ -11,14 +11,13 @@ class StepRestws < Step
     :note
   end
   
-  def run(current_run, current_action)
+  def run(current_job, current_action)
   
   end
   
   #private
   
   def validate_params?
-
     return false
   end
   

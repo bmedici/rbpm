@@ -9,7 +9,7 @@
     %tr
       %th ID
       %th Label
-      %th Prev steps
+      %th Ancestors
       %th Next steps
       %th Class
       %th Params
@@ -28,7 +28,7 @@
             = step.description
         
         %td
-          - step.previouses.each do |p|
+          - step.ancestors.each do |p|
             = p.label
             %br
         %td
@@ -37,8 +37,14 @@
             %br
         %td= step.type
         %td
-          %small
-            = step.pretty_json
+          - step.params.each do |p|
+            - if p.value.lines.count <= 1
+              = "#{p.name}: #{p.value}"
+              %br
+            - else
+              = p.name
+              %pre=p.value
+        -#%pre= JSON.pretty_generate(JSON::parse(step.params_old)) unless step.params_old.empty?
         %td
           = link_to 'edit', edit_step_path(step)
         %td

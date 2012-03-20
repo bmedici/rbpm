@@ -1,25 +1,50 @@
 -# pretty_json = JSON.pretty_generate(@step.params)
 -# pretty_json = @step.params.to_yaml
-= form_for @step, :as => :step do |f|
-  -if @step.errors.any?
-    #error_explanation
-      %h2= "#{pluralize(@step.errors.count, "error")} prohibited this step from being saved:"
-      %ul
-        - @step.errors.full_messages.each do |msg|
-          %li= msg
 
-  .field
-    = f.label :label
-    = f.text_field :label
-  .field
-    = f.label :description
-    = f.text_area :description, :rows => 2
-  .field
-    = f.label :params
-    = f.text_area :params_json, :rows => 16
-    =# text_area_tag :params, pretty_json, :rows => 5
-  .field
-    = f.label :class
-    = f.select :type, STEP_CLASSES, {:include_blank => true}
-  .actions
-    = f.submit 'Save'
+- if @step.errors.any?
+  #error_explanation
+    %h2= "#{pluralize(@step.errors.count, "error")} prohibited this step from being saved:"
+    %ul
+      - @step.errors.full_messages.each do |msg|
+        %li= msg
+
+= form_for @step, :as => :step do |f|
+  .row
+
+    .span3
+      .field
+        = f.label :label
+        = f.text_field :label
+      .field
+        = f.label :description
+        = f.text_area :description, :rows => 2
+      -#.field
+        =# f.label :params_old
+        =# f.text_area :params_json, :rows => 16
+        =# text_area_tag :params, pretty_json, :rows => 5
+      .field
+        = f.label :class
+        = f.select :type, STEP_CLASSES, {:include_blank => false}
+      -#.field
+        -#= f.label "Params (old values)"
+        -#%pre= JSON.pretty_generate(JSON::parse(@step.params_old)) unless @step.params_old.empty?
+      .actions
+        = f.submit 'Save'
+
+    .span7
+      = f.fields_for :params do |param|
+        - pdef = @step.pdef(param.object.name)
+        .row
+          .span3
+            %b= param.object.name
+          .span4
+            %b= param.object.name
+            = " - previous value"
+            
+        .row
+          .span3
+            = param.text_area :value, :rows => 10
+          .span4
+            %pre= param.object.value
+            %i= pdef[:description]
+          

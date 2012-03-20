@@ -4,6 +4,8 @@ class CreateLinks < ActiveRecord::Migration
       t.string :label
       t.references :step
       t.references :next
+      t.text :params, :null => false
+      t.string :type, :null => true
       t.timestamps
     end
   end

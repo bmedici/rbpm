@@ -1,16 +1,21 @@
 Rbpm::Application.routes.draw do
 
-  resources :runs
-  resources :actions
   resources :steps
   resources :links  
+  resources :jobs
+  resources :actions
   # See https://gist.github.com/1713398 for a more generic method
-  resources :steps
   
-  # Dynamically create resources for Step's
+  # Dynamically create resources for Steps
   STEP_CLASSES.each do |class_name|
     resource_name = class_name.underscore.pluralize.to_sym
     resources resource_name, :controller => :steps
+  end
+  
+  # Dynamically create resources for Links
+  LINK_CLASSES.each do |class_name|
+    resource_name = class_name.underscore.pluralize.to_sym
+    resources resource_name, :controller => :links
   end
 
   get "webservice/getdate"
@@ -19,9 +24,7 @@ Rbpm::Application.routes.draw do
   get "webservice/checksum"
 
   get "graph/map/:id" => "graph#map", :as => :map_graph
-  get "graph/run/:id" => "graph#run", :as => :run_graph
-  #get "graph/map/:id" => "graph#map"
-
+  get "graph/job/:id" => "graph#job", :as => :job_graph
   get "status/workflow" => "status#workflow", :as => :workflow_status
   get "status/editor" => "status#editor", :as => :workflow_editor
 

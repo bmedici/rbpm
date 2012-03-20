@@ -51,7 +51,8 @@ class LinksController < ApplicationController
 
     respond_to do |format|
       if @link.update_attributes(params[:link])
-        format.html { redirect_to links_url, :notice => 'Link was successfully updated.' }
+        format.html { render :action => "edit" }
+        #format.html { redirect_to links_url, :notice => 'Link was successfully updated.' }
         format.json { head :ok }
       else
         format.html { render :action => "edit" }

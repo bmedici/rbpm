@@ -1,0 +1,49 @@
+-# @sidebar = 'execution'
+%h1 Listing jobs
+
+%table
+  %thead
+    %tr
+      %th ID
+      %th From
+      %th Created
+      %th Started
+      %th PID
+      %th Completed
+      %th Actions
+      %th
+      %th
+  %tbody
+    - @jobs.each do |job|
+      %tr
+        %td= "r#{job.id}"
+        %td= "s#{job.step_id}"
+        %td
+          = my_datetime job.created_at
+          %br
+          %i= seconds_ago(Time.now - job.created_at)
+        %td
+          - if job.started_at.nil?
+            ="-"
+          - else
+            = my_datetime job.started_at
+            %br
+            %i= seconds_ago(Time.now - job.started_at)
+        %td= job.locked
+        %td
+          - if job.completed_at.nil?
+            ="-"
+          - else
+            = my_datetime job.completed_at
+            %br
+            %i= "took #{job.completed_at - job.created_at}s"
+        %td
+          - job.actions.order('id DESC').each do |action|
+            %b
+              = my_datetime action.created_at
+            = " (s#{action.step.id}) #{action.step.label}" 
+            %br
+        %td
+          = link_to 'show', job
+        %td
+          = link_to 'destroy', job, :confirm => 'Are you sure?', :method => :delete

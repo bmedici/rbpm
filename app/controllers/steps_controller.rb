@@ -1,7 +1,7 @@
 class StepsController < ApplicationController
 
   def index
-    @steps = Step.includes(:links, :nexts, :previouses).order(:label)
+    @steps = Step.includes(:links, :nexts, :ancestors).order(:label)
     #@steps = Step..all
 
     respond_to do |format|
@@ -29,8 +29,7 @@ class StepsController < ApplicationController
   end
 
   def edit
-    @step = Step.find(params[:id])
-    #@step.becomes(Step)
+    @step = Step.includes(:params).find(params[:id])
   end
 
   def create

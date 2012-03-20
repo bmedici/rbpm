@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/Fixtures.html
+
+one:
+  references: 
+  references: 
+  references: 
+  name: MyString
+  value: MyString
+
+two:
+  references: 
+  references: 
+  references: 
+  name: MyString
+  value: MyString

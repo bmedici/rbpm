@@ -1,16 +1,25 @@
-class StepSetVariable < Step
+class StepSetVariables < Step
+
+  def paramdef
+    {
+      :set_vars => { :description => "Set this variables in the job's context", :format => :json },
+    }
+  end
 
   def color
     '#FFF4E3'
   end
   
-  def run(current_run, current_action)
+  def run(current_job, current_action)
     
     # Gather variables as mentionned in the configuration
-    if params.is_a? Hash
-      params.each do |name, value|
+    set_vars = self.pval(:set_vars)
+    
+    
+    if set_vars.is_a? Hash
+      set_vars.each do |name, value|
         puts "        - set variable (#{name}) to (#{value})"
-        current_run.set_var(name, value, self, current_action)
+        current_job.set_var(name, value, self, current_action)
         end    
       end  
 
@@ -18,5 +27,12 @@ class StepSetVariable < Step
     return 0, "done"
 
   end
+  
+  
+  def validate_params?
+    return 1 unless self.pval(:set_vars).is_a? Hash
+    return false
+  end
+  
 
 end

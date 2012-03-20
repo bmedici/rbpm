@@ -1,7 +1,9 @@
 class Action < ActiveRecord::Base
   belongs_to :step
-  belongs_to :run
+  belongs_to :job
   has_many :vars, :dependent => :destroy
+
+  has_many :job_vars, :through => :job
   
   scope :latest, group(:step_id).order('id DESC')
   

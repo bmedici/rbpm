@@ -11,18 +11,24 @@
       %th Coming from
       %th Label
       %th Going to
+      %th Class
+      %th Params
       %th
       %th
   %tbody
     - @links.each do |link|
       %tr
-        %td= "l#{link.id}"
+        %td= "k#{link.id}"
         %td= "s#{link.step.id} - #{link.step.label}" unless link.step.nil?
         %td
           - unless link.label.blank?
             = link_to link.label, edit_link_path(link)
         %td= "s#{link.next.id} - #{link.next.label}" unless link.next.nil?
         -#%td= link_to 'Show', link
+        %td= link.type
+        %td
+          %small
+            = link.pretty_json
         %td
           = link_to 'edit', edit_link_path(link)
         %td
