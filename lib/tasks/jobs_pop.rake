@@ -5,6 +5,8 @@ namespace :jobs do
     # Init args
     #args.with_defaults(:start_step_id => nil)
     
+    #raise Exceptions::JobFailedStepRun
+
     # Fetch the next runnable job
     job = Job.runnable.first
     if job.nil?
@@ -28,11 +30,22 @@ namespace :jobs do
     initial_vars = nil
     #ret = job.run_with_vars(initial_vars)
     #ret = job.run_from(job.step)
-    ret = job.run!
+    
+    begin
+      ret = job.run!
 
-    # It's done, unlock it
-    job.update_attributes(:locked => nil, :completed_at => Time.now)
-    puts "ENDING sucessfully"
+    rescue Exceptions::JobFailedParamError => exception
+      raise "EXITING: missing step parameter: #{exception.message}"
+
+    rescue Exceptions::JobFailedStepRun => exception
+      raise "EXITING: failed to run: #{exception.message}"
+
+    else
+      # It's done, unlock it, otherwise leave it like that
+      job.update_attributes(:locked => nil, :completed_at => Time.now)
+      puts "ENDING sucessfully"
+    end
+      
   end
 
 end  

@@ -13,6 +13,7 @@
       %th Actions
       %th
       %th
+      %th
   %tbody
     - @jobs.each do |job|
       %tr
@@ -47,3 +48,5 @@
           = link_to 'show', job
         %td
           = link_to 'destroy', job, :confirm => 'Are you sure?', :method => :delete
+        %td
+          = link_to 'reset', reset_job_path(job), :confirm => 'Are you sure?'

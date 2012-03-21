@@ -12,4 +12,16 @@ class Param < ActiveRecord::Base
   #   end
   # end
   
+  def value_format
+    # Try to parse JSON and format it
+    json = JSON::parse(self.value) rescue nil
+    return JSON.pretty_generate(json) unless json.nil?
+    
+    return self.value
+  end
+  
+  def value_format=(val)
+    self.value = val
+  end
+  
 end

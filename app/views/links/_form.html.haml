@@ -8,15 +8,12 @@
 
   .field
     = f.label :label
-    %br
     = f.text_field :label
   .field
     = f.label :step
-    %br
     = f.select :step_id, @steps, { :include_blank => '' }, :class => "large_field"
   .field
     = f.label :next
-    %br
     = f.select :next_id, @steps, { :include_blank => '' }, :class => "large_field"
   .field
     = f.label :class

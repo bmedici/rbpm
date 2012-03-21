@@ -20,10 +20,10 @@
     %link{:href => "images/apple-touch-icon-114x114.png", :rel => "apple-touch-icon", :sizes => "114x114"}/
 
 
-  %body
+  %body.fluid
     .navbar.navbar-fixed-top
       .navbar-inner
-        .container
+        .container-fluid
           %a.btn.btn-navbar{"data-target" => ".nav-collapse", "data-toggle" => "collapse"}
             %span.icon-bar
             %span.icon-bar
@@ -38,13 +38,12 @@
               %li= link_to "jobs", jobs_path
 
 
-    .container
+    .container-fluid
       .content
-        .row
-          - if @sidebar.nil?
-            .span12
-              = yield
-          - else
+        - if @sidebar.nil?
+          = yield
+        - else
+          .row
             .span10
               = yield
             .span2

@@ -5,7 +5,7 @@ class StepEnd < Step
   end
   
   def run(current_job, current_action)
-    return 0, "StepEnd"
+    return 0, "StepEnd done"
   end
 
 end

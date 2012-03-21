@@ -2,7 +2,7 @@ class StepSetVariables < Step
 
   def paramdef
     {
-      :set_vars => { :description => "Set this variables in the job's context", :format => :json },
+      :set_vars => { :description => "Set variables in current job", :format => :json },
     }
   end
 
@@ -24,15 +24,13 @@ class StepSetVariables < Step
       end  
 
     # Finished
-    return 0, "done"
+    return 0, "StepSetVariables done"
 
   end
   
-  
   def validate_params?
-    return 1 unless self.pval(:set_vars).is_a? Hash
+    return :set_vars unless self.pval(:set_vars).is_a? Hash
     return false
   end
-  
 
 end

@@ -18,7 +18,7 @@ class StepWaiter < Step
     # Init
     puts "        - StepWaiter.run start"
     # Init
-    delay = self.pval(:time)
+    delay = self.pval(:time).to_f
     
     # Execute
     puts "        - waiting (#{delay}) seconds"
@@ -30,7 +30,7 @@ class StepWaiter < Step
   end
   
   def validate_params?
-    return 1 unless is_numeric? self.pval(:time)
+    return :time unless is_numeric? self.pval(:time)
     return false
   end
   

@@ -24,7 +24,7 @@
         =# text_area_tag :params, pretty_json, :rows => 5
       .field
         = f.label :class
-        = f.select :type, STEP_CLASSES, {:include_blank => false}
+        = f.select :type_field, STEP_CLASSES, {:include_blank => false}
       -#.field
         -#= f.label "Params (old values)"
         -#%pre= JSON.pretty_generate(JSON::parse(@step.params_old)) unless @step.params_old.empty?
@@ -35,16 +35,18 @@
       = f.fields_for :params do |param|
         - pdef = @step.pdef(param.object.name)
         .row
-          .span3
-            %b= param.object.name
-          .span4
-            %b= param.object.name
-            = " - previous value"
+          .span7
+            %b= "#{param.object.name}"
+            - unless pdef.nil?
+              = " - #{pdef[:format]} - #{pdef[:description]}"
             
         .row
           .span3
-            = param.text_area :value, :rows => 10
+            - unless pdef.nil?
+              = param.text_area :value_format, :rows => 8
+            - else
+              ="N/A"
           .span4
-            %pre= param.object.value
-            %i= pdef[:description]
-          
+            - unless param.object.value.blank?
+              %pre= param.object.value 
+        %hr

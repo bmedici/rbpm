@@ -23,7 +23,7 @@ class Job < ActiveRecord::Base
   end
 
   def run!
-    self.run_from(self.step)
+    return self.run_from(self.step)
   end
   
   def set_var(name, value, step = nil, action = nil)
@@ -50,8 +50,6 @@ class Job < ActiveRecord::Base
     self.update_attributes(:completed_at => nil, :locked => nil)
   end
   
-  
-  
   protected
 
   def run_from(step)
@@ -66,28 +64,27 @@ class Job < ActiveRecord::Base
 
     # Preparing action
     action = self.actions.create(:step => step)
-    action.save
+    #action.save
 
     # Validate step parameters
-    if step.validate_params?
-      puts "    - s#{step.id}: EXITING: ERROR WITH STEP PARAMETERS" 
-      action.retcode = -1
-      action.output = "exiting: error with step parameters"
-      action.save
-      return
+    if validation_error = step.validate_params?
+      action.update_attributes(:retcode => -1, :output => "exiting: error with step parameters (#{validation_error})")
+      raise Exceptions::JobFailedParamError, "validate_params failed at s(#{step.id}) with (#{validation_error})"
+      #return false
     end
 
     # Run this step and close the action
     puts "    - s#{step.id}: running step in action (a#{action.id})"
-    action.retcode, action.output = step.run(self, action)
-    action.completed_at = Time.now
-    action.save
-    
+    retcode, output, locals = step.run(self, action)
+    action.update_attributes(:retcode => retcode, :output => output)
+
     # FIXME: let's assume that a failed run stops the whole process
-    unless action.retcode.zero?
-      puts "    - s#{step.id}: EXITING: RUN FAILED AND RETURNED (#{action.retcode}) #{action.output}" 
+    unless retcode.zero?
+      puts "    - s#{step.id}: STEP.RUN FAILED WITH (#{retcode}) #{output}"
       return
+      #raise Exceptions::JobFailedStepRun, "step.run failed with "
     end
+    action.update_attributes(:completed_at => Time.now)
 
     #################################
     ### FOLLOWING LINKS
@@ -110,7 +107,7 @@ class Job < ActiveRecord::Base
       blocking_threads << Thread.new() {
         next_step = link.next
         puts "    - s#{step.id} (#{link.type}): thread executing (s#{next_step.id}) #{next_step.label}"
-        self.run_from(next_step, nil)
+        self.run_from(next_step)
         puts "    - s#{step.id}: thread ending for (s#{next_step.id}) #{next_step.label}"
         }
       # remove this link from the stack
@@ -123,14 +120,18 @@ class Job < ActiveRecord::Base
       next_step = link.next
       puts "    - s#{step.id} (#{link.type}): pushing job (s#{next_step.id}) #{next_step.label}"
       
-      # Duplicate this job's vars
-      initial_vars = []
-      self.vars.each do |v|
-        initial_vars << Var.new(:name => v.name, :value => v.value)
+      # Prepare vars for the newly created job
+      if locals.is_a? Hash
+        initial_vars = locals.map{|name, value| Var.new(:name => name, :value => value)} 
+      else
+        initial_vars = []
       end
       
-      # Creating new standalone job
+      # Creating a new, standalone job
       job = Job.create(:step => next_step, :creator => "job.LinkFork(j#{self.id}, s#{step.id})", :vars => initial_vars)
+      puts "        - initial vars: locals.to_json"
+      puts "        - created job j#{job.id}"
+
     end unless typed_links['LinkFork'].nil?
     # FIXME
     typed_links['LinkFork'] = []
@@ -139,7 +140,7 @@ class Job < ActiveRecord::Base
     puts "    - s#{step.id}: blocking_threads.size=#{blocking_threads.size}"
     unless blocking_threads.size.zero?
       puts "    - s#{step.id}: waiting for blocking threads to complete"
-      blocking_threads.map { |thread| thread.join}
+      blocking_threads.map { |thread| thread.join }
     end
 
     # Handling all other links
@@ -163,7 +164,7 @@ class Job < ActiveRecord::Base
 
     # Finished
     puts "    - s#{step.id}: finished"
-    return action.retcode, action.output
+    return retcode, output
   end
 
 end

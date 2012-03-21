@@ -16,7 +16,4 @@ class StepJoin < Step
     return 0, "done"
   end
   
-  def validate_params?
-  end
-  
 end

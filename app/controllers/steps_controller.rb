@@ -1,7 +1,7 @@
 class StepsController < ApplicationController
 
   def index
-    @steps = Step.includes(:links, :nexts, :ancestors).order(:label)
+    @steps = Step.includes(:links, :nexts, :ancestors, :params).order(:label)
     #@steps = Step..all
 
     respond_to do |format|
@@ -37,7 +37,7 @@ class StepsController < ApplicationController
 
     respond_to do |format|
       if @step.save
-        format.html { redirect_to steps_path, :notice => 'Step was successfully created.' }
+        format.html { redirect_to (edit_step_path(@step)), :notice => 'Step was successfully created.' }
         format.json { render :json => @step, :status => :created, :location => @step }
       else
         format.html { render :action => "new" }
@@ -53,7 +53,7 @@ class StepsController < ApplicationController
     respond_to do |format|
       if @step.update_attributes(params[:step])
         #format.html { render :action => "edit" }
-        format.html { render :action => "edit" }
+        format.html { redirect_to (edit_step_path(@step)) }
         #format.html { redirect_to edit_step_path(@step), :notice => 'Step was successfully updated.' }
         format.json { head :ok }
       else

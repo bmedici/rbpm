@@ -4,12 +4,15 @@ class Step < ActiveRecord::Base
 
   has_many :params, :dependent => :destroy
   has_many :vars, :dependent => :destroy
-  #has_many :attributes, :class_name => 'Attribute', :primary_key => 'type', :foreign_key => 'type'
+  has_many :links  
+  has_many :nexts, :through => :links
+  has_many :ancestor_links, :class_name => "Link", :foreign_key => "next_id"  
+  has_many :ancestors, :through => :ancestor_links, :source => :step  
+  has_many :jobs
+  has_many :actions
   
-  #serialize :params, JSON
+  scope :roots, where(:type => StepStart)
   after_find  :init_missing_params!
-  
-  #attr_accessible :type, :label, :descriptionn, :params
   accepts_nested_attributes_for :params, :allow_destroy => true
   
  
@@ -49,42 +52,27 @@ class Step < ActiveRecord::Base
     end
     
   end
-  
 
   def pdef(name)
     return self.paramdef[name.to_sym]
   end
-  
-  #has_many :next_links, :class_name => 'Link', :foreign_key => :from_id
-  #has_many :children, :class_name => 'Step', :through => :next_links
-  has_many :links  
-  has_many :nexts, :through => :links
-  has_many :ancestor_links, :class_name => "Link", :foreign_key => "next_id"  
-  has_many :ancestors, :through => :ancestor_links, :source => :step  
-  has_many :jobs
-  has_many :actions
-  
-  
-  # Steps where no link are pointing TO them
-  #scope :roots, joins('LEFT OUTER JOIN links ON links.next_id = steps.id').where(:links => {:step_id => nil}).order(:id)
-  scope :roots, where(:type => StepStart)
-  
+
   def self.select_options
     sublclasses.map{ |c| c.to_s }.sort
   end
 
   def run(current_job, current_action)
     puts "        - Step.run ERROR: CANNOT RUN STEP BASE CLASS DIRECTLY"
+    raise StepFailedBaseClassCalled
   end
   
   def validate_params?
-    return !(self.params.is_a? Hash)
+    return false
   end
 
   def pretty_json
     self.params_json
   end
-  
   
   def init_missing_params!
     missing_params = self.paramdef.keys - self.params.map { |p| p.name.to_sym }
@@ -94,35 +82,13 @@ class Step < ActiveRecord::Base
   end
 
   protected 
-
-  def params_yaml    
-    self.params.to_yaml
-  end
-  def params_json
-    #self.params ||= {}
-    JSON.pretty_generate(self.params_old)
-  end
-  def params_yaml=(text)    
-    # self.params = YAML::parse(text)
-  end
-  def params_json=(text)  
-    # parsed = JSON::parse(text) rescue nil
-    # if (parsed.nil?)
-    #   errors.add :step, "malformed json data"  
-    # else
-    #     self.params = parsed
-    # end
-  end
   
-  # 
-  # def json_serialize    
-  #   self.attributes[:params] = self.params.to_json
-  # end
-  # 
-  # def json_deserialize
-  #   self.attributes[:params] = {}.to_json
-  #   self.params = JSON.parse(self.attributes[:params])
-  # end
+  def type_field
+    self.type
+  end
+  def type_field=(type)
+    self.type=type
+  end
 
   def is_numeric?(s)
       !!Float(s) rescue false

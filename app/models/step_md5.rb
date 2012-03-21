@@ -2,7 +2,8 @@ class StepMd5 < Step
 
   def paramdef
     {
-    :path_variable => { :description => "Name of the variable containing path to hash", :format => :text },
+    :path_variable => { :description => "Variable containing path to the file", :format => :text },
+    :result_variable => { :description => "Variable receiving the result", :format => :text },
     }
   end
 
@@ -12,6 +13,7 @@ class StepMd5 < Step
   def run(current_job, current_action)
     # Init
     path_variable = self.pval(:path_variable)
+    path_variable = self.pval(:result_variable)
     
     # Check for run context
     puts "        - StepMd5 starting"
@@ -39,7 +41,8 @@ class StepMd5 < Step
   #private
   
   def validate_params?
-    return 12 unless self.pval(:path_variable).is_a? Hash
+    return :path_variable unless self.pval(:path_variable).is_a? Hash
+    return :result_variable unless self.pval(:result_variable).is_a? Hash
     return false
   end
   

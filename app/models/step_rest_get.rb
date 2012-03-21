@@ -78,7 +78,7 @@ class StepRestGet < Step
   end
   
   def validate_params?
-    return 12 unless self.pval(:remote).is_a? Hash
+    return :remote unless self.pval(:remote).is_a? Hash
     return false
   end
   

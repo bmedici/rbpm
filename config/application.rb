@@ -42,6 +42,9 @@ module Rbpm
     # Configure sensitive parameters which will be filtered from the log file.
     config.filter_parameters += [:password]
 
+    # Include my libraries
+    config.autoload_paths += %W(#{Rails.root}/lib)
+
     # Enable the asset pipeline
     config.assets.enabled = true
   end

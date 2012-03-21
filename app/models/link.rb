@@ -28,7 +28,7 @@ class Link < ActiveRecord::Base
     self.params_json
   end
 
-  protected 
+  protected
 
   def init_params    
     self.params = {} if self.params.nil? 

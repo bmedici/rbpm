@@ -93,8 +93,8 @@ class StepRestPost < Step
   end
   
   def validate_params?
-    return 11 unless self.pval(:postvars).is_a? Hash
-    return 12 unless self.pval(:remote).is_a? Hash
+    return :postvars unless self.pval(:postvars).is_a? Hash
+    return :remote unless self.pval(:remote).is_a? Hash
     return false
   end
   

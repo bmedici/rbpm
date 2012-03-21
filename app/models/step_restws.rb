@@ -15,10 +15,4 @@ class StepRestws < Step
   
   end
   
-  #private
-  
-  def validate_params?
-    return false
-  end
-  
 end

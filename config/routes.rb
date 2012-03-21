@@ -2,7 +2,12 @@ Rbpm::Application.routes.draw do
 
   resources :steps
   resources :links  
-  resources :jobs
+  resources :jobs do
+    member do
+      get :reset
+    end
+  end
+  
   resources :actions
   # See https://gist.github.com/1713398 for a more generic method
   

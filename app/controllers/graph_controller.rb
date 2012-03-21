@@ -121,19 +121,19 @@ protected
   
   def map_prepare(with_timestamp = false)
     # Build new graph
-    g = GraphViz::new("G", :rankdir => "LR", :margin => "0,0", :path => GRAPHVIZ_BINPATH)
+    g = GraphViz::new("G", :rankdir => "LR", :margin => "0,0", :path => GRAPHVIZ_BINPATH, :splines => "lines")
     
     # set global node options
     #g.node[:color]    = "#ddaa66"
     g.node[:color]    = "#AAAAAA"
     g.node[:style]    = "filled"
     g.node[:shape]    = "box"
-    g.node[:penwidth] = "1"
+    g.node[:penwidth] = "0.75"
     g.node[:fontname] = "Trebuchet MS"
-    g.node[:fontsize] = "9"
+    g.node[:fontsize] = "8.5"
     g.node[:fillcolor]= "#ffeecc"
     g.node[:fontcolor]= "#775500"
-    g.node[:margin]   = "0.1"
+    g.node[:margin]   = "0.05"
 
     # set global edge options
     g.edge[:color]    = "#BBBBBB"
@@ -141,8 +141,9 @@ protected
     g.edge[:fontsize] = "8"
     g.edge[:fontcolor]= "#999999"
     g.edge[:fontname] = "Verdana"
+    g.edge[:decorate]      = false
     g.edge[:dir]      = "forward"
-    g.edge[:arrowsize]= "0.8"    
+    g.edge[:arrowsize]= "0.75"    
     
     # Timestamp
     g.add_node(Time.now.to_s(:db), :shape => :plaintext, :fillcolor => '#FFFFFF') if (with_timestamp)
@@ -154,6 +155,7 @@ protected
     # Generate output to temp file
     tempfile = Tempfile::open( File.basename(__FILE__) )
     g.output( :svg => tempfile.path )
+    #g.output( :png => tempfile.path )
     
     # Send the generated file
     send_file(tempfile.path ,

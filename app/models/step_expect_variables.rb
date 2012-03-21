@@ -38,7 +38,7 @@ class StepExpectVariables < Step
   end
 
   def validate_params?
-    return 11 unless self.pval(:vars).is_a? Hash
+    return :vars unless self.pval(:vars).is_a? Hash
     return false
   end
 
