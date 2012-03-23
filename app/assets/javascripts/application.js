@@ -21,7 +21,7 @@ $this.attr("src", src);
 function UpdateMap() {
 	$('.autorefresh').reloadSrc();
 	//alert('ok');
-  setTimeout(UpdateMap, 500);
+  setTimeout(UpdateMap, 1000);
 	}
 
 $(document).ready(function() {

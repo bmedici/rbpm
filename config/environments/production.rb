@@ -49,6 +49,8 @@ Rbpm::Application.configure do
   # Send deprecation notices to registered listeners
   config.active_support.deprecation = :notify
 
+  #GRAPH_AUTOUPDATE = 1.0
   GRAPHVIZ_BINPATH = '/usr/local/bin/'
-
+  RESTCLIENT_TIMEOUT = 90000000
+  
 end

@@ -5,7 +5,7 @@ class StepRestPost < Step
   
   def paramdef
     {
-    :postvars => { :description => "POST variables", :format => :json },
+    :postvars => { :description => "POST variables ($var for job's variables)", :format => :json },
     :remote => { :description => "Remote host address and credentials", :format => :json },
     :parse_xml => { :description => "Extract fields from XML response", :format => :json },
     :parse_json => { :description => "Extract fields from JSON response", :format => :json },
@@ -32,18 +32,22 @@ class StepRestPost < Step
     return 21, "depends on the run context to gather variables, no valid current_job given" if current_job.nil?
     
     # Gather variables as mentionned in the configuration
-    puts "        - post_variables set: preparing post valued from variables "
+    puts "        - post_variables set: evaluating values from variables "
     post_variables = {}
-    param_post_variables.each do |field_name, from_variable_name|
-      post_variables[field_name] = current_job.get_var(from_variable_name.to_s)
+    param_post_variables.each do |field_name, expression|
+      post_variables[field_name] = current_job.evaluate(expression)
+      #get_var(from_variable_name.to_s)
     end
+    
+    # FIXME: force "formats"
+    #post_variables['formats'] = {'f2' => 'out-f2.mpg', 'f3' => 'out-f3.mp4'}
 
     # Prepare the resource
     puts "        - working with url (#{remote['url']})"
-    resource = RestClient::Resource.new remote['url'], :user => remote['user'], :password => remote['password']
+    resource = RestClient::Resource.new remote['url'], :user => remote['user'], :password => remote['password'], :timeout => RESTCLIENT_TIMEOUT
 
     # Posting query
-    puts "        - posting with values (#{post_variables.to_json})"
+    puts "        - posting with values: #{post_variables.to_json}"
     response = resource.post post_variables
     puts "        - received (#{response.size}) bytes"
 

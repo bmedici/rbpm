@@ -9,7 +9,7 @@ class Job < ActiveRecord::Base
   
   #scope :latest_actions, includes(:actions)
   #scope :latest_actions, includes(:actions)
-  scope :not_locked, where('locked is NULL or NOT locked')
+  scope :not_locked, where(:locked => false)
   scope :not_completed, where(:completed_at => nil)
   scope :runnable, not_locked.not_completed.order(:id)
 
@@ -47,7 +47,18 @@ class Job < ActiveRecord::Base
   end
   
   def unlock!
-    self.update_attributes(:completed_at => nil, :locked => nil)
+    self.update_attributes(:completed_at => nil, :locked => false)
+  end
+  
+  def evaluate(expression)
+    #return     varname = expression.to_s.slice(1..-1)
+
+    if (expression.is_a? String) && (expression.chars.first == '$')
+      varname = expression.to_s.slice(1..-1)
+      return get_var(varname)
+    end
+
+    return expression
   end
   
   protected
@@ -69,7 +80,7 @@ class Job < ActiveRecord::Base
     # Validate step parameters
     if validation_error = step.validate_params?
       action.update_attributes(:retcode => -1, :output => "exiting: error with step parameters (#{validation_error})")
-      raise Exceptions::JobFailedParamError, "validate_params failed at s(#{step.id}) with (#{validation_error})"
+      raise Exceptions::JobFailedParamError, "validate_params failed at (s#{step.id}) with (#{validation_error})"
       #return false
     end
 
@@ -104,8 +115,9 @@ class Job < ActiveRecord::Base
     
     # Handling LinkBlocker links
     typed_links['LinkBlocker'].each do |link|
+      return if link.next_id.nil?
+      next_step = link.next
       blocking_threads << Thread.new() {
-        next_step = link.next
         puts "    - s#{step.id} (#{link.type}): thread executing (s#{next_step.id}) #{next_step.label}"
         self.run_from(next_step)
         puts "    - s#{step.id}: thread ending for (s#{next_step.id}) #{next_step.label}"
@@ -117,6 +129,7 @@ class Job < ActiveRecord::Base
     
     # Handling LinkFork links
     typed_links['LinkFork'].each do |link|
+      return if link.next_id.nil?
       next_step = link.next
       puts "    - s#{step.id} (#{link.type}): pushing job (s#{next_step.id}) #{next_step.label}"
       
@@ -146,8 +159,9 @@ class Job < ActiveRecord::Base
     # Handling all other links
     typed_links.each do |type, link_stack|
       link_stack.each do |link|
+        return if link.next_id.nil?
+        next_step = link.next
         nonblocking_threads << Thread.new() {
-          next_step = link.next
           puts "    - s#{step.id}: #{link.type}: thread executing (s#{next_step.id}) #{next_step.label}"
           self.run_from(next_step)
           puts "    - s#{step.id}: thread ending for (s#{next_step.id}) #{next_step.label}"
@@ -166,5 +180,7 @@ class Job < ActiveRecord::Base
     puts "    - s#{step.id}: finished"
     return retcode, output
   end
+  
+  
 
 end

@@ -91,6 +91,9 @@ protected
     
     # Do the same job for every child of this node
     step.links.each do |next_link|
+      # Skip if this link is weird and pointing nowhere
+      next if next_link.next_id.nil?
+
       # Skip if this node has already been added
       next if @step_history.include? next_link.id
 

@@ -11,10 +11,9 @@ class StepSetVariables < Step
   end
   
   def run(current_job, current_action)
-    
+
     # Gather variables as mentionned in the configuration
     set_vars = self.pval(:set_vars)
-    
     
     if set_vars.is_a? Hash
       set_vars.each do |name, value|

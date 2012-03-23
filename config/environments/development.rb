@@ -25,8 +25,9 @@ Rbpm::Application.configure do
 
   # Do not compress assets
   #config.assets.compress = false
-  config.assets.compress = true
+  config.assets.compress = false
   
-  
+  #GRAPH_AUTOUPDATE = 1.0
   GRAPHVIZ_BINPATH = '/usr/local/bin/'
+  RESTCLIENT_TIMEOUT = 90000000
 end
