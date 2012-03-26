@@ -15,7 +15,8 @@ class System < ActiveRecord::Base
     puts " - received (#{response.size}) bytes"
     
     # Parse JSON response
-    self.status_json = response
+    self.update_attributes(:status_json => response)
+    #self.status_json = response
     return self.status
   end
   

@@ -2,7 +2,7 @@ class WorkersController < ApplicationController
   # GET /workers
   # GET /workers.json
   def index
-    @workers = Worker.all
+    @workers = Worker.order('updated_at DESC')
 
     respond_to do |format|
       format.html # index.html.erb

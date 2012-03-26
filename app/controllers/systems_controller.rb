@@ -24,6 +24,14 @@ class SystemsController < ApplicationController
       
       # When building an ajax response, update the status before sending any reply
       format.json {
+        status = @system.update_status!
+        
+        # Chekc if we really got a valid reply
+        if status.empty?
+          render :json => @system.errors, :status => :unprocessable_entity and return 
+        end
+        
+        # Format the reply
         lines= []
         
         lines << @system.status['cpu_type'].to_s unless @system.status['cpu_type'].blank?
@@ -44,8 +52,6 @@ class SystemsController < ApplicationController
             :details => lines.join("<br>"),
             :timestamp => status['timestamp']
             }
-        else
-          render :json => @system.errors, :status => :unprocessable_entity
         end
         }
     end
