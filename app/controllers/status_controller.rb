@@ -14,6 +14,7 @@ class StatusController < ApplicationController
   
   def monitor
     Facter.loadfacts  
+    cpu_type = Facter.processor0 rescue '' + Facter.sp_cpu_type rescue ''
     
     # Build data response
     @json = {
@@ -23,7 +24,7 @@ class StatusController < ApplicationController
       :ipaddress => Facter.ipaddress,
       :uptime => Facter.uptime,
       :os => "#{Facter.operatingsystem} #{Facter.operatingsystemrelease}",
-      :cpu_type => Facter.sp_cpu_type,
+      :cpu_type => cpu_type,
       :architecture => "#{Facter.architecture} #{Facter.virtual}",
       :cpu_count => Facter.processorcount
     }
