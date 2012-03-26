@@ -15,11 +15,11 @@ class StatusController < ApplicationController
   def monitor
     # Build data response
     @json = {
+      :hostname => `hostname`.chomp,
       :timestamp => Time.now.to_f,
       :loadavg => CPU.load_avg.first,
-      :cpu_desc => "#{CPU.model} #{CPU.architecture}"  ,
-      :cpu_count => CPU.num_cpu.to_s,
-      :timestamp => Time.now.to_f
+      :cpu_desc => "#{CPU.model} #{CPU.architecture}",
+      :cpu_count => CPU.num_cpu.to_s
     }
 
     # Send reply
