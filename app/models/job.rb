@@ -2,6 +2,7 @@ class Job < ActiveRecord::Base
   belongs_to :step
   has_many :actions, :dependent => :destroy
   has_many :vars, :dependent => :destroy
+  belongs_to :worker
   
   accepts_nested_attributes_for :vars
   
@@ -9,9 +10,11 @@ class Job < ActiveRecord::Base
   
   #scope :latest_actions, includes(:actions)
   #scope :latest_actions, includes(:actions)
-  scope :not_locked, where(:locked => false)
+  scope :locked, where('worker_id IS NOT NULL')
+  scope :not_locked, where(:worker_id => nil)
   scope :not_completed, where(:completed_at => nil)
   scope :runnable, not_locked.not_completed.order(:id)
+  scope :failed, where('retcode IS NOT NULL and retcode<>0')
 
   def context=(initial_vars)
     return unless initial_vars.is_a? Hash
@@ -60,7 +63,7 @@ class Job < ActiveRecord::Base
 
     return expression
   end
-  
+    
   protected
 
   def run_from(step)
@@ -133,15 +136,19 @@ class Job < ActiveRecord::Base
       next_step = link.next
       puts "    - s#{step.id} (#{link.type}): pushing job (s#{next_step.id}) #{next_step.label}"
       
-      # Prepare vars for the newly created job
+      # Prepare vars for the newly created job, extract label if passed
       if locals.is_a? Hash
-        initial_vars = locals.map{|name, value| Var.new(:name => name, :value => value)} 
+        # Get a "locals" key of :label as the label 
+        job_label = locals[:label].to_s
+        # Create as many job.var's as needed
+        job_vars = locals.map{|name, value| Var.new(:name => name, :value => value)} 
       else
-        initial_vars = []
+        job_label = ""
+        job_vars = []
       end
       
       # Creating a new, standalone job
-      job = Job.create(:step => next_step, :creator => "job.LinkFork(j#{self.id}, s#{step.id})", :vars => initial_vars)
+      job = Job.create(:step => next_step, :creator => "job.LinkFork(j#{self.id}, s#{step.id})", :vars => job_vars, :label => job_label)
       puts "        - initial vars: locals.to_json"
       puts "        - created job j#{job.id}"
 

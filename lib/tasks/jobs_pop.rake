@@ -3,16 +3,19 @@ namespace :jobs do
 
   desc "Start process forward from step"
   task :pop, [] => [:environment] do |t, args|
-    # Init args
-    #args.with_defaults(:start_step_id => nil)
-
+    
     # Main loop
     puts "\e[H\e[2J"
     begin
 
+      # Register worker (in the main loop to be sure we are created again if deleted meanwhile)
+      pid = Process.pid
+      hostname = `hostname`.chomp
+      worker = Worker.find_or_create_by_hostname_and_pid(hostname, pid)
+      puts "registered as worker ##{worker.id} running with pid ##{pid}"
+
       # Fetch the next runnable job
-      print "waiting for a job to become runnable "
-      STDOUT.flush
+      puts "waiting for a job to become runnable "
       job = nil
 
       begin
@@ -27,19 +30,18 @@ namespace :jobs do
         # If the query returned anything, quickly lock it
         else
           # Now try to get the lock on this record
-          job.update_attributes(:locked => Process.pid, :started_at => Time.now)
+          job.update_attributes(:worker => worker, :started_at => Time.now)
 
           # And then double-check that we really own the lock
           job.reload
-          if (job.locked != Process.pid)
+          if (job.worker_id != worker.id)
             print "!"
             job = nil
           end
-          
 
         end
       end while job.nil?
-
+      
       # Run it
       # Parse args
       raise "EXITING: jobs:pop expects a starting step" if job.step.nil?
@@ -49,26 +51,32 @@ namespace :jobs do
       puts "##############################################################################"
 
       # Start the process execution on the root step
-      initial_vars = nil
-      #ret = job.run_with_vars(initial_vars)
-      #ret = job.run_from(job.step)
-    
       begin
         ret = job.run!
 
       rescue Exceptions::JobFailedParamError => exception
-        raise "EXITING: missing step parameter: #{exception.message}"
+        msg = "JobFailedParamError: #{exception.message}"
+        job.updated_attributes(:worker => nil, :errcode => -11 , :errmsg => msg)
+        raise "EXITING: #{msg}"
 
       rescue Exceptions::JobFailedStepRun => exception
-        raise "EXITING: failed to run: #{exception.message}"
+        msg = "JobFailedStepRun: #{exception.message}"
+        job.updated_attributes(:worker => nil, :errcode => -12 , :errmsg => msg)
+        raise "EXITING: #{msg}"
+
+      rescue Exceptions => exception
+        msg = "Exception: #{exception.message}"
+        job.updated_attributes(:worker => nil, :errcode => -1 , :errmsg => msg)
+        raise "EXITING: #{msg}"
 
       else
         # It's done, unlock it, otherwise leave it like that
-        job.update_attributes(:locked => nil, :completed_at => Time.now)
+        job.update_attributes(:worker => nil, :completed_at => Time.now)
         puts "ENDING sucessfully"
       end
 
       # Just have a resr for 1s
+      job.touch
       puts
       puts
       sleep 1

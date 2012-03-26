@@ -1,0 +1,21 @@
+%h1 Listing systems
+
+%table
+  %tr
+    %th Label
+    %th Monitor url
+    %th
+    %th
+    %th
+
+  - @systems.each do |system|
+    %tr
+      %td= system.label
+      %td= system.monitor_url
+      %td= link_to 'Show', system
+      %td= link_to 'Edit', edit_system_path(system)
+      %td= link_to 'Destroy', system, :confirm => 'Are you sure?', :method => :delete
+
+%br
+
+= link_to 'New System', new_system_path

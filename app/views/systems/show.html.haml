@@ -1,0 +1,45 @@
+%p#notice= notice
+
+.row
+  .span4
+    %p
+      %b Label:
+      = @system.label
+    %p
+      %b Monitor url:
+      = @system.monitor_url
+
+    = link_to 'Edit', edit_system_path(@system)
+    \|
+    = link_to 'Back', systems_path
+
+  .span4
+    %h3 Query result
+    %pre= JSON.pretty_generate(@data)  
+
+    %p
+      %b CPU description
+      = @data['cpu_desc']
+
+    %p
+      %b CPU count
+      = @data['cpu_count']
+
+    %p
+      %b Load average
+      = @data['loadavg']
+
+    %p
+      %b Load
+      = @load
+
+    %p
+      - load = @system.extract_load_percent(@data)
+      .progress
+        .bar{:style => "width: #{load}%"}
+          = "#{load} %"
+
+
+
+
+

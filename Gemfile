@@ -27,6 +27,9 @@ end
 # Use unicorn as the web server
 # gem 'unicorn'
 
+
+gem "sys-cpu"
+
 # To use debugger
 # gem 'ruby-debug'
 

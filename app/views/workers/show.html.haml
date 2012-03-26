@@ -1,0 +1,12 @@
+%p#notice= notice
+
+%p
+  %b Host:
+  = @worker.hostname
+%p
+  %b Pid:
+  = @worker.pid
+
+= link_to 'Edit', edit_worker_path(@worker)
+\|
+= link_to 'Back', workers_path

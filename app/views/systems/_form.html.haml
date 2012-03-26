@@ -1,0 +1,16 @@
+= form_for @system do |f|
+  -if @system.errors.any?
+    #error_explanation
+      %h2= "#{pluralize(@system.errors.count, "error")} prohibited this system from being saved:"
+      %ul
+        - @system.errors.full_messages.each do |msg|
+          %li= msg
+
+  .field
+    = f.label :label
+    = f.text_field :label
+  .field
+    = f.label :monitor_url
+    = f.text_field :monitor_url
+  .actions
+    = f.submit 'Save'

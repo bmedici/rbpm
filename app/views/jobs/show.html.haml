@@ -4,26 +4,29 @@
 =# link_to 'back', jobs_path
 %p#notice= notice
 
-=# 12 rows available here
+=# 12 cols available here
 .row
   .span5
-    %h3 Current status
+    %h3 Job description
     %table
+      %tr
+        %td Starting at step
+        - if @job.step.nil?
+          %td (unspecified)
+        - else
+          %td s#{@job.step.id}: #{@job.step.label}
+      %tr
+        %td Label
+        %td= @job.label
+      %tr
+        %td Creator
+        %td= @job.creator
       %tr
         %td Created at
         %td= @job.created_at
       %tr
         %td Completed at
         %td= @job.completed_at
-        %tr
-          %td Starting with step
-          - if @job.step.nil?
-            %td (unspecified)
-          - else
-            %td s#{@job.step.id}: #{@job.step.label}
-      %tr
-        %td Creator
-        %td= @job.creator
 
     %h3 Active actions
     - if @running_actions.empty?
@@ -65,7 +68,7 @@
           %td= "a#{var.action.id}" unless var.action.nil?
 
 
-%h3= "Status map for this job (#{status_label})"
+%h3= "Status map (#{status_label})"
 = image_tag job_graph_path(@job), :class => map_class
 
 %h3 Actions history

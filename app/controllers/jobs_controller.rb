@@ -46,7 +46,7 @@ class JobsController < ApplicationController
   # POST /jobs.json
   def create
     @job = Job.new(params[:job])
-    @job.creator = "manual.admin.workflow"
+    @job.creator = "manual.admin.workflows"
 
     respond_to do |format|
       if @job.save
@@ -89,7 +89,7 @@ class JobsController < ApplicationController
     @job = Job.find(params[:id])
     @job.vars.destroy_all
     @job.actions.destroy_all
-    @job.update_attributes(:completed_at => nil, :locked => nil)
+    @job.update_attributes(:completed_at => nil, :worker => nil)
     #render :text => 'done'
     redirect_to @job, :notice => 'Job was successfully reset'
   end

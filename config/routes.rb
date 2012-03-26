@@ -1,5 +1,9 @@
 Rbpm::Application.routes.draw do
 
+  resources :systems
+
+  resources :workers
+
   resources :steps
   resources :links  
   resources :jobs do
@@ -30,10 +34,12 @@ Rbpm::Application.routes.draw do
 
   get "graph/map/:id" => "graph#map", :as => :map_graph
   get "graph/job/:id" => "graph#job", :as => :job_graph
-  get "status/workflow" => "status#workflow", :as => :workflow_status
+  get "status/dashboard" => "status#dashboard", :as => :dashboard
+  get "status/workflows" => "status#workflows", :as => :workflows
   get "status/editor" => "status#editor", :as => :workflow_editor
+  get "monitor" => "status#monitor", :as => :monitor
 
-  root :to => 'status#workflow'
+  root :to => 'status#workflows'
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

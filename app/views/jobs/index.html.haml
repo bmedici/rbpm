@@ -5,21 +5,24 @@
   %thead
     %tr
       %th ID
-      %th From
+      %th Label / start step
       %th Created
       %th Started
-      %th PID
       %th Completed
+      %th Worker
       %th Actions
-      %th
       %th
       %th
       %th
   %tbody
     - @jobs.each do |job|
       %tr
-        %td= "r#{job.id}"
-        %td= "s#{job.step_id}"
+        %td= "j#{job.id}"
+        %td
+          - label = job.label.blank? ? "job ##{job.id}" : job.label
+          = link_to label, job
+          %br
+          %i= "(s#{job.step_id}) #{job.step.label}" unless job.step.nil?
         %td
           = my_datetime job.created_at
           %br
@@ -31,7 +34,6 @@
             = my_datetime job.started_at
             %br
             %i= seconds_ago(Time.now - job.started_at)
-        %td= job.locked
         %td
           - if job.completed_at.nil?
             ="-"
@@ -40,24 +42,18 @@
             %br
             %i= "took #{job.completed_at - job.created_at}s"
         %td
+          = link_to "w#{job.worker_id}", worker_path(job.worker_id) unless job.worker_id.nil?
+        %td
           - job.actions.order('id DESC').each do |action|
             %b
               = my_datetime action.created_at
             = " (s#{action.step.id}) #{action.step.label}" unless action.step.nil?
             %br
         %td
-          = link_to 'show', job
-        %td
           = link_to 'destroy', job, :confirm => 'Are you sure?', :method => :delete
         %td
           = link_to 'reset', reset_job_path(job), :confirm => 'Are you sure?'
         %td
-          - if job.locked.zero?
-            - if job.completed_at.nil?
-              = image_tag '/images/clock.png'
-            - else
-              = image_tag '/images/accept.png'
-          - else
-            = image_tag '/images/clock_red.png'
+          = image_tag status_image_path(job)
 
           

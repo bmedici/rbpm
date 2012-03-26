@@ -28,14 +28,17 @@
             %span.icon-bar
             %span.icon-bar
             %span.icon-bar
-          %a.brand{:href => "#"}Rbpm
+          = link_to "RBPM", dashboard_path, :class => "brand" 
           .container.nav-collapse
             %ul.nav
-              %li= link_to "workflows", workflow_status_path
+              %li= link_to "workflows", workflows_path
               %li= link_to "steps", steps_path
               %li= link_to "links", links_path
+              %li= link_to "systems", systems_path
               %li= link_to "-"
+              %li= link_to "dashboard", dashboard_path
               %li= link_to "jobs", jobs_path
+              %li= link_to "workers", workers_path
 
 
     .container-fluid

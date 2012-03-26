@@ -59,7 +59,7 @@ class StepWatchfolder < Step
     
     # Add detected filename to "locals" returned
     puts "        - StepWatchfolder end"
-    return 0, "detected #{basename}", {:detected_file => target_file, :detected_name => basename}
+    return 0, "detected #{basename}", {:detected_file => target_file, :label => basename}
   end
   
   #private
