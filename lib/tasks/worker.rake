@@ -4,16 +4,16 @@ desc "Start a worker process to handle jobs"
 task :worker, [] => [:environment] do |t, args|
   # Init
   STDOUT.sync = true
+  hostname = `hostname`.chomp
   puts "\e[H\e[2J"
+  pid = Process.pid
   
   # Main loop
   begin
 
     # Register worker (in the main loop to be sure we are created again if deleted meanwhile)
-    pid = Process.pid
-    hostname = `hostname`.chomp
     worker = Worker.find_or_create_by_hostname_and_pid(hostname, pid)
-    puts "registered as worker ##{worker.id} running with pid ##{pid}"
+    puts "registered host [#{hostname}] and pid [#{pid}] as worker [##{worker.id}]"
 
     # Fetch the next runnable job
     puts "waiting for a job to become runnable "
