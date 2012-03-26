@@ -24,10 +24,24 @@ class SystemsController < ApplicationController
       
       # When building an ajax response, update the status before sending any reply
       format.json {
+        lines= []
+        
+        lines << @system.status['cpu_type'].to_s unless @system.status['cpu_type'].blank?
+
+        details = []
+        details << "up #{@system.status['uptime']}" unless @system.status['uptime'].blank?
+        details << "#{@system.status['ipaddress']}" unless @system.status['ipaddress'].blank?
+        lines << details.join(', ')
+
+        details = []
+        details << "#{@system.status['cpu_count']} CPUs" unless @system.status['cpu_count'].blank?
+        details << "load #{@system.status['loadavg'].round(2)}" unless @system.status['loadavg'].blank?
+        lines << details.join(', ')
+
         if status = @system.update_status!
           render :json => {
             :percent => @system.extract_load_percent(status),
-            :details => "#{status['cpu_type']} x#{status['cpu_count']}<br>#{status['ipaddress']} - up #{status['uptime']} ",
+            :details => lines.join("<br>"),
             :timestamp => status['timestamp']
             }
         else
@@ -69,8 +83,7 @@ class SystemsController < ApplicationController
     end
   end
 
-  # PUT /systems/1
-  # PUT /systems/1.json
+  # PUT /systems/1  # PUT /systems/1.json
   def update
     @system = System.find(params[:id])
 

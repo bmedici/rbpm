@@ -4,7 +4,6 @@
   %tr
     %th Label
     %th URL
-    %th Last status
     %th Last update
     %th
     %th
@@ -13,8 +12,7 @@
     %tr
       %td= link_to system.label, system
       %td= system.monitor_url
-      %td
-        %small= system.status_pretty unless system.status.empty?
+      -#%td%small= system.status_pretty unless system.status.empty?
       %td= my_datetime system.updated_at
       %td= link_to 'Edit', edit_system_path(system)
       %td= link_to 'Destroy', system, :confirm => 'Are you sure?', :method => :delete

@@ -7,7 +7,7 @@ class StatusController < ApplicationController
     @jobs_running = Job.locked.order('id DESC').all
     @jobs_runnable = Job.runnable.order('id DESC')
     @jobs_failed = Job.failed.order('id DESC')
-    @systems = System.all
+    @systems = System.order(:label)
     
     @workers = Worker.all
   end  

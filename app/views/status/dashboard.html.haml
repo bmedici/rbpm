@@ -1,7 +1,7 @@
 %h1 Dashboard
 
 .row
-  .span4
+  .span5
     %h3 Running jobs
     %table
       %tbody
@@ -45,7 +45,7 @@
   .span3
     %h3 Workers status
     - @workers.each do |worker|
-      %p
+      .well
         %b= "#{worker.hostname} - #{worker.pid}"
         %br
         started
@@ -54,14 +54,15 @@
         running jobs:
         = worker.jobs.map{|j| "j#{j.id}"}.join(', ')
 
-  .span3
+  .span4
     %h3 Systems status
     - @systems.each do |system|
-      %b= "#{system.label}"
-      .systemstatus{'data-source' => system_path(system, :json)}
-        .details
-        .progress
-          .bar{:style => "width: 100%"}
-            = "?"
+      .well
+        %b= "#{system.label}"
+        .systemstatus{'data-source' => system_path(system, :json)}
+          %small.details
+          .progress
+            .bar{:style => "width: 100%"}
+              = "?"
 
 

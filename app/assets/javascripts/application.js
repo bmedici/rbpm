@@ -22,7 +22,7 @@ $this.attr("src", src);
 function UpdateMap() {
 	$('.autorefresh').reloadSrc();
 	//alert('ok');
-  setTimeout(UpdateMap, 1000);
+  setTimeout(UpdateMap, 500);
 	}
 
 function UpdateSystemStatus(theGroup, data_url) {
