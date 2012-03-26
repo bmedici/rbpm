@@ -1,7 +1,14 @@
+.subnav.subnav-fixed
+  %ul.nav.nav-pills
+    %li
+      = link_to "update status", update_status_system_path(@system)
+
+
 %p#notice= notice
 
 .row
   .span4
+    %h3 Attributes
     %p
       %b Label:
       = @system.label
@@ -15,26 +22,26 @@
 
   .span4
     %h3 Query result
-    %pre= JSON.pretty_generate(@data)  
+    %pre= JSON.pretty_generate(@status)  
 
     %p
       %b CPU description
-      = @data['cpu_desc']
+      = @status['cpu_desc']
 
     %p
       %b CPU count
-      = @data['cpu_count']
+      = @status['cpu_count']
 
     %p
       %b Load average
-      = @data['loadavg']
+      = @status['loadavg']
 
     %p
       %b Load
       = @load
 
     %p
-      - percent = @system.extract_load_percent(@data)
+      - percent = @system.extract_load_percent(@status)
       .progress
         .bar{:style => "width: #{percent}"}
           = percent

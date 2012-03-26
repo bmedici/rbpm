@@ -29,6 +29,7 @@ end
 
 
 gem "sys-cpu"
+gem "facter"
 
 # To use debugger
 # gem 'ruby-debug'

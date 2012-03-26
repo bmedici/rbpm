@@ -13,13 +13,19 @@ class StatusController < ApplicationController
   end  
   
   def monitor
+    Facter.loadfacts  
+    
     # Build data response
     @json = {
       :hostname => `hostname`.chomp,
       :timestamp => Time.now.to_f,
       :loadavg => CPU.load_avg.first,
-      :cpu_desc => "#{CPU.model} #{CPU.architecture}",
-      :cpu_count => CPU.num_cpu.to_s
+      :ipaddress => Facter.ipaddress,
+      :uptime => Facter.uptime,
+      :os => "#{Facter.operatingsystem} #{Facter.operatingsystemrelease}",
+      :cpu_type => Facter.sp_cpu_type,
+      :architecture => "#{Facter.architecture} #{Facter.virtual}",
+      :cpu_count => Facter.processorcount
     }
 
     # Send reply
@@ -32,7 +38,7 @@ class StatusController < ApplicationController
   end  
   
   def workflows
-    @root_steps = Step.roots.order('steps.id DESC')
+    @root_steps = Step.roots.includes(:links => :next).order('steps.id DESC')
   end  
   
   def editor

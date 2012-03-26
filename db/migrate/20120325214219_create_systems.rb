@@ -3,6 +3,7 @@ class CreateSystems < ActiveRecord::Migration
     create_table :systems do |t|
       t.string :label
       t.string :monitor_url
+      t.text :status_json, :null => false, :default => ""
 
       t.timestamps
     end

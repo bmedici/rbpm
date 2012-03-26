@@ -1,6 +1,10 @@
 Rbpm::Application.routes.draw do
 
-  resources :systems
+  resources :systems do
+    member do
+      get :update_status
+    end
+  end
 
   resources :workers
 

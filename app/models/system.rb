@@ -1,6 +1,6 @@
 class System < ActiveRecord::Base
   
-  def query
+  def update_status!
     puts "querying #{self.monitor_url}"
     return if self.monitor_url.blank?
 
@@ -15,7 +15,17 @@ class System < ActiveRecord::Base
     puts " - received (#{response.size}) bytes"
     
     # Parse JSON response
-    return JSON::parse(response)
+    self.status_json = response
+    return self.status
+  end
+  
+  def status
+    # Parse JSON response
+    return JSON::parse(self.status_json) rescue {}
+  end
+  
+  def status_pretty
+    return JSON.pretty_generate(self.status)
   end
   
   def query2

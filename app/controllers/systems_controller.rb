@@ -14,15 +14,25 @@ class SystemsController < ApplicationController
   # GET /systems/1.json
   def show
     @system = System.find(params[:id])
-    @data = @system.query
     
     respond_to do |format|
-      format.html # show.html.erb
+      
+      # When building plain HTML, just use the cached status
+      format.html {
+        @status = @system.status
+        }
+      
+      # When building an ajax response, update the status before sending any reply
       format.json {
-        render :json => {
-          :percent => @system.extract_load_percent(@data),
-          :details => "#{@data['cpu_count']}x #{@data['cpu_desc']}"
-          }
+        if status = @system.update_status!
+          render :json => {
+            :percent => @system.extract_load_percent(status),
+            :details => "#{status['cpu_type']} x#{status['cpu_count']}<br>#{status['ipaddress']} - up #{status['uptime']} ",
+            :timestamp => status['timestamp']
+            }
+        else
+          render :json => @system.errors, :status => :unprocessable_entity
+        end
         }
     end
   end
@@ -72,6 +82,17 @@ class SystemsController < ApplicationController
         format.html { render :action => "edit" }
         format.json { render :json => @system.errors, :status => :unprocessable_entity }
       end
+    end
+  end
+
+  def update_status
+    @system = System.find(params[:id])
+    
+    if @system.update_status!
+      @system.save!
+      redirect_to @system, :notice => 'Status data was successfully updated'
+    else
+      redirect_to @system, :error => 'Status data was bot updated'
     end
   end
 
