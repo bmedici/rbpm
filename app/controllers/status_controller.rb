@@ -27,7 +27,7 @@ class StatusController < ApplicationController
 
   def ajax_system
     @system = System.find(params[:id])
-    #@system.update_status!
+    @system.update_status!
     render :partial => 'system', :locals => {:system => @system}
   end  
   
