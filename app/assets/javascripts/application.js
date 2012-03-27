@@ -5,6 +5,7 @@
 // the compiled file.
 //
 //= require jquery
+//= require jquery-ui
 //= require jquery_ujs
 //= require twitter/bootstrap
 //= require_tree .
@@ -21,7 +22,6 @@ $this.attr("src", src);
 
 function UpdateMap() {
 	$('.autorefresh').reloadSrc();
-	//alert('ok');
   setTimeout(UpdateMap, 500);
 	}
 
@@ -41,21 +41,36 @@ function UpdateSystemStatus(theGroup, data_url) {
 		success: function(json){
 		  // Parse the response
 			data = eval('(' + json + ')');
-			//alert(result);
-			//alert(data['percent']);
-
 			// Update the progress value
 			theBar.css("width", data['percent']);
 			theBar.html(data['percent']);
 			theDetails.html(data['details']);
-
 			// We're all set, call me back in 5s
 			theProgress.removeClass('progress-striped');
+			//theGroup.effect('highlight', {}, 200);
 		  setTimeout(function(){UpdateSystemStatus(theGroup, data_url)}, 2000);
 			}
 		});
+	}
+
+function UpdateRefreshable(thePanel, data_url, seconds) {
+	// Init
+	//thePanel.fadeTo(0, .5);
+	thePanel.addClass("updating");
 	
-	
+	// Query the source URL to get data
+	$.ajax({
+		url: data_url,
+		type: 'GET',
+		data: {ajax:true},
+		dataType: "html",
+		success: function(data){
+			thePanel.html(data);
+			//thePanel.fadeTo(0, 1);
+			thePanel.removeClass("updating");
+		  setTimeout(function(){UpdateRefreshable(thePanel, data_url, seconds)}, seconds*1000);
+			}
+		});
 	}
 
 $(document).ready(function() {
@@ -64,9 +79,17 @@ $(document).ready(function() {
 	UpdateMap();
 
 	// Bind a refresh task on each system status
-	$('.systemstatus').each(function(index, value) {
+	$('#dashboard .systemstatus').each(function(index, value) {
 		source = $(this).attr('data-source')
 		UpdateSystemStatus($(this), source);
+	});
+
+// Activate every refreshable panel
+	$('.refreshable').each(function(index, value) {
+
+		source = $(this).attr('data-source')
+		seconds = $(this).attr('data-period')
+		UpdateRefreshable($(this), source, seconds);
 	});
 
 });

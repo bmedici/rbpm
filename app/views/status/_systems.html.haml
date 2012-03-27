@@ -1,0 +1,10 @@
+%h3 Systems status
+
+- @systems.each do |system|
+  .well
+    %h5= "#{system.label}"
+    .systemstatus{'data-source' => system_path(system, :json)}
+      %small.details
+      .progress
+        .bar{:style => "width: 100%"}
+          = "?"

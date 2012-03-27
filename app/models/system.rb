@@ -39,7 +39,9 @@ class System < ActiveRecord::Base
     }
   end
 
-  def extract_load_percent(data)
+  def load_percent
+    data = self.status
+    
     cpu_count = data['cpu_count'].to_i
     return nil if cpu_count.zero?
     percent = 100*(data['loadavg'].to_f / cpu_count)

@@ -7,9 +7,28 @@ class StatusController < ApplicationController
     @jobs_running = Job.locked.order('id DESC').all
     @jobs_runnable = Job.runnable.order('id DESC')
     @jobs_failed = Job.failed.order('id DESC')
-    @systems = System.order(:label)
-    
+
     @workers = Worker.all
+
+    @systems = System.order(:label)
+  end  
+  
+  def ajax_workers
+    @workers = Worker.all
+    render :partial => 'workers'
+  end  
+
+  def ajax_jobs
+    @jobs_running = Job.locked.order('id DESC').all
+    @jobs_runnable = Job.runnable.order('id DESC')
+    @jobs_failed = Job.failed.order('id DESC')
+    render :partial => 'jobs'
+  end  
+
+  def ajax_system
+    @system = System.find(params[:id])
+    #@system.update_status!
+    render :partial => 'system', :locals => {:system => @system}
   end  
   
   def monitor

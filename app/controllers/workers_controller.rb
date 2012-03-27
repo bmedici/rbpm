@@ -2,11 +2,21 @@ class WorkersController < ApplicationController
   # GET /workers
   # GET /workers.json
   def index
-    @workers = Worker.order('updated_at DESC')
-
+    @workers = Worker.includes(:jobs).order('updated_at DESC').limit(1)
     respond_to do |format|
       format.html # index.html.erb
-      format.json { render :json => @workers }
+      
+      format.json {
+        @patched_workers = []
+        # Insert job list for each worker
+        @workers.each do |w|
+          running_jobs = w.jobs.map{|job| "j#{job.id}) #{job.label}"}.join(", ")
+          @patched_workers << w.attributes.merge!(:jobs => running_jobs)
+        end
+
+        render :json => @patched_workers
+        }
+      
     end
   end
 

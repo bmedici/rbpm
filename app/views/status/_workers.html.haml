@@ -1,0 +1,14 @@
+%h3 Workers status
+- @workers.each do |worker|
+  %hr
+  %h5= "#{worker.hostname} - #{worker.pid}"
+  = "This worker is idle" if worker.jobs.empty?
+  %table
+    %tbody
+      - worker.jobs.each do |job|
+        %tr
+          %td= image_tag status_image_path(job)
+          %td= "j#{job.id}"
+          %td
+            - label = job.label.blank? ? "job ##{job.id}" : job.label
+            = link_to label, job

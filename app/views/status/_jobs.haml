@@ -1,0 +1,42 @@
+%h3 Running jobs
+%p= "No running job" if @jobs_running.empty?
+%table
+  %tbody
+    - @jobs_running.each do |job|
+      %tr
+        %td= image_tag status_image_path(job)
+        %td= "j#{job.id}"
+        %td
+          - label = job.label.blank? ? "job ##{job.id}" : job.label
+          = link_to label, job
+        %td
+          started
+          = seconds_ago(Time.now - job.started_at)
+
+%h3 Queued jobs
+%p= "No queued job" if @jobs_runnable.empty?
+%table
+  %tbody
+    - @jobs_runnable.each do |job|
+      %tr
+        %td= image_tag status_image_path(job)
+        %td
+          - label = job.label.blank? ? "job ##{job.id}" : job.label
+          = link_to label, job
+        %td
+          created
+          = seconds_ago(Time.now - job.created_at)
+
+%h3 Failed/suspended jobs
+%p= "No failed job" if @jobs_failed.empty?
+%table
+  %tbody
+    - @jobs_failed.each do |job|
+      %tr
+        %td= image_tag status_image_path(job)
+        %td
+          - label = job.label.blank? ? "job ##{job.id}" : job.label
+          = link_to label, job
+        %td
+          created
+          = seconds_ago(Time.now - job.created_at)

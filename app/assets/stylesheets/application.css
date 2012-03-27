@@ -55,3 +55,11 @@ table.twocols tr td.second {
 .nowrap {
   white-space: nowrap;
 }
+
+.refreshable {
+  border-left: 4px solid transparent;
+  padding-left: 4px;
+}
+.updating {
+  border-left: 4px solid #ffcccc;
+  }

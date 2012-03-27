@@ -2,7 +2,7 @@
 class Step < ActiveRecord::Base
   COLORS = %w(#C6B299 #B8D0DD #DBBAE5)
 
-  has_many :params, :dependent => :destroy
+  has_many :params, :dependent => :destroy, :order=>"name ASC"
   has_many :vars, :dependent => :destroy
   has_many :links  
   has_many :nexts, :through => :links
