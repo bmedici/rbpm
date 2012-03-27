@@ -41,7 +41,7 @@
       = @load
 
     %p
-      - percent = @system.extract_load_percent(@status)
+      - percent = @system.load_percent
       .progress
         .bar{:style => "width: #{percent}"}
           = percent

@@ -48,7 +48,7 @@ class SystemsController < ApplicationController
 
         if status = @system.update_status!
           render :json => {
-            :percent => @system.extract_load_percent(status),
+            :percent => @system.load_percent,
             :details => lines.join("<br>"),
             :timestamp => status['timestamp']
             }
