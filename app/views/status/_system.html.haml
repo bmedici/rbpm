@@ -1,24 +1,26 @@
 :ruby
   system ||= System.new(:label => "DUMMY")
   status = system.status
-
   percent = system.load_percent
 
-%hr
-%h5= "#{system.label}"
-%small.details
-  = status['cpu_type'].to_s unless status['cpu_type'].blank?
 
-  %br
-  = "up #{status['uptime']}" unless status['uptime'].blank?
-  ="-"
-  = "#{status['ipaddress']}" unless status['ipaddress'].blank?
+%h5
+  = "#{system.label}"
+  %small= " - up #{status['uptime']}" unless status['uptime'].blank?
 
-  %br
-  = "#{status['cpu_count']} CPUs" unless status['cpu_count'].blank?
-  ="-"
-  = "load #{status['loadavg'].round(2)}" unless status['loadavg'].blank?
-  
+%small
+  = status['cpu_type'].to_s
+
+
+.row
+  .span1
+    = "#{status['cpu_count']} CPUs" unless status['cpu_count'].blank?
+  .span1
+    = "load #{status['loadavg'].round(2)}" unless status['loadavg'].blank?
+  .span1
+    = "#{status['ipaddress']}" unless status['ipaddress'].blank?
+
 .progress
   .bar{:style => "width: #{percent}"}
     = percent
+  

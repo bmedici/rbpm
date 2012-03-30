@@ -1,5 +1,7 @@
 class System < ActiveRecord::Base
   
+  #scope recently_updated_first, order('updated_at - NOW')
+  
   def update_status!
     puts "querying #{self.monitor_url}"
     return if self.monitor_url.blank?
