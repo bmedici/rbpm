@@ -5,6 +5,5 @@ class CreateWorkers < ActiveRecord::Migration
       t.integer :pid
       t.timestamps
     end
-    add_index :workers, :current_step_id
   end
 end
