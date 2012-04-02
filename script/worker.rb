@@ -12,11 +12,11 @@ hostname = `hostname`.chomp
 
 # Daemon options
 daemon_options = {
-  :multiple   => true,
+  :multiple   => false,
   :dir_mode   => :normal,
   :dir        => File.join(app_dir, 'tmp', 'pids'),
   :backtrace  => true,
-  :monitor  => true
+  :monitor  => false
   #:stop_proc  => :end_proc
 }
 
