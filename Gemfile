@@ -30,6 +30,7 @@ end
 
 gem "sys-cpu"
 gem "facter"
+gem "daemons"
 
 # To use debugger
 # gem 'ruby-debug'

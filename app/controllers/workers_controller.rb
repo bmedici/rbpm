@@ -1,3 +1,5 @@
+
+
 class WorkersController < ApplicationController
   # GET /workers
   # GET /workers.json
@@ -18,6 +20,47 @@ class WorkersController < ApplicationController
         }
       
     end
+  end
+
+  def spawn
+    # Application basedir
+    app_dir = File.expand_path(File.join(File.dirname(__FILE__), '..'))
+
+    # Daemon options
+    daemon_options = {
+      :app_name => 'RBPM-euh',
+      :dir_mode   => :normal,
+      :dir        => File.join(app_dir, 'tmp', 'pids'),
+      :backtrace  => true,
+      :monitor  => true,
+      :ontop => false 
+    }
+
+    # Start daemon processes
+    spawed_app = Daemons.call(daemon_options) do
+  
+      # Initialize Rails default logger
+      #pid = Process.pid
+      logfile_rails = File.join('/tmp/', 'rails.log')
+      Rails.logger = ActiveSupport::BufferedLogger.new(logfile_rails)
+      #Rails.logger.info "PID [#{pid}]: starting new worker process"
+
+      # loop do 
+      #   Rails.logger.info "inside!"
+      #   sleep(2)
+      # end
+      sleep(30)
+
+      # Instanciate database logger
+      #logfile_db = File.join(logs_dir, 'database.log')
+      #ActiveRecord::Base.logger = ActiveSupport::BufferedLogger.new(logfile_db)
+      #ActiveRecord::Base.logger = ActiveSupport::BufferedLogger.new('/tmp/db.log')
+
+    end
+
+    # Prepare response
+    render :text => spawed_app.to_json
+    #render :json => spawed_app.to_json
   end
 
   # GET /workers/1

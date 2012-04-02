@@ -6,7 +6,11 @@ Rbpm::Application.routes.draw do
     end
   end
 
-  resources :workers
+  resources :workers do
+    collection do
+      get :spawn
+    end
+  end
 
   resources :steps
   resources :links  
