@@ -76,7 +76,7 @@ protected
     
     # Add a colored border if status given
     unless @step_attributes[step.id].empty?
-      border_color = @step_attributes[step.id][:border_color] ||= COLOR_DEFAULT
+      border_color = @step_attributes[step.id][:border_color] ||= COLOR_DEFAULT
       pen_width = 2
       label1 = "s#{step.id.to_s}: err #{@step_attributes[step.id][:retcode]}" unless @step_attributes[step.id][:retcode].to_i.zero?
     end
