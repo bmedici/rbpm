@@ -9,7 +9,7 @@ class StepNoop < Step
   end
   
   def run(current_job, current_action)
-    puts "        - StepNoop.run doing nothing as expected"
+    log "StepNoop.run doing nothing as expected"
     return 0, "done nothing, and did it right"
   end
   

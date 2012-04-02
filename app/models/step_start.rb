@@ -11,6 +11,7 @@ class StepStart < Step
   end
   
   def run(current_job, current_action)
+    log "StepStart"
     # # Init
     # label_variable_name = self.pval(:label_variable_name)
     # 

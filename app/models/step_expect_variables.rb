@@ -15,15 +15,15 @@ class StepExpectVariables < Step
     expected_variables = self.pval(:vars)
 
     # Expected variables is a plain array of variable names
-    puts "        - expected: #{expected_variables.join(', ')}"
+    log "expected: #{expected_variables.join(', ')}"
     
     # Read variables in this run, we get a hash 
     available_variables = current_job.get_vars_hash.keys
-    puts "        - available: #{available_variables.join(', ')}"
+    log "available: #{available_variables.join(', ')}"
     
     # Check that all expected ar available
     missing_variables = expected_variables - available_variables
-    puts "        - missing: #{missing_variables.join(', ')}"
+    log "missing: #{missing_variables.join(', ')}"
     # puts "        - available_variables.size: #{available_variables.size}"
     # puts "        - expected_variables.size: #{expected_variables.size}"
     # puts "        - missing_variables.size: #{missing_variables.size}"

@@ -14,7 +14,7 @@ class StepFileMove < Step
   
   def run(current_job, current_action)
     # Check for run context
-    puts "        - StepFileMove starting"
+    log "StepFileMove starting"
     return 21, "depends on the run context to gather variables, no valid current_job given" if current_job.nil?
     
     # EValuate source file and targt dir
@@ -27,12 +27,12 @@ class StepFileMove < Step
 
     # Move the flie
     filesize = File.size(source)
-    puts "        - moving (#{source}) file to (#{target}), total (#{filesize}) bytes"
+    log "moving (#{source}) file to (#{target}), total (#{filesize}) bytes"
     FileUtils.mv(source,  target)
     
     # Add detected filename to "locals" returned
-    puts "        - StepFileMove end"
-    return 0, "moved () bytes successfully "
+    log "StepFileMove end"
+    return 0, "moving (#{source}) file to (#{target}), total (#{filesize}) bytes"
   end
   
   #private

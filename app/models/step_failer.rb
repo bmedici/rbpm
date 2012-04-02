@@ -9,7 +9,7 @@ class StepFailer < Step
   end
   
   def run(current_job, current_action)
-    puts "        - StepFailer.run failing as expected"
+    log "StepFailer.run failing as expected"
     return 1, "failed the perfect way"
   end
   

@@ -15,6 +15,8 @@ class Step < ActiveRecord::Base
   after_find  :init_missing_params!
   accepts_nested_attributes_for :params, :allow_destroy => true
   
+  @logger = nil
+  @prefix = ""
  
   def color
     #'#000000'
@@ -26,6 +28,11 @@ class Step < ActiveRecord::Base
   
   def paramdef
     {}
+  end
+  
+  def log_to(logger, prefix)
+    @logger = logger
+    @prefix = prefix
   end
   
   def pval(name, formatted = nil)
@@ -83,6 +90,10 @@ class Step < ActiveRecord::Base
 
   protected 
   
+  def log(msg="")
+    @logger.info "#{@prefix} #{msg}" unless @logger.nil?
+  end
+  
   def type_field
     self.type
   end
@@ -92,6 +103,41 @@ class Step < ActiveRecord::Base
 
   def is_numeric?(s)
       !!Float(s) rescue false
+  end
+  
+  
+  def parse_xml(data, filters, current_job, current_action)
+    return unless filters.is_a? Hash
+
+    log "parse_xml: parsing xml data to grab variables"
+    xml = REXML::Document.new(data) rescue nil
+    return if xml.nil?
+    
+    filters.each do |variable, xpath|
+      log " - grab (#{variable}) with (#{xpath})"
+      match = REXML::XPath.first(xml, xpath)
+      unless match.nil?
+        current_job.set_var(variable, match.to_s, self, current_action)
+        log "   matched (#{match})"
+      end
+    end
+  end
+
+  def parse_json(data, mapping, current_job, current_action)
+    return unless mapping.is_a? Hash
+    
+    log "parse_json: parsing json data to grab variables"
+    json = JSON::parse(response) rescue nil
+    return if json.nil?
+
+    mapping.each do |variable, json_field|
+      log " - grab (#{variable}) from (#{json_field})"
+      match = json[json_field]
+      unless match.nil?
+        current_job.set_var(variable, match.to_s, self, current_action)
+        log "   matched (#{match})"
+      end
+    end
   end
   
 end

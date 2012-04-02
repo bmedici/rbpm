@@ -16,16 +16,16 @@ class StepWaiter < Step
 
   def run(current_job, current_action)
     # Init
-    puts "        - StepWaiter.run start"
+    log "StepWaiter.run start"
     # Init
     delay = self.pval(:time).to_f
     
     # Execute
-    puts "        - waiting (#{delay}) seconds"
+    log "waiting (#{delay}) seconds"
     sleep delay
     
     # Finalize
-    puts "        - StepWaiter.run end"
+    log "StepWaiter.run end"
     return 0, "waited #{delay} seconds"
   end
   

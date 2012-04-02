@@ -6,8 +6,6 @@ class Job < ActiveRecord::Base
   
   accepts_nested_attributes_for :vars
   
-  @step
-  
   #scope :latest_actions, includes(:actions)
   #scope :latest_actions, includes(:actions)
   scope :locked, where('worker_id IS NOT NULL')
@@ -15,6 +13,9 @@ class Job < ActiveRecord::Base
   scope :not_completed, where(:completed_at => nil)
   scope :runnable, not_locked.not_completed.order(:id)
   scope :failed, where('retcode IS NOT NULL and retcode<>0')
+
+  @logger = nil
+  @prefix = ""
 
   def context=(initial_vars)
     return unless initial_vars.is_a? Hash
@@ -25,10 +26,6 @@ class Job < ActiveRecord::Base
     end
   end
 
-  def run!
-    return self.run_from(self.step)
-  end
-  
   def set_var(name, value, step = nil, action = nil)
     var = self.vars.find_or_create_by_name(name.to_s, :value => value.to_s, :step => step, :action => action)
     var.update_attributes(:value => value.to_s, :step => step, :action => action)
@@ -64,13 +61,30 @@ class Job < ActiveRecord::Base
     return expression
   end
     
-  protected
+  def log_to(logger, prefix)
+    @logger = logger
+    @prefix = prefix
+  end
 
+  def run!
+    log
+    log "######################################################################################"
+    log "#### STARTING JOB (j#{self.id}) FROM STEP (s#{self.step.id}) #{self.step.label}"
+    log "######################################################################################"
+
+    return self.run_from(self.step)
+  end
+  
+  protected
+  
   def run_from(step)
     # Init
     # Parse args
     raise "EXITING: run_from expects a starting step" if step.nil?
-    puts "JOB (j#{self.id}) on step (s#{step.id}) #{step.label}"
+    log "RUN STEP (s#{step.id}) #{step.label}"
+    
+    # Initialize this step's logger
+    step.log_to(@logger, "#{@prefix} [s#{step.id}]")
 
     #################################
     ### RUNNING LOCAL STEP'S STUFF
@@ -78,24 +92,25 @@ class Job < ActiveRecord::Base
 
     # Preparing action
     action = self.actions.create(:step => step)
-    #action.save
+    log "type (#{step.type}), action (a#{action.id})"
 
     # Validate step parameters
     if validation_error = step.validate_params?
       action.update_attributes(:retcode => -1, :output => "exiting: error with step parameters (#{validation_error})")
-      raise Exceptions::JobFailedParamError, "validate_params failed at (s#{step.id}) with (#{validation_error})"
+      raise Exceptions::JobFailedParamError, "validate_params failed (#{validation_error})"
       #return false
     end
 
     # Run this step and close the action
-    puts "    - s#{step.id}: running step in action (a#{action.id})"
+    #log "running step"
     retcode, output, locals = step.run(self, action)
     action.update_attributes(:retcode => retcode, :output => output)
+    #log "step ended"
 
     # FIXME: let's assume that a failed run stops the whole process
     unless retcode.zero?
-      puts "    - s#{step.id}: STEP.RUN FAILED WITH (#{retcode}) #{output}"
-      return
+      log "RUN FAILED WITH (#{retcode}) #{output}"
+      return retcode, output
       #raise Exceptions::JobFailedStepRun, "step.run failed with "
     end
     action.update_attributes(:completed_at => Time.now)
@@ -107,23 +122,16 @@ class Job < ActiveRecord::Base
     # Stacking and sorting all links
     blocking_threads = [] 
     nonblocking_threads = [] 
-    # typed_links = {}
-    # step.links.includes(:next).map do |link|
-    #   typed_links[link.type] ||= []
-    #   typed_links[link.type] << link
-    # end
-
     typed_links = step.links.includes(:next).group_by(&:type)
-    #puts "    - s#{step.id}: step has links of types: #{typed_links.keys.join(', ')}"
     
     # Handling LinkBlocker links
     typed_links['LinkBlocker'].each do |link|
-      return if link.next_id.nil?
+      next if link.next_id.nil?
       next_step = link.next
       blocking_threads << Thread.new() {
-        puts "    - s#{step.id} (#{link.type}): thread executing (s#{next_step.id}) #{next_step.label}"
+        log "#{link.type} > thread executing (s#{next_step.id}) #{next_step.label}"
         self.run_from(next_step)
-        puts "    - s#{step.id}: thread ending for (s#{next_step.id}) #{next_step.label}"
+        log "thread ending for (s#{next_step.id}) #{next_step.label}"
         }
       # remove this link from the stack
     end unless typed_links['LinkBlocker'].nil?
@@ -132,9 +140,9 @@ class Job < ActiveRecord::Base
     
     # Handling LinkFork links
     typed_links['LinkFork'].each do |link|
-      return if link.next_id.nil?
+      next if link.next_id.nil?
       next_step = link.next
-      puts "    - s#{step.id} (#{link.type}): pushing job (s#{next_step.id}) #{next_step.label}"
+      log "#{link.type} > pushing job (s#{next_step.id}) #{next_step.label}"
       
       # Prepare vars for the newly created job, extract label if passed
       if locals.is_a? Hash
@@ -149,45 +157,47 @@ class Job < ActiveRecord::Base
       
       # Creating a new, standalone job
       job = Job.create(:step => next_step, :creator => "job.LinkFork(j#{self.id}, s#{step.id})", :vars => job_vars, :label => job_label)
-      puts "        - initial vars: locals.to_json"
-      puts "        - created job j#{job.id}"
+      log " - initial vars: locals.to_json"
+      log " - created job j#{job.id}"
 
     end unless typed_links['LinkFork'].nil?
     # FIXME
     typed_links['LinkFork'] = []
 
     # Wait for blocking threads to complete
-    puts "    - s#{step.id}: blocking_threads.size=#{blocking_threads.size}"
+    log "waiting for (#{blocking_threads.size}) blocking threads"
     unless blocking_threads.size.zero?
-      puts "    - s#{step.id}: waiting for blocking threads to complete"
       blocking_threads.map { |thread| thread.join }
     end
 
     # Handling all other links
     typed_links.each do |type, link_stack|
       link_stack.each do |link|
-        return if link.next_id.nil?
+        next if link.next_id.nil?
         next_step = link.next
         nonblocking_threads << Thread.new() {
-          puts "    - s#{step.id}: #{link.type}: thread executing (s#{next_step.id}) #{next_step.label}"
+          log "#{link.type} > thread executing (s#{next_step.id}) #{next_step.label}"
           self.run_from(next_step)
-          puts "    - s#{step.id}: thread ending for (s#{next_step.id}) #{next_step.label}"
+          log "thread ending for (s#{next_step.id}) #{next_step.label}"
           }
       end
       
     end
     
     # Wait for other threads to complete
+    log "waiting for (#{nonblocking_threads.size}) non-blocking threads"
     unless nonblocking_threads.size.zero?
-      puts "    - s#{step.id}: waiting for non-blocking threads to finish"
       nonblocking_threads.map { |thread| thread.join}
     end
 
     # Finished
-    puts "    - s#{step.id}: finished"
+    log "completed"
+    log
     return retcode, output
   end
-  
-  
+
+  def log(msg="")
+    @logger.info "#{@prefix} #{msg}" unless @logger.nil?
+  end
 
 end

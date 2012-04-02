@@ -23,7 +23,7 @@ class StepWatchfolder < Step
     delay = 0.5 if delay.zero?
     
     # Check for run context
-    puts "        - StepWatchfolder starting"
+    log "StepWatchfolder starting"
     return 21, "depends on the run context to gather variables, no valid current_job given" if current_job.nil?
     
     # Check for directory presence
@@ -32,7 +32,7 @@ class StepWatchfolder < Step
 
     # Wait for a file in the watchfolder
     filter_watch = "#{watch}/*"
-    puts "        - watching with delay (#{delay}s) and filter (#{filter_watch})"
+    log "watching with delay (#{delay}s) and filter (#{filter_watch})"
     begin
       # Try to detect a file
       first_file = Dir[filter_watch].first
@@ -42,15 +42,15 @@ class StepWatchfolder < Step
       break unless first_file.nil?
       
       # Otherwise, wait before looping
-      puts "        - nothing"
+      log " - nothing"
       sleep delay
     end while true
       
     # A file has been detected, move it to the target dir
     basename = File.basename(first_file)
-    puts "        - detected (#{basename})"
+    log "detected (#{basename})"
     target_file = "#{target}/#{File.basename(first_file)}"
-    puts "        - moving file to (#{target_file})"
+    log "moving file to (#{target_file})"
     FileUtils.mv(first_file,  target_file)
     
     # Prepare a new run and "fork" a thread to handle it
@@ -58,7 +58,7 @@ class StepWatchfolder < Step
     #current_job.set_var(:detected_file, target_file, self, current_action)
     
     # Add detected filename to "locals" returned
-    puts "        - StepWatchfolder end"
+    log "StepWatchfolder end"
     return 0, "detected #{basename}", {:detected_file => target_file, :label => basename}
   end
   

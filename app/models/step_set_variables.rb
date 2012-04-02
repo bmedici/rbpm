@@ -17,7 +17,7 @@ class StepSetVariables < Step
     
     if set_vars.is_a? Hash
       set_vars.each do |name, value|
-        puts "        - set variable (#{name}) to (#{value})"
+        log "set variable (#{name}) to (#{value})"
         current_job.set_var(name, value, self, current_action)
         end    
       end  
