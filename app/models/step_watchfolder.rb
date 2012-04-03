@@ -42,7 +42,7 @@ class StepWatchfolder < Step
       break unless first_file.nil?
       
       # Otherwise, wait before looping
-      log " - nothing"
+      #log " - nothing"
       sleep delay
     end while true
       
@@ -51,7 +51,7 @@ class StepWatchfolder < Step
     log "detected (#{basename})"
     target_file = "#{target}/#{File.basename(first_file)}"
     log "moving file to (#{target_file})"
-    FileUtils.mv(first_file,  target_file)
+    FileUtils.mv(first_file, target_file)
     
     # Prepare a new run and "fork" a thread to handle it
     #puts "        - setting :detected_file variable to (#{target_file})"

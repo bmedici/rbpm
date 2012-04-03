@@ -81,7 +81,7 @@
     puts "    - s#{step.id}: running my own stuff as action (a#{action.id}) as a kind of (#{step.type})"
     
     # Run this step
-    action.retcode, action.output = step.run(self, action)
+    action.errno, action.errmsg = step.run(self, action)
 
     # Closing action
     action.completed_at = Time.now

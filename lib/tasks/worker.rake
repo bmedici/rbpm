@@ -56,17 +56,17 @@ task :worker, [] => [:environment] do |t, args|
 
     rescue Exceptions::JobFailedParamError => exception
       msg = "JobFailedParamError: #{exception.message}"
-      job.updated_attributes(:worker => nil, :errcode => -11 , :errmsg => msg)
+      job.update_attributes(:worker => nil, :errcode => -11 , :errmsg => msg)
       raise "EXITING: #{msg}"
 
     rescue Exceptions::JobFailedStepRun => exception
       msg = "JobFailedStepRun: #{exception.message}"
-      job.updated_attributes(:worker => nil, :errcode => -12 , :errmsg => msg)
+      job.update_attributes(:worker => nil, :errcode => -12 , :errmsg => msg)
       raise "EXITING: #{msg}"
 
     rescue Exceptions => exception
       msg = "Exception: #{exception.message}"
-      job.updated_attributes(:worker => nil, :errcode => -1 , :errmsg => msg)
+      job.update_attributes(:worker => nil, :errcode => -1 , :errmsg => msg)
       raise "EXITING: #{msg}"
 
     else

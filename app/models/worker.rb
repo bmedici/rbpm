@@ -39,31 +39,27 @@ class Worker < ActiveRecord::Base
         # Start the process execution on the root step
         begin
           job.log_to(@logger, "#{@prefix} [j#{job.id}]")
-          job_retcode, job_output = job.run!
+          job.run!
 
         rescue Exceptions::JobFailedParamError => exception
-          msg = "JobFailedParamError: #{exception.message}"
-          job.updated_attributes(:worker => nil, :errcode => -11 , :errmsg => msg)
-          log "EXITING: #{msg}"
+          job.update_attributes(:worker => nil, :errno => -11 , :errmsg => exception.message)
+          log "JOB [j#{job.id}] ABORTED JobFailedParamError #{exception.message}"
 
-        # rescue Exceptions::JobFailedStepRun => exception
-        #   msg = "JobFailedStepRun: #{exception.message}"
-        #   job.updated_attributes(:worker => nil, :errcode => -12 , :errmsg => msg)
-        #   raise "EXITING: #{msg}"
-        # 
-        # rescue Exceptions => exception
-        #   msg = "Exception: #{exception.message}"
-        #   job.updated_attributes(:worker => nil, :errcode => -1 , :errmsg => msg)
-        #   raise "EXITING: #{msg}"
+        rescue Exceptions::JobFailedStepRun => exception
+          job.update_attributes(:worker => nil, :errno => -12 , :errmsg => exception.message)
+          log "JOB [j#{job.id}] ABORTED JobFailedStepRun #{exception.message}"
+
+        rescue Exceptions => exception
+          job.update_attributes(:worker => nil, :errno => -1 , :errmsg => exception.message)
+          log "JOB [j#{job.id}] ABORTED: #{exception.message}"
 
         else
           # It's done, unlock it, otherwise leave it like that
           job.update_attributes(:worker => nil, :completed_at => Time.now)
-          log "job [j#{job.id}] returned [#{job_retcode}] #{job_output}"
+          log "JOB [j#{job.id}] ABORTED: #{exception.message}"
         end
 
         # Just have a rest for 1s
-        job.touch
         sleep 1
         
         # Work done, update all that stuff

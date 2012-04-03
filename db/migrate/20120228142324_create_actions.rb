@@ -3,8 +3,8 @@ class CreateActions < ActiveRecord::Migration
     create_table :actions do |t|
       t.references :job
       t.references :step
-      t.text :output, :default => nil, :null => true
-      t.integer :retcode, :default => nil, :null => true
+      t.integer :errno, :default => 0, :null => false
+      t.text :errmsg, :default => '', :null => false
       t.datetime :completed_at
       t.timestamps
     end

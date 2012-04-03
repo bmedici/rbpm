@@ -10,7 +10,7 @@
     %h3 Job description
     %table
       %tr
-        %td Starting at step
+        %td First step
         - if @job.step.nil?
           %td (unspecified)
         - else
@@ -22,11 +22,17 @@
         %td Creator
         %td= @job.creator
       %tr
-        %td Created at
+        %td Created
         %td= @job.created_at
       %tr
-        %td Completed at
+        %td Completed
         %td= @job.completed_at
+      %tr
+        %td Returned
+        %td
+          = @job.errno unless @job.errno.zero?
+          %br
+          = @job.errmsg unless @job.errmsg.blank?
 
     %h3 Active actions
     - if @running_actions.empty?
@@ -79,8 +85,8 @@
     %th created
     %th updated
     %th completed
-    %th ret
-    %th output
+    %th errno
+    %th errmsg
   - @all_actions.each do |action|
     %tr
       %td= "a#{action.id}"
@@ -88,9 +94,9 @@
       %td= my_datetime action.created_at
       %td= my_datetime action.updated_at
       %td= my_datetime action.completed_at
-      %td= action.retcode
+      %td= action.errno
       %td
         %small
-          = action.output
+          = action.errmsg
 %br
 

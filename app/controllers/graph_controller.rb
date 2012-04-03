@@ -34,7 +34,7 @@ class GraphController < ApplicationController
     # Browse actions and sort by status
     # FIXME: the latest action on a specific step overrides the data for the same previous instance of this step
     all_job_actions_sorted_by_id.each do |action|
-      if action.retcode.to_i >0
+      if action.errno.to_i >0
         border_color = COLOR_FAILED
       elsif action.completed_at.nil?
         border_color = COLOR_RUNNING
@@ -43,7 +43,7 @@ class GraphController < ApplicationController
       end
       @step_attributes[action.step_id] = {
         :border_color => border_color,
-        :retcode => action.retcode
+        :errno => action.errno
         }
     end
     
@@ -78,7 +78,7 @@ protected
     unless @step_attributes[step.id].empty?
       border_color = @step_attributes[step.id][:border_color] ||= COLOR_DEFAULT
       pen_width = 2
-      label1 = "s#{step.id.to_s}: err #{@step_attributes[step.id][:retcode]}" unless @step_attributes[step.id][:retcode].to_i.zero?
+      label1 = "s#{step.id.to_s}: err #{@step_attributes[step.id][:errno]}" unless @step_attributes[step.id][:errno].to_i.zero?
     end
   
     # Add a new node to the graph

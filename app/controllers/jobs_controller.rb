@@ -89,7 +89,7 @@ class JobsController < ApplicationController
     @job = Job.find(params[:id])
     @job.vars.destroy_all
     @job.actions.destroy_all
-    @job.update_attributes(:completed_at => nil, :worker => nil)
+    @job.update_attributes(:completed_at => nil, :errno => 0, :errmsg => '', :worker => nil)
     #render :text => 'done'
     redirect_to @job, :notice => 'Job was successfully reset'
   end
