@@ -56,6 +56,6 @@ Rbpm::Application.configure do
   DASHBOARD_SYSTEM_RATE = 3
   DASHBOARD_WORKERS_RATE = 1
   DASHBOARD_JOBS_RATE = 1
-
+  LOGGING_TIMEFORMAT = "%Y.%m.%d %H.%M.%S"
   
 end

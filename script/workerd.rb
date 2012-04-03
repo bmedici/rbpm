@@ -8,7 +8,7 @@ ALLOW_MONITOR = true
 
 # Global init
 app_dir = File.expand_path(File.join(File.dirname(__FILE__), '..'))
-logs_dir = File.join(app_dir, 'log', 'workers')
+logs_dir = File.join(app_dir, 'log')
 hostname = `hostname`.chomp
 
 
@@ -26,27 +26,30 @@ daemon_options = {
 # Start daemon processes
 Daemons.run_proc('rbpm_worker', daemon_options) do
 
-
   # Include Rails environment
   require File.expand_path(File.join(app_dir, 'config', 'environment'))
 
-
   # Initialize default logger
   pid = Process.pid
-  logfile_rails = File.join(logs_dir, 'rails.log')
+  logfile_rails = File.join(logs_dir, 'rbpm_global.log')
   Rails.logger = ActiveSupport::BufferedLogger.new(logfile_rails)
   Rails.logger.info "PID [#{pid}]: starting new worker process"
-
+  Rails.logger.auto_flushing = true
 
   # Initialize database logger
-  logfile_db = File.join(logs_dir, 'database.log')
+  logfile_db = File.join(logs_dir, 'rbpm_db.log')
   ActiveRecord::Base.logger = ActiveSupport::BufferedLogger.new(logfile_db)
 
-
-  # Register worker (in the main loop to be sure we are created again if deleted meanwhile - DISABLED)
+  # Register worker in our database
   worker = Worker.find_or_create_by_hostname_and_pid(hostname, pid)
   Rails.logger.info "PID [#{pid}]: registered host [#{hostname}] and pid [#{pid}] as worker [w#{worker.id}]"
 
+  # Initialize own logger
+  #logfile_worker = File.expand_path(File.join(Rails.root, 'log', 'workers', "worker_#{worker.id}.log"))
+  logfile_worker = File.join(logs_dir, "rbpm_workers.log")
+  wlog = ActiveSupport::BufferedLogger.new(logfile_worker)
+  wlog.auto_flushing = true
+  Rails.logger.info "PID [#{pid}]: logging to file [#{logfile_worker}]"
 
   # What to do when asked to terminate
   Signal.trap("TERM") do
@@ -55,15 +58,6 @@ Daemons.run_proc('rbpm_worker', daemon_options) do
     worker.destroy
     exit
   end
-
-
-  # Initialize own logger
-  #logfile_worker = File.expand_path(File.join(Rails.root, 'log', 'workers', "worker_#{worker.id}.log"))
-  logfile_worker = File.expand_path(File.join(Rails.root, 'log', 'workers', "workers.log"))
-  wlog = ActiveSupport::BufferedLogger.new(logfile_worker)
-  wlog.auto_flushing = true
-  Rails.logger.info "PID [#{pid}]: logging to file [#{logfile_worker}]"
-
 
   # Main endless loop
   worker.log_to(wlog, "[w#{worker.id}]")

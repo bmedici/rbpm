@@ -90,10 +90,6 @@ class Step < ActiveRecord::Base
 
   protected 
   
-  def log(msg="")
-    @logger.info "#{@prefix} #{msg}" unless @logger.nil?
-  end
-  
   def type_field
     self.type
   end
@@ -138,6 +134,10 @@ class Step < ActiveRecord::Base
         log "   matched (#{match})"
       end
     end
+  end
+
+  def log(msg="")
+    @logger.info "#{Time.now.strftime(LOGGING_TIMEFORMAT)} #{@prefix} #{msg}" unless @logger.nil?
   end
   
 end

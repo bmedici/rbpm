@@ -81,7 +81,7 @@ class Worker < ActiveRecord::Base
   protected
   
   def log(msg="")
-    @logger.info "#{@prefix} #{msg}" unless @logger.nil?
+    @logger.info "#{Time.now.strftime(LOGGING_TIMEFORMAT)} #{@prefix} #{msg}" unless @logger.nil?
   end
   
 end
