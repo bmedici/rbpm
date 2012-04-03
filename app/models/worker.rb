@@ -56,7 +56,7 @@ class Worker < ActiveRecord::Base
         else
           # It's done, unlock it, otherwise leave it like that
           job.update_attributes(:worker => nil, :completed_at => Time.now)
-          log "JOB [j#{job.id}] ABORTED: #{exception.message}"
+          log "job [j#{job.id}] completed"
         end
 
         # Just have a rest for 1s
