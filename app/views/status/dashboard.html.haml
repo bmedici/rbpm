@@ -3,16 +3,21 @@
 #dashboard.row
 
   .span4
-    .refreshable{'data-source' => ajax_jobs_path, 'data-period' => 1}
+    .refreshable{'data-source' => ajax_jobs_path, 'data-period' => DASHBOARD_JOBS_RATE}
       = render :partial => 'jobs'
   
   .span3
-    .refreshable{'data-source' => ajax_workers_path, 'data-period' => 1}
+    .refreshable{'data-source' => ajax_workers_path, 'data-period' => DASHBOARD_WORKERS_RATE}
       = render :partial => 'workers'
 
   .span4
     %h3 Systems status
 
     - @systems.each do |system|
-      .refreshable{'data-source' => ajax_system_path(system), 'data-period' => 3}
+      .refreshable{'data-source' => ajax_system_path(system), 'data-period' => DASHBOARD_SYSTEM_RATE}
         = render :partial => 'system', :locals => {:system => system}
+        
+        
+        
+        
+        

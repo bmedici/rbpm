@@ -5,6 +5,17 @@ class System < ActiveRecord::Base
   def update_status!
     puts "querying #{self.monitor_url}"
     return if self.monitor_url.blank?
+    
+    # Return cached data is updated less dans XXX seconds ago
+    data_age = Time.now - self.updated_at
+    
+    if data_age < MONITOR_MIN_UPDATE_PERIOD.to_i
+      status = self.status
+      status[:cached] = true
+      return status 
+    end
+    #@system.update_status!
+    
 
     # Query for data
     resource = RestClient::Resource.new self.monitor_url

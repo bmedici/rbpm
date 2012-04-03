@@ -24,28 +24,13 @@ class SystemsController < ApplicationController
       
       # When building an ajax response, update the status before sending any reply
       format.json {
-        status = @system.update_status!
+        #status = @system.update_status!
         
         # Chekc if we really got a valid reply
-        if status.empty?
+        if @system.status.empty?
           render :json => @system.errors, :status => :unprocessable_entity and return 
         end
         
-        # Format the reply
-        lines= []
-        
-        lines << @system.status['cpu_type'].to_s unless @system.status['cpu_type'].blank?
-
-        details = []
-        details << "up #{@system.status['uptime']}" unless @system.status['uptime'].blank?
-        details << "#{@system.status['ipaddress']}" unless @system.status['ipaddress'].blank?
-        lines << details.join(', ')
-
-        details = []
-        details << "#{@system.status['cpu_count']} CPUs" unless @system.status['cpu_count'].blank?
-        details << "load #{@system.status['loadavg'].round(2)}" unless @system.status['loadavg'].blank?
-        lines << details.join(', ')
-
         if status = @system.update_status!
           render :json => {
             :percent => @system.load_percent,
