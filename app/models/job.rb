@@ -13,17 +13,26 @@ class Job < ActiveRecord::Base
   scope :not_completed, where(:completed_at => nil)
   scope :runnable, not_locked.not_completed.order(:id)
   scope :failed, where('errno<>0')
+  
+  serialize :context, JSON
 
   @logger = nil
   @prefix = ""
+  
+  after_initialize :init_context
+  
+  def init_context
+    self.context ||= {}
+  end
 
-  def context=(initial_vars)
-    return unless initial_vars.is_a? Hash
-    
+  def init_vars_from_context!
+    return unless self.context.is_a? Hash
+
     # Initialize job vars from initial_vars
-    initial_vars.each do |name, value|
-      self.set_var(name, value, nil, nil)
-    end
+    self.vars = self.context.map{|name, value| Var.new(:name => name, :value => value)} 
+    # self.context.each do |name, value|
+    #   self.set_var(name, value, nil, nil)
+    # end
   end
 
   def set_var(name, value, step = nil, action = nil)
@@ -66,12 +75,17 @@ class Job < ActiveRecord::Base
     @prefix = prefix
   end
 
-  def run!
+  def start!
     log
     log "######################################################################################"
     log "#### STARTING JOB (j#{self.id}) FROM STEP (s#{self.step.id}) #{self.step.label}"
     log "######################################################################################"
-
+    
+    # Initialize initial context into vars, create as many job.var's as needed
+    log "initializin job with context: #{self.context.to_json}"
+    self.init_vars_from_context!
+     
+    # Start execution from job's first step
     return self.run_from(self.step)
   end
   
@@ -162,19 +176,24 @@ class Job < ActiveRecord::Base
       next_step = link.next
       log "s#{from_step.id}: #{link.type} > pushing job (s#{next_step.id}) #{next_step.label}"
       
-      # Prepare vars for the newly created job, extract label if passed
-      if locals.is_a? Hash
-        # Get a "locals" key of :label as the label 
-        job_label = locals[:label].to_s
-        # Create as many job.var's as needed
-        job_vars = locals.map{|name, value| Var.new(:name => name, :value => value)} 
-      else
-        job_label = ""
-        job_vars = []
-      end
+      # # Prepare vars for the newly created job, extract label if passed
+      # if locals.is_a? Hash
+      #   # Get a "locals" key of :label as the label 
+      #   job_label = locals[:label].to_s
+      #   # Create as many job.var's as needed
+      #   job_vars = locals.map{|name, value| Var.new(:name => name, :value => value)} 
+      # else
+      #   job_label = ""
+      #   job_vars = []
+      # end
+      #  :vars => job_vars,
+      
+      # Get a "locals" key of :label as the label 
+      job_label = nil
+      job_label = locals[:label].to_s if context.is_a? Hash
       
       # Creating a new, standalone job
-      job = Job.create(:step => next_step, :creator => "job.LinkFork(j#{self.id}, s#{from_step.id})", :vars => job_vars, :label => job_label)
+      job = Job.create(:step => next_step, :creator => "job.LinkFork(j#{self.id}, s#{from_step.id})", :label => job_label, :context => locals)
       log "s#{from_step.id}:  - initial vars: locals.to_json"
       log "s#{from_step.id}:  - created job j#{job.id}"
 

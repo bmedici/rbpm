@@ -55,6 +55,13 @@
             %td= my_datetime action.completed_at
 
   .span7
+    %h3 Initial context
+    %table
+      - @job.context.each do |name, value|
+        %tr
+          %td= name
+          %td= value
+
     %h3 Variables
     %table
       %tr

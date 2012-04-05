@@ -44,12 +44,34 @@ class StepRestPost < Step
 
     # Prepare the resource
     log "working with url (#{remote['url']})"
-    resource = RestClient::Resource.new remote['url'], :user => remote['user'], :password => remote['password'], :timeout => RESTCLIENT_TIMEOUT
+    resource = RestClient::Resource.new remote['url'], :user => remote['user'], :password => remote['password'], :open_timeout => RESTCLIENT_OPEN_TIMEOUT, :timeout => RESTCLIENT_TIMEOUT
 
     # Posting query
     log "posting with values: #{post_variables.to_json}"
-    response = resource.post post_variables
+    begin
+      response = resource.post post_variables
+      
+    rescue RestClient::ResourceNotFound
+      msg = "RestClient::ResourceNotFound"
+      log msg
+      return 31, msg
+      
+    rescue RestClient::RequestTimeout
+      msg = "RestClient::RequestTimeout, open timeout = #{RESTCLIENT_OPEN_TIMEOUT} seconds"
+      log msg
+      return 32, msg
+      
+    rescue RestClient => exception
+      msg = "Restclient failed: #{exception.to_json}"
+      log msg
+      return 30, msg
+
+
+    end
+    # OK, continue
     log "received (#{response.size}) bytes"
+    
+    
 
     # Parse as XML only if response_filter_xml is a hash
     self.parse_xml(response, parse_xml, current_job, current_action)

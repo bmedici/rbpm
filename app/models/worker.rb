@@ -39,7 +39,7 @@ class Worker < ActiveRecord::Base
         # Start the process execution on the root step
         begin
           job.log_to(@logger, "#{@prefix} [j#{job.id}]")
-          job.run!
+          job.start!
 
         rescue Exceptions::JobFailedParamError => exception
           job.update_attributes(:worker => nil, :errno => -11 , :errmsg => exception.message)
