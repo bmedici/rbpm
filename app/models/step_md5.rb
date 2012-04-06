@@ -2,8 +2,8 @@ class StepMd5 < Step
 
   def paramdef
     {
-    :path_variable => { :description => "Variable containing path to the file", :format => :text },
-    :result_variable => { :description => "Variable receiving the result", :format => :text },
+    :path_variable => { :description => "Variable containing path to the file", :format => :text, :lines => 1 },
+    :result_variable => { :description => "Variable receiving the result", :format => :text, :lines => 1 },
     }
   end
 

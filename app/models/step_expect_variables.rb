@@ -2,7 +2,7 @@ class StepExpectVariables < Step
 
   def paramdef
     {
-    :vars => { :description => "Array of variables to be checked for presence", :format => :json },
+    :vars => { :description => "Array of variables to be checked for presence", :format => :json, :lines => 20 },
     }
   end
 
@@ -38,7 +38,7 @@ class StepExpectVariables < Step
   end
 
   def validate_params?
-    return :vars unless self.pval(:vars).is_a? Hash
+    return :vars unless self.pval(:vars).is_a? Enumerable
     return false
   end
 

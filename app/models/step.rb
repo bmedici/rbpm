@@ -55,7 +55,7 @@ class Step < ActiveRecord::Base
         return parsed
       end
     else
-      return p.value
+      return p.value.to_s.strip
     end
     
   end
@@ -82,9 +82,9 @@ class Step < ActiveRecord::Base
   end
   
   def init_missing_params!
-    missing_params = self.paramdef.keys - self.params.map { |p| p.name.to_sym }
-    missing_params.each do |param_name|
-      self.params.create(:name => param_name, :value => '')
+    missing_params = self.paramdef.keys.map { |p| p.to_s } - self.params.map { |p| p.name.to_s }
+    missing_params.sort.each do |param_name|
+      self.params.create(:name => param_name.to_sym, :value => '')
     end
   end
 

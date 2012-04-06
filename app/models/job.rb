@@ -64,10 +64,10 @@ class Job < ActiveRecord::Base
 
     if (expression.is_a? String) && (expression.chars.first == '$')
       varname = expression.to_s.slice(1..-1)
-      return get_var(varname)
+      return get_var(varname).to_s
     end
 
-    return expression
+    return expression.to_s.strip
   end
     
   def log_to(logger, prefix)
@@ -207,6 +207,10 @@ class Job < ActiveRecord::Base
       blocking_threads.map { |thread| thread.join }
     end
 
+    # Ignoring LinkNever links
+    # FIXME
+    typed_links['LinkNever'] = []
+
     # Handling all other links
     typed_links.each do |type, link_stack|
       link_stack.each do |link|
@@ -228,8 +232,7 @@ class Job < ActiveRecord::Base
     end
 
     # Finished
-    log "s#{from_step.id}: completed"
-    log
+    #log "s#{from_step.id}: completed"
   end
 
   def log(msg="")

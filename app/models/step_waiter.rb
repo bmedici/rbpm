@@ -2,7 +2,7 @@ class StepWaiter < Step
   
   def paramdef
     {
-      :time => { :description => "Seconds to wait", :format => :number  },
+      :time => { :description => "Seconds to wait", :format => :number, :lines => 1  },
     }
   end
     

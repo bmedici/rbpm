@@ -43,9 +43,10 @@
         .row
           .span3
             - unless pdef.nil?
-              = param.text_area :value_format, :rows => 8
+              - rows = pdef[:lines] ||= 10
+              = param.text_area :value_format, :rows => rows.to_i
             - else
-              ="N/A"
+              ="This parameter is now garbage"
           .span4
             - unless param.object.value.blank?
               %pre= param.object.value 

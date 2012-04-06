@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="windows-1250"?>
+<content>
+  <header>
+    <IdContent>96500401</IdContent>
+    <IdContenu>M6.fr_M6RE0000_7976_280990</IdContenu>
+    <Title><%= vars["title"] %></Title>
+  </header>
+  <input>
+    <packmedia id="1" type="SOURCE" format="FT_TS264_VF010_VA">
+      <media id="0" format="TT_TS264_VF010_VA"><%= vars["source"] %></media>
+    </packmedia>
+  </input>
+  <output>
+    <packmedia id="0" type="OUTPUT">
+      <media id="0"><%= vars["target"] %></media>
+      <media id="1"><%= vars["metadata"] %></media>
+    </packmedia>
+  </output>
+  
+  <process ID="<%= vars["processid"] %>">
+    <transformation type="publishing">
+      <type>NAGRA</type>
+      <profile name="NAGRA"></profile>
+    </transformation>
+  </process>
+</content>

@@ -1,0 +1,5 @@
+title: $title
+source: $detected_file
+target: (target)
+metadata: (metadata)
+processid: (processid)

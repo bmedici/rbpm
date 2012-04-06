@@ -2,7 +2,7 @@ class LinksController < ApplicationController
   before_filter :options_for_steps, :only => [:new, :edit, :index, :update, :create]
 
   def index
-    @links = Link.includes(:next, :step => :params).order(:step_id, :next_id)
+    @links = Link.includes(:next, :step => :params).order('id DESC', :step_id, :next_id)
 
     respond_to do |format|
       format.html # index.html.erb

@@ -1,7 +1,7 @@
 class StepsController < ApplicationController
 
   def index
-    @steps = Step.includes(:links, :nexts, :ancestors, :params).order(:label)
+    @steps = Step.includes(:links, :nexts, :ancestors, :params).order('id DESC')
     #@steps = Step..all
 
     respond_to do |format|

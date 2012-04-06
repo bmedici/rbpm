@@ -2,9 +2,9 @@ class StepWatchfolder < Step
 
   def paramdef
     {
-      :watch => { :description => "Incoming folder to watch", :format => :text  },
-      :target => { :description => "Target folder to drop the detected", :format => :text  },
-      :delay => { :description => "Delay to wait when watching folder (seconds)", :format => :text  },
+      :watch => { :description => "Incoming folder to watch", :format => :text, :lines => 2  },
+      :target => { :description => "Target folder to drop the detected", :format => :text, :lines => 2  },
+      :delay => { :description => "Delay to wait when watching folder (seconds)", :format => :text, :lines => 1  },
     }
   end
 

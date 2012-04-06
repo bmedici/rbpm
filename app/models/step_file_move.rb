@@ -2,8 +2,8 @@ class StepFileMove < Step
 
   def paramdef
     {
-    :source => { :description => "File to move (use $var to grab a job variable)", :format => :text  },
-    :target => { :description => "Target folder to drop this file", :format => :text  },
+    :source => { :description => "File to move (use $var to grab a job variable)", :format => :text, :lines => 2   },
+    :target => { :description => "Target folder to drop this file", :format => :text, :lines => 2   },
     }
   end
 
@@ -15,14 +15,14 @@ class StepFileMove < Step
   def run(current_job, current_action)
     # Check for run context
     log "StepFileMove starting"
-    return 21, "depends on the run context to gather variables, no valid current_job given" if current_job.nil?
+    return 11, "depends on the run context to gather variables, no valid current_job given" if current_job.nil?
     
     # EValuate source file and targt dir
     source = current_job.evaluate(self.pval(:source))
     target = current_job.evaluate(self.pval(:target))
     
     # Check for directory presence
-    return 21, "source file not found (#{watch})" unless File.exists? source
+    return 21, "source file not found (#{source})" unless File.exists? source
     return 22, "target directory not found (#{target})" unless File.directory? target
 
     # Move the flie
