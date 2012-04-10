@@ -37,11 +37,15 @@ class StepFtpPush < Step
     local_path_evaluated = current_job.evaluate(local_path)
     return 21, "source file not found (#{local_path}) > (#{local_path_evaluated})" unless File.exists? local_path_evaluated
     
+    # Evaluate some fields
+    evaluated_host = current_job.evaluate(remote_host)
+    log "evaluated host: #{evaluated_host}"
+
     # Start FTP session
-    log "starting ftp session to [#{remote_user}@#{remote_host}:#{remote_port}/#{remote_dir}]"
+    log "starting ftp session to [#{remote_user}@#{evaluated_host}:#{remote_port}/#{remote_dir}]"
     ftp = Net::FTP.new
     ftp.passive = true
-    ftp.connect(remote_host)
+    ftp.connect(evaluated_host)
 
     log "logging in"
     ftp.login(remote_user, remote_pass)

@@ -59,19 +59,24 @@ class Job < ActiveRecord::Base
     self.update_attributes(:completed_at => nil, :locked => false)
   end
   
-  def evaluate(expression)
-    #return     varname = expression.to_s.slice(1..-1)
-
-    if (expression.is_a? String) && (expression.chars.first == '$')
-      varname = expression.to_s.slice(1..-1)
-      return get_var(varname).to_s
-    end
-
-    return expression.to_s.strip
-  end
+  # def evaluate(expression)
+  #   #return     varname = expression.to_s.slice(1..-1)
+  # 
+  #   if (expression.is_a? String) && (expression.chars.first == '$')
+  #     varname = expression.to_s.slice(1..-1)
+  #     return get_var(varname).to_s
+  #   end
+  # 
+  #   return expression.to_s.strip
+  # end
     
   def evaluate(expression)
-    # Replace values into expression
+    # Replace constants in expression
+    ENV_CONSTANTS.each do |name, value|
+      expression.gsub!("!#{name.to_s}", value.to_s)
+    end
+
+    # Replace vars in expression
     self.vars.each do |var|
       expression.gsub!("$#{var.name.to_s}", var.value.to_s)
     end

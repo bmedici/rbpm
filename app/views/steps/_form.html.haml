@@ -25,9 +25,19 @@
       .field
         = f.label :class
         = f.select :type_field, STEP_CLASSES, {:include_blank => false}
-      -#.field
-        -#= f.label "Params (old values)"
-        -#%pre= JSON.pretty_generate(JSON::parse(@step.params_old)) unless @step.params_old.empty?
+      .field
+        = f.label "Local constants"
+        %table
+          %tbody
+            - ENV_CONSTANTS.each do |name, value|
+              %tr
+                %td
+                  %nobr
+                    %b= "!"
+                    = name
+                %td
+                  ="="
+                %td= value
       .actions
         = f.submit 'Save'
 

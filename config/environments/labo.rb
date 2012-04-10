@@ -59,4 +59,13 @@ Rbpm::Application.configure do
   DASHBOARD_JOBS_RATE = 1
   LOGGING_TIMEFORMAT = "%Y.%m.%d %H.%M.%S"
   
+  # Environnement-specific constants
+  ENV_CONSTANTS = {
+    :filer => '/home/pfmaf',
+    :transcoder => 'cpws.local',
+    :catalog => 'cpws.local',
+    :fai1 => 'vodka',
+    :fai2 => 'vodka',
+  }
+
 end

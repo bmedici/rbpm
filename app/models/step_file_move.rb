@@ -17,7 +17,7 @@ class StepFileMove < Step
     log "StepFileMove starting"
     return 11, "depends on the run context to gather variables, no valid current_job given" if current_job.nil?
     
-    # EValuate source file and targt dir
+    # Evaluate source file and targt dir
     source = current_job.evaluate(self.pval(:source))
     target = current_job.evaluate(self.pval(:target))
     
