@@ -20,7 +20,9 @@ class Worker < ActiveRecord::Base
     # Main endless loop
     loop do
         # Try to fetch a runnable job
-        job = Job.runnable.first(:lock => true)
+        #logger.silence do
+          job = Job.runnable.first(:lock => true)
+        #end
 
         # If we got nothing, just wait some time and loop back
         if job.nil?

@@ -70,6 +70,16 @@ class Job < ActiveRecord::Base
     return expression.to_s.strip
   end
     
+  def evaluate(expression)
+    # Replace values into expression
+    self.vars.each do |var|
+      expression.gsub!("$#{var.name.to_s}", var.value.to_s)
+    end
+
+    # Return the final string
+    return expression
+  end
+    
   def log_to(logger, prefix)
     @logger = logger
     @prefix = prefix
@@ -129,7 +139,8 @@ class Job < ActiveRecord::Base
     # No exception was raised, let's see what the return code is
     if errno.zero?
       # Return code is ok
-      log "s#{from_step.id}: returned [#{errno}: #{errmsg}]"
+      errmsg_short = errmsg.gsub(/\n/," ").gsub(/\r/," ")[0...100]
+      log "s#{from_step.id}: returned [#{errno}: #{errmsg_short}]"
 
       # Store return codes into action
       action.update_attributes(:errno => errno, :errmsg => errmsg, :completed_at => Time.now)
