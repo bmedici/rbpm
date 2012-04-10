@@ -45,8 +45,8 @@ class StepMd5 < Step
   #private
   
   def validate_params?
-    return :file_to_hash unless self.pval(:file_to_hash).is_a? Hash
-    return :variable_to_set unless self.pval(:variable_to_set).is_a? Hash
+    return :file_to_hash unless self.pval(:file_to_hash).blank?
+    return :variable_to_set unless self.pval(:variable_to_set).blank?
     return false
   end
   
