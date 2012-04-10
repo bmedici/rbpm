@@ -86,6 +86,7 @@ class StepRest < Step
       else
         return 39, "method not implemented (#{method})"
       end
+      log "request ok"
       
     rescue RestClient::ResourceNotFound
       msg = "RestClient::ResourceNotFound"
