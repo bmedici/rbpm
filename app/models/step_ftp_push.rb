@@ -9,7 +9,7 @@ class StepFtpPush < Step
     :remote_port => { :description => "", :format => :text, :lines => 1 },
     :remote_user => { :description => "", :format => :text, :lines => 1 },
     :remote_pass => { :description => "", :format => :text, :lines => 1 },
-    :remote_dir => { :description => "", :format => :text, :lines => 2 },
+    :remote_dir => { :description => "*", :format => :text, :lines => 2 },
     }
   end
 
@@ -41,6 +41,9 @@ class StepFtpPush < Step
     evaluated_host = current_job.evaluate(remote_host)
     log "evaluated host: #{evaluated_host}"
 
+    evaluated_remote_dir = current_job.evaluate(remote_dir)
+    log "evaluated remote_dir: #{evaluated_remote_dir}"
+
     # Start FTP session
     log "starting ftp session to [#{remote_user}@#{evaluated_host}:#{remote_port}/#{remote_dir}]"
     ftp = Net::FTP.new
@@ -50,8 +53,8 @@ class StepFtpPush < Step
     log "logging in"
     ftp.login(remote_user, remote_pass)
 
-    log "chdir to [#{remote_dir}]"
-    ftp.chdir remote_dir unless remote_dir.blank?
+    log "chdir to [#{evaluated_remote_dir}]"
+    ftp.chdir evaluated_remote_dir unless evaluated_remote_dir.blank?
     
     # Uploading file
     log "uploading file [#{local_path_evaluated}]"

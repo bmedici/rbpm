@@ -26,12 +26,21 @@ class StepWatchfolder < Step
     log "StepWatchfolder starting"
     return 21, "depends on the run context to gather variables, no valid current_job given" if current_job.nil?
     
+    # Evaluate source file and targt dir
+    evaluated_watch = current_job.evaluate(watch)
+    log "evaluated watch: #{evaluated_watch}"
+    evaluated_target = current_job.evaluate(target)
+    log "evaluated target: #{evaluated_target}"
+
+    final_url = current_job.evaluate(param_url)
+    log "evaluated final_url: #{final_url}"
+    
     # Check for directory presence
-    return 21, "watch directory not found (#{watch})" unless File.directory? watch
-    return 22, "target directory not found (#{target})" unless File.directory? target
+    return 21, "watch directory not found (#{evaluated_watch})" unless File.directory? evaluated_watch
+    return 22, "target directory not found (#{evaluated_target})" unless File.directory? evaluated_target
 
     # Wait for a file in the watchfolder
-    filter_watch = "#{watch}/*"
+    filter_watch = "#{evaluated_watch}/*"
     log "watching with delay (#{delay}s) and filter (#{filter_watch})"
     begin
       # Try to detect a file
@@ -49,7 +58,7 @@ class StepWatchfolder < Step
     # A file has been detected, move it to the target dir
     basename = File.basename(first_file)
     log "detected (#{basename})"
-    target_file = "#{target}/#{File.basename(first_file)}"
+    target_file = "#{evaluated_target}/#{File.basename(first_file)}"
     log "moving file to (#{target_file})"
     FileUtils.mv(first_file, target_file)
     
