@@ -29,10 +29,10 @@ class Job < ActiveRecord::Base
     return unless self.context.is_a? Hash
 
     # Initialize job vars from initial_vars
-    self.vars = self.context.map{|name, value| Var.new(:name => name, :value => value)} 
-    # self.context.each do |name, value|
-    #   self.set_var(name, value, nil, nil)
-    # end
+    self.vars.destroy_all
+    self.context.each do |name, value|
+      self.set_var(name, value, nil, nil)
+    end
   end
 
   def set_var(name, value, step = nil, action = nil)
