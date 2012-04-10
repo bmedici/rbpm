@@ -19,27 +19,21 @@ class StepMd5 < Step
     log "StepMd5 starting"
     return 21, "depends on the run context to gather variables, no valid current_job given" if current_job.nil?
 
-    # Evaluate source file and targt dir
+    # Evaluate source file and trget variable
     evaluated_file_to_hash = current_job.evaluate(file_to_hash)
     log "evaluated file_to_hash: #{evaluated_file_to_hash}"
-
-    # Get the variable containing the path to hash
-    log "variable containing path is #{path_variable}"
-    filename_to_hash = current_job.get_var(path_variable)
-    return 22, "can't fetch the value of this variable" if evaluated_file_to_hash.nil?
-
-    log "this variable points to #{evaluated_file_to_hash}"
-    return 23, "can't find the file to hash in the filesystem" unless File.exists? evaluated_file_to_hash
+    log "variable receiving path is #{variable_to_set}"
+    return 22, "can't find the file to hash in the filesystem" unless File.exists? evaluated_file_to_hash
 
     # Hash this filepath
-    md5hash = Digest::MD5.hexdigest(File.read filename_to_hash)
+    md5hash = Digest::MD5.hexdigest(File.read evaluated_file_to_hash)
     log "hashed: (#{md5hash})"
     
     # Save the result in a variable
     current_job.set_var(variable_to_set, md5hash, self, current_action)
 
     # Finished
-    return 0, "md5 hash of (#{filename_to_hash}) is (#{md5hash})"
+    return 0, "md5 hash of (#{evaluated_file_to_hash}) is (#{md5hash})"
   end
   
   #private
