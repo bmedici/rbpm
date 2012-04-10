@@ -31,9 +31,6 @@ class StepWatchfolder < Step
     log "evaluated watch: #{evaluated_watch}"
     evaluated_target = current_job.evaluate(target)
     log "evaluated target: #{evaluated_target}"
-
-    final_url = current_job.evaluate(param_url)
-    log "evaluated final_url: #{final_url}"
     
     # Check for directory presence
     return 21, "watch directory not found (#{evaluated_watch})" unless File.directory? evaluated_watch
