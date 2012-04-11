@@ -24,6 +24,17 @@ class Job < ActiveRecord::Base
   def init_context
     self.context ||= {}
   end
+  
+  def status_image_path
+    if (self.errno != 0)
+      return '/images/clock_red.png'
+    elsif self.completed_at.nil?
+      return '/images/clock.png'
+    else
+      return '/images/accept.png'
+    end
+  end
+    
 
   def init_vars_from_context!
     return unless self.context.is_a? Hash

@@ -7,7 +7,7 @@
     %tbody
       - worker.jobs.each do |job|
         %tr
-          %td= image_tag status_image_path(job)
+          %td= image_tag job.status_image_path
           %td= "j#{job.id}"
           %td
             - label = job.label.blank? ? "job ##{job.id}" : job.label
