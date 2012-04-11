@@ -20,9 +20,11 @@ class StepMd5 < Step
     return 21, "depends on the run context to gather variables, no valid current_job given" if current_job.nil?
 
     # Evaluate source file and trget variable
+    log "current_job: #{current_job.to_json}"
+    log "vars: #{current_job.vars.to_json}"
     evaluated_file_to_hash = current_job.evaluate(file_to_hash)
-    log "evaluated file_to_hash: #{evaluated_file_to_hash}"
-    log "variable receiving path is #{variable_to_set}"
+    log "file_to_hash (#{file_to_hash}) > (#{evaluated_file_to_hash})"
+    log "variable_to_set (#{variable_to_set})"
     return 22, "can't find the file to hash in the filesystem" unless File.exists? evaluated_file_to_hash
 
     # Hash this filepath

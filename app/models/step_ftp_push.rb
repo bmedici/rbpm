@@ -44,24 +44,43 @@ class StepFtpPush < Step
     evaluated_remote_dir = current_job.evaluate(remote_dir)
     log "evaluated remote_dir: #{evaluated_remote_dir}"
 
-    # Start FTP session
-    log "starting ftp session to [#{remote_user}@#{evaluated_host}:#{remote_port}/#{remote_dir}]"
+    # Prepare FTP session
+    log "preparing ftp session to [#{remote_user}@#{evaluated_host}:#{remote_port}/#{remote_dir}]"
     ftp = Net::FTP.new
     ftp.passive = true
-    ftp.connect(evaluated_host)
 
-    log "logging in"
-    ftp.login(remote_user, remote_pass)
+    # Start FTP session
+    begin
 
-    log "chdir to [#{evaluated_remote_dir}]"
-    ftp.chdir evaluated_remote_dir unless evaluated_remote_dir.blank?
+      log "connecting"
+      ftp.connect(evaluated_host)
+
+      log "logging in"
+      ftp.login(remote_user, remote_pass)
+
+      log "chdir to [#{evaluated_remote_dir}]"
+      ftp.chdir evaluated_remote_dir unless evaluated_remote_dir.blank?
     
-    # Uploading file
-    log "uploading file [#{local_path_evaluated}]"
-    ftp.putbinaryfile(local_path_evaluated, remotefile = File.basename(local_path_evaluated))
+      # Uploading file
+      log "uploading file [#{local_path_evaluated}]"
+      ftp.putbinaryfile(local_path_evaluated, remotefile = File.basename(local_path_evaluated))
+    
+    rescue Errno::ECONNREFUSED
+      msg = "ECONNREFUSED: connection refused"
+      log msg
+      return 31, msg
+    
+    rescue Net::FTPPermError
+      msg = "Net::FTPPermError: invalid credentials"
+      log msg
+      return 32, msg
+    
+    end
     
     # Finished
+    log "disconnecting"
     ftp.quit
+    
     log "StepFtpPush ending"
     return 0, "uploaded file [#{remotefile}]"
   end

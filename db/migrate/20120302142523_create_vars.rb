@@ -3,7 +3,7 @@ class CreateVars < ActiveRecord::Migration
     create_table :vars do |t|
       t.references :job
       t.string :name, :null => false
-      t.text :value, :null => true
+      t.text :data, :null => false, :default => ''
       t.references :action, :null => true, :default => nil
       t.references :step, :null => true, :default => nil
 

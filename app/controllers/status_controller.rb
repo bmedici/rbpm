@@ -11,6 +11,8 @@ class StatusController < ApplicationController
     @workers = Worker.all
 
     @systems = System.order(:label)
+    
+    
   end  
   
   def ajax_workers

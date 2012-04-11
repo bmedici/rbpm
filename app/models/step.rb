@@ -103,7 +103,10 @@ class Step < ActiveRecord::Base
   
   
   def parse_xml(data, filters, current_job, current_action)
-    return unless filters.is_a? Hash
+    unless filters.is_a? Hash
+      log "parse_xml: filters: is not a hash"
+      return
+    end
 
     log "parse_xml: parsing xml data to grab variables"
     xml = REXML::Document.new(data) rescue nil
@@ -113,25 +116,29 @@ class Step < ActiveRecord::Base
       log " - grab (#{variable}) with (#{xpath})"
       match = REXML::XPath.first(xml, xpath)
       unless match.nil?
-        current_job.set_var(variable, match.to_s, self, current_action)
+        current_job.set_var(variable, match, self, current_action)
         log "   matched (#{match})"
       end
     end
   end
 
   def parse_json(data, mapping, current_job, current_action)
-    return unless mapping.is_a? Hash
+    unless mapping.is_a? Hash
+      log "parse_json: mapping: is not a hash"
+      return
+    end
     
     log "parse_json: parsing json data to grab variables"
-    json = JSON::parse(response) rescue nil
+    json = JSON::parse(data) rescue nil
+    #json = JSON::parse(response) rescue nil
     return if json.nil?
 
     mapping.each do |variable, json_field|
       log " - grab (#{variable}) from (#{json_field})"
       match = json[json_field]
       unless match.nil?
-        current_job.set_var(variable, match.to_s, self, current_action)
-        log "   matched (#{match})"
+        current_job.set_var(variable, match, self, current_action)
+        log "   matched (#{match.to_json}) class (#{match.class})"
       end
     end
   end

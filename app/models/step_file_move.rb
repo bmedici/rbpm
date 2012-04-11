@@ -28,9 +28,9 @@ class StepFileMove < Step
     return 22, "target directory not found (#{evaluated_target})" unless File.directory? evaluated_target
 
     # Move the flie
-    filesize = File.size(source)
+    filesize = File.size(evaluated_source)
     log "moving (#{evaluated_source}) file to (#{evaluated_target}), total (#{filesize}) bytes"
-    FileUtils.mv(source,  target)
+    FileUtils.mv(evaluated_source,  evaluated_target)
     
     # Add detected filename to "locals" returned
     log "StepFileMove end"

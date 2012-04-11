@@ -28,29 +28,35 @@ class Job < ActiveRecord::Base
   def init_vars_from_context!
     return unless self.context.is_a? Hash
 
+    # Initial self.vars is empty
+    vars = []
+  
     # Initialize job vars from initial_vars
-    self.vars.destroy_all
     self.context.each do |name, value|
-      self.set_var(name, value, nil, nil)
+      vars << Var.find_or_create_by_name(name.to_s, :step => nil, :action => nil, :value => value)
+      #self.set_var(name, value, nil, nil)
     end
+    
+    # 
+    self.vars = vars
   end
 
   def set_var(name, value, step = nil, action = nil)
-    var = self.vars.find_or_create_by_name(name.to_s, :value => value.to_s, :step => step, :action => action)
-    var.update_attributes(:value => value.to_s, :step => step, :action => action)
+    var = self.vars.find_or_create_by_name(name.to_s, :step => step, :action => action, :value => value)
+    var.update_attributes(:step => step, :action => action, :value => value)
     return var
   end
   
   def get_var(name)
-    record = self.vars.find_by_name(name)
-    return record[:value] unless record.nil?
+    var = self.vars.find_by_name(name)
+    return var.value unless var.nil?
   end
   
   def get_vars_hash
     #run_id = run.id unless run.nil?
     vars = {}
-    self.vars.each do |v|
-      vars[v.name.to_s] = v.value
+    self.vars.each do |var|
+      vars[var.name.to_s] = v.value
     end
     return vars
   end
@@ -71,14 +77,24 @@ class Job < ActiveRecord::Base
   # end
     
   def evaluate(expression)
+    # Dont' do any replacement if expression is not a string
+    return expression unless expression.is_a? String
+    
+    # If expression is exactly a variable name, just return the raw variable value
+    
     # Replace constants in expression
     ENV_CONSTANTS.each do |name, value|
-      expression.gsub!("!#{name.to_s}", value.to_s)
+      pattern = "!#{name.to_s}"
+      return value if (expression == pattern)
+      expression.gsub!(pattern, value.to_s)
     end
 
     # Replace vars in expression
     self.vars.each do |var|
-      expression.gsub!("$#{var.name.to_s}", var.value.to_s)
+      pattern = "$#{var.name.to_s}"
+      #puts "comparing expression(#{expression}) with pattern (#{pattern}), data(#{var.data}) value(#{var.value}) name(#{var.name}) id(#{var.id})" 
+      return var.value if (expression == pattern)
+      expression.gsub!(pattern, var.value.to_s)
     end
 
     # Return the final string
@@ -101,6 +117,7 @@ class Job < ActiveRecord::Base
     self.init_vars_from_context!
      
     # Start execution from job's first step
+    log "running from step (s#{self.step.id})"
     return self.run_from(self.step)
   end
   

@@ -34,8 +34,8 @@ Rbpm::Application.configure do
   
   #GRAPH_AUTOUPDATE = 1.0
   GRAPHVIZ_BINPATH = '/usr/local/bin/'
-  RESTCLIENT_OPEN_TIMEOUT = 2
-  RESTCLIENT_REQ_TIMEOUT = 90000000
+  RESTCLIENT_OPEN_TIMEOUT = 7
+  RESTCLIENT_REQ_TIMEOUT = 30
 
   MONITOR_MIN_UPDATE_PERIOD = 1
   DASHBOARD_SYSTEM_RATE = 3
@@ -48,7 +48,7 @@ Rbpm::Application.configure do
     :filer => '/Users/bruno/TRASH/',
     :transcoder => 'cpws.local',
     :catalog => 'cpws.local',
-    :fai1 => 'localhost',
+    :fai1 => 'vodka',
     :fai2 => 'localhost',
   }
   

@@ -5,5 +5,8 @@ module JobsHelper
     return '/images/clock.png' if job.completed_at.nil?
     return '/images/accept.png'
   end
+  
+  
+  
 
 end

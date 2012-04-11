@@ -67,15 +67,14 @@
       %tr
         %th attribute
         %th value
-        %th created
         %th updated
-        %th at step
-        %th at action
+        %th step
+        %th action
       - @vars.each do |var|
         %tr
           %td= var.name
-          %td= var.value
-          %td= my_datetime var.created_at
+          %td= var.value.to_json
+          -# %td= var.pretty_value
           %td= my_datetime var.updated_at
           %td= "s#{var.step.id} - #{var.step.label}"  unless var.step.nil?
           %td= "a#{var.action.id}" unless var.action.nil?

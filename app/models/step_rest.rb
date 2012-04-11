@@ -6,8 +6,8 @@ class StepRest < Step
   def paramdef
     {
     :postvars => { :description => "POST variables ($var for job's variables)", :format => :json },
-    :parse_xml => { :description => "Extract fields from XML response", :format => :json },
-    :parse_json => { :description => "Extract fields from JSON response", :format => :json },
+    :parse_xml => { :description => "Extract fields from XML response (default if no JSON filter given)", :format => :json },
+    :parse_json => { :description => "Extract fields from JSON response (implies JSON response from the server)", :format => :json },
     :method => { :description => "HTTP method to use (currently: get, post)", :format => :list, :list => [:get, :post], :lines => 1 },
 
     :url => { :description => "Remote URL to query", :format => :text, :lines => 3  },
@@ -34,7 +34,7 @@ class StepRest < Step
     param_post_variables = self.pval(:postvars)
     parse_xml = self.pval(:parse_xml)
     parse_json = self.pval(:parse_json)
-    param_url = self.pval(:url)
+    url = self.pval(:url)
     param_user = self.pval(:user)
     param_pass = self.pval(:pass)
     open_timeout = self.pval(:open_timeout).to_i
@@ -51,12 +51,13 @@ class StepRest < Step
     
     # Evaluate post variables when needed
     post_variables = {}
+    log "method: #{method}"
 
     case method
-    when 'post'
-    when 'put'
+    when 'post', 'put'
       # Check that we do have params
       return 22, "we have to post variables, but 'postvars' is not a hash" unless (param_post_variables.is_a? Hash)
+      log "postvars contains #{param_post_variables.size} variables"
 
       # Evaluate variables
       param_post_variables.each do |field_name, expression|
@@ -66,12 +67,24 @@ class StepRest < Step
     end
 
     # Evaluate URL
-    final_url = current_job.evaluate(param_url)
-    log "evaluated final_url: #{final_url}"
+    evaluated_url = current_job.evaluate(url)
+    log "evaluated url: #{evaluated_url}"
     
     # Preparing RestClient resource
     log "creating connection, open_timeout: #{open_timeout}, req_timeout: #{req_timeout}"
-    resource = RestClient::Resource.new final_url, :user => param_user, :password => param_pass, :open_timeout => open_timeout, :timeout => req_timeout
+    resource = RestClient::Resource.new evaluated_url, :user => param_user, :password => param_pass, :open_timeout => open_timeout, :timeout => req_timeout
+
+    # Detect accept format from provided parameters
+    if (!parse_json.blank?)
+      log "parse_json set, accepting JSON format"
+      accept_format = :json
+    elsif (!parse_xml.blank?)
+      log "parse_xml set, accepting XML format"
+      accept_format = :xml
+    else
+      log "nothing set, accepting XML format"
+      accept_format = :xml
+    end
 
     # Posting query
     begin
@@ -79,10 +92,10 @@ class StepRest < Step
       case method
       when 'get'
         log "starting GET request"
-        response = resource.get
+        response = resource.get :accept => accept_format
       when 'post'
         log "starting POST request"
-        response = resource.post post_variables
+        response = resource.post post_variables, :accept => accept_format
       else
         return 39, "method not implemented (#{method})"
       end
@@ -98,8 +111,8 @@ class StepRest < Step
       log msg
       return 32, msg
       
-    rescue RestClient => exception
-      msg = "Restclient failed: #{exception.to_json}"
+    rescue RestClient::Exception => exception
+      msg = "Restclient failed (HTTP #{exception.http_code}): #{exception.response.to_json}"
       log msg
       return 30, msg
 
@@ -109,13 +122,13 @@ class StepRest < Step
     log "received (#{response.size}) bytes"
     
     # Parse as XML only if response_filter_xml is a hash
-    self.parse_xml(response, parse_xml, current_job, current_action)
+    self.parse_xml(response, parse_xml, current_job, current_action) if accept_format == :xml
 
     # Parse as XML only if response_filter_xml is a hash
-    self.parse_json(response, parse_json, current_job, current_action)
+    self.parse_json(response, parse_json, current_job, current_action) if accept_format == :json
     
     # Finished
-    log "StepRestPost ending"
+    log "StepRest ending"
     return 0, response
   end
   

@@ -3,6 +3,20 @@
 %table
   %tbody
     - @jobs_running.each do |job|
+      :ruby
+        # Prepare graph
+        graph = GraphMap.new
+        graph.prepare(true)
+
+        # Initialize with job information
+        graph.tag_with_job_status(job)
+
+        # Recurse
+        graph.map_recurse(job.step_id)
+
+        # Generate output to the browser
+        image_data = graph.output_to_string(:png)
+
       %tr
         %td= image_tag status_image_path(job)
         %td= "j#{job.id}"
@@ -12,6 +26,10 @@
         %td
           started
           = seconds_ago(Time.now - job.started_at)
+      %tr
+        %td{:colspan => 4}
+          = image_tag inline_image_src("image/png", image_data)
+
 
 %h3 Queued jobs
 %p= "No queued job" if @jobs_runnable.empty?
