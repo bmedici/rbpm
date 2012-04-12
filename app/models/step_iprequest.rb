@@ -5,7 +5,7 @@ class StepIprequest < Step
   def paramdef
     {
     #:vars => { :description => "Values (or variable references) fed into the request template", :format => :json },
-    :request_template => { :description => "Body of the request template", :format => :xml, :lines => 40 },
+    :request_template => { :description => "Body of the request template", :format => :xml, :lines => 25 },
     :timeout => { :description => "Maximum seconds to wait for the synchronous process to finish", :format => :text, :lines => 1  },
     :host => { :description => "TCP hostname to connect", :format => :text, :lines => 1  },
     :port => { :description => "TCP port to connect", :format => :text, :lines => 1  },
@@ -55,14 +55,14 @@ class StepIprequest < Step
     response = []
     begin
       while line = s.gets
-        response << line.trim
+        response << line.strip!
       end
     rescue Errno::ECONNRESET
-
+      log "connection closed by remote host"
     end
     
     # Then close the socket if it's not already closed
-    s.close
+   # s.close
 
     # Finalize
     log "StepIprequest end"
@@ -74,7 +74,7 @@ class StepIprequest < Step
     #return :vars unless self.pval(:vars).is_a? Hash
     #return :media_title if self.pval(:media_title).blank?
     return :request_template if self.pval(:request_template).blank?
-    return :timeout unless is_numeric? self.pval(:timeout)
+    #return :timeout unless is_numeric? self.pval(:timeout)
     return :host if self.pval(:host).blank?
     return :port unless is_numeric? self.pval(:port)
     return false

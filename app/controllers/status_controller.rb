@@ -4,7 +4,7 @@ include Sys
 class StatusController < ApplicationController
   
   def dashboard
-    @jobs_running = Job.locked.order('id DESC').all
+    @jobs_running = Job.running.order('id DESC').all
     @jobs_runnable = Job.runnable.order('id DESC')
     @jobs_failed = Job.failed.order('id DESC')
 

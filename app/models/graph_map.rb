@@ -2,7 +2,7 @@ require 'graphviz'
 class GraphMap
   
   def initialize
-    @step_skip = []
+    #@step_skip = []
     @step_attributes = {}
     @step_history = []
   end
@@ -58,9 +58,15 @@ class GraphMap
       # Set attributes for thiss step
       self.step_attributes(action.step_id, {
         :border_color => border_color,
-        :errno => action.errno
+        :errno => action.errno,
         })
     end
+  end
+    
+  def tag_with_step(step)
+    self.step_attributes(step.id, {
+      :border_color => COLOR_CURRENT,
+      })
   end
   
   def output_to_file(format, target)
@@ -69,7 +75,8 @@ class GraphMap
   
   def output_to_string(format)
     #return @g.output( :png => nil )
-    return @g.output( format => String)
+    Rails.logger.info @g.output( :imap => String)
+    return @g.output( format => String).html_safe
   end
   
   def step_attributes(step_id, data)
@@ -92,67 +99,121 @@ class GraphMap
     # And finally, remove it
     File.unlink(tempfile.path)
   end
+
+  def map_recurse_forward(step_id)
+    return self.map_recurse(step_id.to_i, false, nil)
+  end
   
-  def map_recurse(step_id)
+  def map_recurse_around(step_id, radius)
+    return self.map_recurse(step_id.to_i, true, radius)
+  end
+  
+  protected
+
+  def map_add_link(link, from, to)
+    # Add a link between the current step and the newly created step
+    label1 = "k#{link.id.to_s} #{link.type.to_s}"
+    label2 = link.label.to_s
+    return @g.add_edge(from, to, :label => "#{label1}\n#{label2}", :color => link.color, :penwidth => link.penwidth)
+  end
+
+  def map_add_step(step)
     # Default values
-    pen_width = nil
-    border_color = nil
+    pen_width = 1
+    border_color = COLOR_DEFAULT
+    step_color = step.color
+
+    # Build labels
+    label = []
+    label << "s#{step.id.to_s} #{step.type.to_s}"
+    label << step.label.to_s
     
-    # Read this step
-    step = Step.includes(:links).find(step_id)
-    label1 = "s#{step.id.to_s} #{step.type.to_s}"
-    label2 = step.label.to_s
-    
-    # Ensure attributes for my step are defined if not set at the object-level
-    @step_attributes[step.id] ||= {}
-    
-    # Add a colored border if status given
-    unless @step_attributes[step.id].empty?
-      border_color = @step_attributes[step.id][:border_color] ||= COLOR_DEFAULT
+    # Tweak node is attributes given
+    attributes = @step_attributes[step.id]
+    if (attributes.is_a? Hash) && !(attributes.empty?)
+      # If any attribute, double border
       pen_width = 2
-      label1 = "s#{step.id.to_s}: err #{@step_attributes[step.id][:errno]}" unless @step_attributes[step.id][:errno].to_i.zero?
+      
+      # Border color
+      border_color = attributes[:border_color] unless attributes[:border_color].nil?
+      
+      # Any errors ?
+      #href = @step_attributes[step.id][:href]
+      label << "ERROR  #{attributes[:errno]}" unless attributes[:errno].to_i.zero?
+      
+      # If stealth, thin border and no color
+      # TODO
+      #step_color = "#FFFFFF"
+      #pen_width = 1
     end
+    
+    # Generate HREF for this step
+    href = Rails.application.routes.url_helpers.step_path(step)
   
     # Add a new node to the graph
-    fill_color = step.color
     shape = step.shape unless step.shape.nil?
-    current_step_node = @g.add_node("#{label1}\n#{label2}", :color => border_color, :fillcolor => fill_color, :penwidth => pen_width, :shape => shape )
-
-    # Return current node and ignore following links if :ignore_links is set
-    return current_step_node if @step_skip[step.id]
+    step_node = @g.add_node(label.join("\n"), :color => border_color, :fillcolor => step_color, :penwidth => pen_width, :shape => shape, :URL => href )
     
-    # Do the same job for every child of this node
-    step.links.each do |next_link|
-      # Skip if this link is weird and pointing nowhere
-      next if next_link.next_id.nil?
+    # Add it to the history
+    @step_history[step.id] = step_node
+    return step_node
+  end
+    
+  def map_recurse(step_id, go_backward = false, depth = nil)
+    # Do nothing with this iteration if link already in the cache
+    Rails.logger.info "STEP ID: #{step_id}"
+    Rails.logger.info "STEP CLASS: #{step_id.class.to_s}"
+    return nil unless @step_history[step_id].nil?
 
-      # Skip if this node has already been added
-      next if @step_history.include? next_link.id
+    # Read this step
+    step = Step.includes(:links, :ancestors).find(step_id)
 
-      # Add this step to the step history
-      @step_history << next_link.id
-      @step_history.uniq!
+    # Render current step
+    current_step_node = self.map_add_step(step)
+
+    # If we reached depth, stop recursing into links
+    unless depth.nil?
+      depth -=1
+      return current_step_node if depth < 0
+    end
+    
+    # Do the same job for every NEXT link
+    step.links.each do |link|
+      # Skip if this link is weird and pointing nowhere OR if the pointed step has already been explored
+      edge_id = link.next_id
+      next if edge_id.nil?
+
+      # If I'm a LinkFork link, don't recurse further (force depth = 1)
+      depth = 0 if link.type == 'LinkFork'
+
+      # Browse the next step, only if not already in the cache
+      node = self.map_recurse(edge_id, go_backward, depth)
       
-      # If I'm a LinkFork link, don't recurse further
-      if next_link.type == 'LinkFork'
-        @step_skip[next_link.next_id] = true
-      end
+      # Link it to the current one
+      self.map_add_link(link, current_step_node, node) unless node.nil?
+    end
+    
+    # Return now if we don't have to go backward
+    return current_step_node unless go_backward
+    
+    # Do the same job for every ANCESTOR link
+    step.ancestor_links.each do |link|
+      # Skip if this link is weird and pointing nowhere, or has already been parsed
+      edge_id = link.step_id
+      next if edge_id.nil?
 
-      # Handle the next step
-      next_step_node = self.map_recurse(next_link.next_id)
+      # If I'm a LinkFork link, don't recurse further (force depth = 1)
+      depth = 0 if link.type == 'LinkFork'
+      
+      # Browse the ancestor step, only if not already in the cache
+      node = self.map_recurse(edge_id, go_backward, depth)
 
-      # Add a link between the current step and the newly created step
-      label1 = "k#{next_link.id.to_s} #{next_link.type.to_s}"
-      label2 = next_link.label.to_s
-      label = "#{label1}\n#{label2}"
-      link_color = next_link.color
-      penwidth = next_link.penwidth
-      @g.add_edge(current_step_node, next_step_node, :label => "#{label1}\n#{label2}", :color => link_color, :penwidth => penwidth)
+      # Handle the ancestor step and link it to the current one
+      self.map_add_link(link, node, current_step_node) unless node.nil?
     end
     
     # Return current node
     return current_step_node
   end
-
   
 end

@@ -42,11 +42,26 @@ class JobsController < ApplicationController
     @job = Job.find(params[:id])
   end
 
-  # POST /jobs
-  # POST /jobs.json
   def create
     @job = Job.new(params[:job])
-    @job.creator = "manual.admin.workflows"
+    @job.creator = "manual.admin"
+
+    respond_to do |format|
+      if @job.save
+        format.html { redirect_to @job, :notice => 'Job was successfully created.' }
+        format.json { render :json => @job, :status => :created, :location => @job }
+      else
+        format.html { render :action => "new" }
+        format.json { render :json => @job.errors, :status => :unprocessable_entity }
+      end
+    end
+  end
+
+  def push
+    @job = Job.new()
+    @job.creator = "manual.push"
+    @job.step_id = params[:id]
+    
 
     respond_to do |format|
       if @job.save

@@ -13,7 +13,7 @@ loop {                         # Servers run forever
   # Get some data
   received = []
   while line = client.gets
-    line.trim!
+    line.strip!
     break if line.empty?
     received << line
   end

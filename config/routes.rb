@@ -17,6 +17,7 @@ Rbpm::Application.routes.draw do
   resources :jobs do
     member do
       get :reset
+      get :push
     end
   end
   
@@ -42,6 +43,7 @@ Rbpm::Application.routes.draw do
 
   get "graph/map/:id" => "graph#map", :as => :map_graph
   get "graph/job/:id" => "graph#job", :as => :job_graph
+  get "graph/step/:id" => "graph#step", :as => :step_graph
   get "status/dashboard" => "status#dashboard", :as => :dashboard
   get "status/workflows" => "status#workflows", :as => :workflows
   get "status/editor" => "status#editor", :as => :workflow_editor

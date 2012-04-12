@@ -11,12 +11,32 @@ class StepsController < ApplicationController
   end
 
   def show
-    @step = Step.find(params[:id])
+    @step = Step.includes(:params).find(params[:id])
+    
+    # Prepare the local map
+    # Fin the current run
+    step = Step.find(params[:id])
 
-    respond_to do |format|
-      format.html # show.html.erb
-      format.json { render :json => @step }
-    end
+    # Prepare graph
+    graph = GraphMap.new
+    graph.prepare(false)
+
+    # Initialize with job information
+    graph.tag_with_step(step)
+
+    # Recurse forward AND backward
+    graph.map_recurse_around(step.id, 2)
+
+    # Generate output to the browser
+    @image_data = graph.output_to_string(:png)
+    @image_map = graph.output_to_string(:cmapx)
+    #render :text => @image_map
+    #
+    #return
+    # response.headers["Cache-Control"] = "no-cache, no-store, max-age=0, must-revalidate"
+    # response.headers["Pragma"] = "no-cache"
+    # response.headers["Expires"] = "Fri, 01 Jan 1990 00:00:00 GMT"
+    
   end
 
   def new

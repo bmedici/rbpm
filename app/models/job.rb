@@ -11,8 +11,9 @@ class Job < ActiveRecord::Base
   scope :locked, where('worker_id IS NOT NULL')
   scope :not_locked, where(:worker_id => nil)
   scope :not_completed, where(:completed_at => nil)
+  scope :running, locked.not_completed
   scope :runnable, not_locked.not_completed.order(:id)
-  scope :failed, where('errno<>0')
+  scope :failed, where('errno <> 0')
   
   serialize :context, JSON
 

@@ -50,3 +50,5 @@
       %tr
         %td{:colspan => 4}
           = job_status_image(job)
+          %br
+          = job.errmsg unless job.errno.zero?
