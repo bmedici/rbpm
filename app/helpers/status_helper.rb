@@ -28,7 +28,7 @@ module StatusHelper
     image_data = graph.output_to_string(:png)
     
     # And then, link!
-    return tag :img, :src => inline_image_src("image/png", image_data)
+    return tag :img, :src => inline_image_src("image/png", image_data), :class => :job_status_image
   end
   
   # def step_context(step)

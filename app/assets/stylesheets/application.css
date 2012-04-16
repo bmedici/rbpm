@@ -40,4 +40,8 @@ table th {
 .updating {
   border-left: 4px solid #ffcccc;
   }
+  
+.job_status_image {
+  max-width: 450px;
+}
 
