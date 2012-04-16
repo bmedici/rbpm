@@ -57,7 +57,16 @@ class StepWatchfolder < Step
     log "detected (#{basename})"
     target_file = "#{evaluated_target}/#{File.basename(first_file)}"
     log "moving file to (#{target_file})"
-    FileUtils.mv(first_file, target_file)
+
+    begin
+      FileUtils.mv(first_file, target_file)
+
+    rescue Errno::EACCES
+      msg = "EACCES: access denied"
+      log msg
+      return 31, msg
+    
+    end
     
     # Prepare a new run and "fork" a thread to handle it
     #puts "        - setting :detected_file variable to (#{target_file})"

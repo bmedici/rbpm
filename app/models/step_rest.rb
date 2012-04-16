@@ -42,7 +42,7 @@ class StepRest < Step
     method = self.pval(:method).to_s
 
     # Check for run context
-    log "StepRestPost starting"
+    log "StepRest starting"
     return 21, "depends on the run context to gather variables, no valid current_job given" if current_job.nil?
 
     # Initialize defaults
@@ -101,13 +101,18 @@ class StepRest < Step
       end
       log "request ok"
       
-    rescue RestClient::ResourceNotFound
-      msg = "RestClient::ResourceNotFound"
+    rescue SocketError => exception
+      msg = "SocketError: #{exception.message}"
       log msg
       return 31, msg
       
-    rescue RestClient::RequestTimeout
-      msg = "RestClient::RequestTimeout, open timeout = #{open_timeout} seconds"
+    rescue RestClient::ResourceNotFound => exception
+      msg = "RestClient::ResourceNotFound: #{exception.message}"
+      log msg
+      return 31, msg
+      
+    rescue RestClient::RequestTimeout => exception
+      msg = "RestClient::RequestTimeout (open timeout: #{open_timeout}s): #{exception.message}"
       log msg
       return 32, msg
       

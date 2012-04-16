@@ -10,9 +10,9 @@
       job = Job.new(:step => step)
       job.save
       puts
-      puts "##############################################################################"
-      puts "#### STANDALONE JOB (j#{job.id}) FROM STEP (s#{step.id}) #{step.label}"
-      puts "##############################################################################"
+      puts "###############################################################"
+      puts "## STANDALONE JOB (j#{job.id}) FROM STEP (s#{step.id}) #{step.label}"
+      puts "###############################################################"
 
       # Initialize job vars from initial_vars
       initial_vars.each do |name, value|

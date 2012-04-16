@@ -66,8 +66,8 @@ Rbpm::Application.configure do
   # Environnement-specific constants
   ENV_CONSTANTS = {
     :filer => '/home/pfmaf',
-    :transcoder => 'cpws.local',
-    :catalog => 'cpws.local',
+    :transcoder => 'vod38',
+    :catalog => 'vod38',
     :fai1 => 'vodka',
     :fai2 => 'vodka',
   }

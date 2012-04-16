@@ -1,15 +1,19 @@
 %h3 Workers status
 - @workers.each do |worker|
-  %h5= "w#{worker.id} - #{worker.hostname} ##{worker.pid}"
-  = "This worker is idle" if worker.jobs.empty?
-  %table
-    %tbody
-      - worker.jobs.each do |job|
-        %tr
-          %td= image_tag job.status_image_path
-          %td= "j#{job.id}"
-          %td
-            - label = job.label.blank? ? "job ##{job.id}" : job.label
-            = link_to label, job
+  %h5
+    = image_tag worker.status_image_path
+    = "w#{worker.id} - #{worker.hostname} ##{worker.pid}"
+  - if worker.seems_zombie?
+    = "It seems to be a zombie worker!" 
+  - elsif worker.jobs.empty?
+    = "This worker is idle"
+
+  %ul
+    - worker.jobs.each do |job|
+      %li 
+        = image_tag job.status_image_path
+        = "j#{job.id} - "
+        - label = job.label.blank? ? "(no label)" : job.label
+        = link_to label, job
   %hr
             

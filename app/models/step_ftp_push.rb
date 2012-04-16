@@ -51,7 +51,6 @@ class StepFtpPush < Step
 
     # Start FTP session
     begin
-
       log "connecting"
       ftp.connect(evaluated_host)
 
