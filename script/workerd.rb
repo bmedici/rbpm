@@ -1,9 +1,6 @@
 #!/usr/bin/env ruby
 require 'rubygems'
 require 'daemons'
-WAIT_DELAY = 1
-ALLOW_MULTIPLE = true
-ALLOW_MONITOR = true
 
 
 # Global init
@@ -14,11 +11,11 @@ hostname = `hostname`.chomp
 
 # Daemon options
 daemon_options = {
-  :multiple   => ALLOW_MULTIPLE,
+  :multiple   => true,
   :dir_mode   => :normal,
   :dir        => File.join(app_dir, 'tmp', 'pids'),
   :backtrace  => true,
-  :monitor  => ALLOW_MONITOR
+  :monitor    => true
   #:stop_proc  => :end_proc
 }
 

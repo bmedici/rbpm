@@ -10,8 +10,7 @@
       %th Started
       %th Completed
       %th Worker
-      %th Actions
-      %th
+      %th History
       %th
       %th
   %tbody
@@ -51,7 +50,7 @@
             %br
         %td
           = link_to 'destroy', job, :confirm => 'Are you sure?', :method => :delete
-        %td
+          %br
           = link_to 'reset', reset_job_path(job), :confirm => 'Are you sure?'
         %td
           = image_tag job.status_image_path

@@ -10,6 +10,24 @@ class Worker < ActiveRecord::Base
     @prefix = prefix
   end
   
+  def last_activity
+    Time.now - self.updated_at unless self.updated_at.nil?
+  end
+
+  def seems_zombie?
+    return last_activity > WORKERD_ZOMBIE_DELAY
+  end
+  
+  def status_image_path
+    if (self.last_activity <= WORKERD_ZOMBIE_DELAY)
+      return '/images/accept.png'
+    elsif (self.jobs.size > 0)
+      return '/images/clock.png'
+    else
+      return '/images/clock_red.png'
+    end
+  end
+
   # def logjob(job, msg)
   #   log "[j#{job.id}] #{msg}" unless @job.nil?
   # end
@@ -26,8 +44,12 @@ class Worker < ActiveRecord::Base
 
         # If we got nothing, just wait some time and loop back
         if job.nil?
+          # Touch the worker's record as a hearbeat
           #log "waiting for a job"
-          sleep WAIT_DELAY
+          self.touch
+          
+          # Wait a few seconds before polling again
+          sleep WORKERD_POLL_DELAY
           next
         end
 

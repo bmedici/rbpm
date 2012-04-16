@@ -1,6 +1,5 @@
 %h3 Workers status
 - @workers.each do |worker|
-  %hr
   %h5= "w#{worker.id} - #{worker.hostname} ##{worker.pid}"
   = "This worker is idle" if worker.jobs.empty?
   %table
@@ -12,3 +11,5 @@
           %td
             - label = job.label.blank? ? "job ##{job.id}" : job.label
             = link_to label, job
+  %hr
+            

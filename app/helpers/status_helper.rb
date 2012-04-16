@@ -10,12 +10,19 @@ module StatusHelper
     graph.tag_with_job_status(job)
     
     # Last action registered
-    last_action = job.actions.order('id DESC').first
-    return if last_action.nil?
-    last_step_id = last_action.step_id
-    return if last_step_id.nil?
+    # last_action = job.actions.order('id DESC').first
+    # return if last_action.nil?
+    # last_step_id = last_action.step_id
+    # return if last_step_id.nil?
     
-    graph.map_recurse_around(last_step_id, 2)
+    # # Add steps around each running step
+    # running_actions_step_ids = job.actions.where(:completed_at => nil).collect(&:step_id)
+    # running_actions_step_ids.each do |step_id|
+    #   graph.map_recurse_around(step_id, 0)
+    # end
+    
+    # Graph the whole process
+    graph.map_recurse_forward(job.step_id)
 
     # Generate output
     image_data = graph.output_to_string(:png)

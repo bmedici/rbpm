@@ -35,7 +35,6 @@ class Job < ActiveRecord::Base
       return '/images/accept.png'
     end
   end
-    
 
   def init_vars_from_context!
     return unless self.context.is_a? Hash

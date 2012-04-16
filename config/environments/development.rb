@@ -43,6 +43,10 @@ Rbpm::Application.configure do
   DASHBOARD_JOBS_RATE = 1
   LOGGING_TIMEFORMAT = "%Y.%m.%d %H.%M.%S"
   
+  WORKERD_POLL_DELAY = 1
+  WORKERD_ZOMBIE_DELAY = 2 + WORKERD_POLL_DELAY
+  #WORKERD_HEARTBEAT_DELAY = 1
+  
   # Environnement-specific constants
   ENV_CONSTANTS = {
     :filer => '/Users/bruno/TRASH/',

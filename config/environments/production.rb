@@ -58,6 +58,9 @@ Rbpm::Application.configure do
   DASHBOARD_WORKERS_RATE = 1
   DASHBOARD_JOBS_RATE = 1
   LOGGING_TIMEFORMAT = "%Y.%m.%d %H.%M.%S"
+  
+  WORKERD_POLL_DELAY = 2
+  #WORKERD_HEARTBEAT_DELAY = 1
 
   # Environnement-specific constants
   ENV_CONSTANTS = {

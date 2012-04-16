@@ -1,54 +1,35 @@
 %h3 Running jobs
 %p= "No running job" if @jobs_running.empty?
-%table
-  %tbody
-    - @jobs_running.each do |job|
-      %tr
-        %td= image_tag job.status_image_path
-        %td= "j#{job.id}"
-        %td
-          - label = job.label.blank? ? "job ##{job.id}" : job.label
-          = link_to label, job
-        %td
-          started
-          = seconds_ago(Time.now - job.started_at)
-      %tr
-        %td{:colspan => 4}
-          = job_status_image(job)
+- @jobs_running.each do |job|
+  - job_label = job.label.blank? ? "(job has no label)" : job.label
+  %h5
+    = image_tag job.status_image_path
+    = "j#{job.id} - "
+    = link_to job_label, job
+  = link_to job_status_image(job), job
+  %hr
 
 
 %h3 Queued jobs
 %p= "No queued job" if @jobs_runnable.empty?
-%table
-  %tbody
-    - @jobs_runnable.each do |job|
-      %tr
-        %td= image_tag job.status_image_path
-        %td
-          - label = job.label.blank? ? "job ##{job.id}" : job.label
-          = link_to label, job
-        %td
-          created
-          = seconds_ago(Time.now - job.created_at)
-      %tr
-        %td{:colspan => 4}
-          = job_status_image(job)
+- @jobs_runnable.each do |job|
+
+  - job_label = job.label.blank? ? "(job has no label)" : job.label
+  %h5
+    = image_tag job.status_image_path
+    = "j#{job.id} - "
+    = link_to job_label, job
+  = link_to job_status_image(job), job
+  %hr
+          
 
 %h3 Failed/suspended jobs
 %p= "No failed job" if @jobs_failed.empty?
-%table
-  %tbody
-    - @jobs_failed.each do |job|
-      %tr
-        %td= image_tag job.status_image_path
-        %td
-          - label = job.label.blank? ? "job ##{job.id}" : job.label
-          = link_to label, job
-        %td
-          created
-          = seconds_ago(Time.now - job.created_at)
-      %tr
-        %td{:colspan => 4}
-          = job_status_image(job)
-          %br
-          = job.errmsg unless job.errno.zero?
+- @jobs_failed.each do |job|
+  - job_label = job.label.blank? ? "(job has no label)" : job.label
+  %h5
+    = image_tag job.status_image_path
+    = "j#{job.id} - "
+    = link_to job_label, job
+  = link_to job_status_image(job), job
+  %hr

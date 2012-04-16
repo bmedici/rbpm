@@ -3,14 +3,12 @@
   status = system.status
   percent = system.load_percent
 
-
 %h5
   = "#{system.label}"
   %small= " - up #{status['uptime']}" unless status['uptime'].blank?
 
 %small
   = status['cpu_type'].to_s
-
 
 .row
   .span1
