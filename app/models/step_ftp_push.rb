@@ -81,7 +81,7 @@ class StepFtpPush < Step
     ftp.quit
     
     log "StepFtpPush ending"
-    return 0, "uploaded file [#{remotefile}]"
+    return 0, "uploaded file [#{remotefile}] to [#{remote_user}@#{evaluated_host}:#{remote_port}/#{remote_dir}]"
   end
   
   def validate_params?

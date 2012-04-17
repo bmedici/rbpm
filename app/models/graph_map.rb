@@ -13,7 +13,7 @@ class GraphMap
     
     # set global node options
     #@g.node[:color]    = "#ddaa66"
-    #@g.graph[:ratio]    = 1
+    @g.graph[:bgcolor]    = 'transparent'
     #@g.graph[:size]    = '3x5'
     
     @g.node[:color]    = "#AAAAAA"
@@ -148,7 +148,7 @@ class GraphMap
     end
     
     # Generate HREF for this step
-    href = Rails.application.routes.url_helpers.step_path(step)
+    href = Rails.application.routes.url_helpers.edit_step_path(step)
   
     # Add a new node to the graph
     shape = step.shape unless step.shape.nil?
@@ -183,7 +183,7 @@ class GraphMap
       edge_id = link.next_id
       next if edge_id.nil?
 
-      # If I'm a LinkFork link, don't recurse further (force depth = 1)
+      # If I'm a LinkFork link, just recurse one step more (force depth = 0)
       depth = 0 if link.type == 'LinkFork'
 
       # Browse the next step, only if not already in the cache
@@ -202,10 +202,10 @@ class GraphMap
       edge_id = link.step_id
       next if edge_id.nil?
 
-      # If I'm a LinkFork link, don't recurse further (force depth = 1)
+      # If I'm a LinkFork link, just recurse one step more (force depth = 0)
       depth = 0 if link.type == 'LinkFork'
       
-      # Browse the ancestor step, only if not already in the cache
+      # Browse the ancestor step, only if not linked through
       node = self.map_recurse(edge_id, go_backward, depth)
 
       # Handle the ancestor step and link it to the current one

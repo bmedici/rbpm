@@ -56,7 +56,7 @@ class StepWatchfolder < Step
     basename = File.basename(first_file)
     log "detected (#{basename})"
     target_file = "#{evaluated_target}/#{File.basename(first_file)}"
-    log "moving file to (#{target_file})"
+    log "moving (#{first_file}) to (#{target_file})"
 
     begin
       FileUtils.mv(first_file, target_file)
@@ -74,7 +74,7 @@ class StepWatchfolder < Step
     
     # Add detected filename to "locals" returned
     log "StepWatchfolder end"
-    return 0, "detected #{basename}", {:detected_file => target_file, :label => basename}
+    return 0, "detected (#{basename}) moved to (#{target_file})", {:detected_file => target_file, :label => basename}
   end
   
   #private

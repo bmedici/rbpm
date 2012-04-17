@@ -21,6 +21,7 @@
 
 
   %body.fluid
+  
     .navbar.navbar-fixed-top
       .navbar-inner
         .container-fluid
@@ -40,7 +41,12 @@
               %li= link_to "jobs", jobs_path
               %li= link_to "workers", workers_path
 
-
+    - if @links.is_a? Hash
+      .subnav
+        %ul.nav.nav-pills
+          - @links.each do |txt, label|
+            %li= link_to txt, label
+      
     .container-fluid
       .content
         - if @sidebar.nil?

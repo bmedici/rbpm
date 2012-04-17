@@ -1,7 +1,10 @@
-%h1 Editing step
+%h1 Editing step #{@step.label}
+= link_to "< back", steps_path
+
+%br
+= @image_map
+.well
+  = tag :img, :src => inline_image_src("image/png", @image_data), :usemap => "#G"
+
 
 = render 'form'
-
-= link_to 'Show', @step
-\|
-= link_to 'Back', steps_path
