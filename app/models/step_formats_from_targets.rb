@@ -21,26 +21,38 @@ class StepFormatsFromTargets < Step
     matrix = self.pval(:matrix)
     
     # Check for key list
-    keys = current_job.get_var(keys_variable)
-    return 21, "keys_variable (#{keys_variable}) points nowhere" if keys.nil?
+    keys_list = current_job.get_var(keys_variable)
+    return 21, "keys_variable (#{keys_variable}) points nowhere" if keys_list.nil?
+
+    # Explode keys_variable to array
+    keys = keys_list.split(',').map{|k| k.strip}
+    log "keys_variable (#{keys_variable}) points to (#{keys.size}) keys (#{keys.join(', ')})"
 
     # Cumulate formats
-    log "keys_variable (#{keys_variable}) points to (#{keys.size}) keys (#{keys.join(', ')})"
-    
     collected = []
+    missing = []
     keys.each do |key|
       elements_for_this_key = matrix[key]
-      log "key (#{key}) brings elements: (#{elements_for_this_key.join(', ')})"
-      collected.concat(elements_for_this_key)
+      if elements_for_this_key.is_a? Array
+        log "key (#{key}) brings elements: (#{elements_for_this_key.join(', ')})"
+        collected.concat(elements_for_this_key)
+      else
+        missing << key
+        log "key (#{key}) is not found or not an array"
+      end
     end
-    collected.uniq!
+    
+    # If we found some missing keys, just halt here
+    return 22, "missing entries in matrix: #{missing. join(', ')}" unless missing.empty?
 
     # Save this result
-    log "computed collected elements: #{collected.join(', ')}"
-    current_job.set_var(result_variable, collected, self, current_action)
+    collected.uniq!
+    collected_list = collected.join(', ')
+    log "computed collected elements: #{collected_list}"
+    current_job.set_var(result_variable, collected_list, self, current_action)
 
     # Finished
-    return 0, "StepFormatsFromTargets done"
+    return 0, "StepFormatsFromTargets: (#{keys.join(',')}) => (#{collected.join(',')})"
 
   end
   

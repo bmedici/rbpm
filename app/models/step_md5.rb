@@ -20,7 +20,7 @@ class StepMd5 < Step
     return 21, "depends on the run context to gather variables, no valid current_job given" if current_job.nil?
 
     # Evaluate source file and trget variable
-    log "current_job: #{current_job.to_json}"
+    #log "current_job: #{current_job.to_json}"
     log "vars: #{current_job.vars.to_json}"
     evaluated_file_to_hash = current_job.evaluate(file_to_hash)
     log "file_to_hash (#{file_to_hash}) > (#{evaluated_file_to_hash})"
