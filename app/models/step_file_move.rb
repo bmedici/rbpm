@@ -19,22 +19,25 @@ class StepFileMove < Step
     
     # Evaluate source file and targt dir
     evaluated_source = current_job.evaluate(self.pval(:source))
-    log "evaluated source: #{evaluated_source}"
     evaluated_target = current_job.evaluate(self.pval(:target))
-    log "evaluated target: #{evaluated_target}"
     
     # Check for directory presence
-    return 21, "source file not found (#{evaluated_source})" unless File.exists? evaluated_source
+    log "evaluated target: #{evaluated_target})"
     return 22, "target directory not found (#{evaluated_target})" unless File.directory? evaluated_target
 
-    # Move the flie
-    filesize = File.size(evaluated_source)
-    log "moving (#{evaluated_source}) file to (#{evaluated_target}), total (#{filesize}) bytes"
-    FileUtils.mv(evaluated_source,  evaluated_target)
+    # Find and move the flie(s)
+    moved_files = []
+    log "listing files in evaluated source: #{evaluated_target}"
+    Dir.glob(evaluated_source).each do |source_file|
+      filesize = File.size(source_file)
+      log "moving file: #{source_file} (size: #{filesize} bytes)"
+      FileUtils.mv(source_file,  evaluated_target)
+      moved_files << File.basename(source_file)
+    end
     
     # Add detected filename to "locals" returned
     log "StepFileMove end"
-    return 0, "moved (#{evaluated_source}) file to (#{evaluated_target}), total (#{filesize}) bytes"
+    return 0, "moved [#{moved_files.join(', ')}] to (#{evaluated_target})"
   end
   
   #private

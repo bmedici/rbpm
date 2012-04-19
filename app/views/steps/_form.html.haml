@@ -44,20 +44,24 @@
     .span7
       = f.fields_for :params do |param|
         - pdef = @step.pdef(param.object.name)
-        .row
-          .span7
-            %b= "#{param.object.name}"
-            - unless pdef.nil?
-              = " - #{pdef[:format]} - #{pdef[:description]}"
+        - if pdef.nil?
+          = "obsolete parameter: #{param.object.name}"
+          %br
+        - unless pdef.nil?
+          .row
+            .span7
+              %b= "#{param.object.name}"
+              - unless pdef.nil?
+                = " - #{pdef[:format]} - #{pdef[:description]}"
             
-        .row
-          .span3
-            - unless pdef.nil?
-              - rows = pdef[:lines] ||= 10
-              = param.text_area :value_format, :rows => rows.to_i
-            - else
-              ="This parameter is now garbage"
-          .span4
-            - unless param.object.value.blank?
-              %pre= param.object.value 
-        %hr
+          .row
+            .span3
+              - unless pdef.nil?
+                - rows = pdef[:lines] ||= 10
+                = param.text_area :value_format, :rows => rows.to_i
+              - else
+                ="This parameter is now garbage"
+            .span4
+              - unless param.object.value.blank?
+                %pre= param.object.value 
+          %hr

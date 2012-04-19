@@ -37,7 +37,7 @@ class StepsController < ApplicationController
   end
 
   def edit
-    @step = Step.includes(:params).find(params[:id])
+    @step = Step.joins(:params).find(params[:id])
 
     # Prepare graph
     graph = GraphMap.new
