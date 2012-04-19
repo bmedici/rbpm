@@ -1,6 +1,7 @@
-%h1 Editing link
+- set_title "Edit link"
+- add_tool '< back', links_path
+
+= @image_map
+.well= tag :img, :src => inline_image_src("image/png", @image_data), :usemap => "#G"
 
 = render 'form'
-
-= link_to 'Show', @link
-= link_to 'Back', links_path

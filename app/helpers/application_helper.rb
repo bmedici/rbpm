@@ -68,6 +68,18 @@ module ApplicationHelper
       end
     end
   end
-
+  
+  def set_title(title)
+    @title = title
+  end
+  
+  def add_tool(label, href)
+    @tools ||= []
+    @tools << {:label => label, :href => href}
+  end
+  
+  def get_tools_array
+    @tools ||= []
+  end
   
 end

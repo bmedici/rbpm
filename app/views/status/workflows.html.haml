@@ -1,11 +1,10 @@
--# @sidebar = 'authoring'
-%h1 Available workflows
+- set_title "Available workflows"
+- add_tool "start a new workflow", new_step_path(:start => true)
 
-%ul
-  - @root_steps.each do |root_step|
-    %hr
-    = image_tag map_graph_path(root_step)
-    %br
-    = link_to "push job", push_job_path(root_step)
-    |
-    = link_to "edit", edit_step_path(root_step)
+- @root_steps.each do |root_step|
+  %hr
+  = image_tag map_graph_path(root_step)
+  %br
+  = link_to "push job", push_job_path(root_step)
+  |
+  = link_to "edit", edit_step_path(root_step)

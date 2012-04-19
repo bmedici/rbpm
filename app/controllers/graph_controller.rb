@@ -62,13 +62,10 @@ class GraphController < ApplicationController
     graph.prepare(false)
 
     # Initialize with job information
-    graph.tag_with_step(step)
+    graph.highlight_step(step)
 
     # Recurse forward
     graph.map_recurse(step.id, 2)
-
-    # Recurse backward
-    #graph.map_recurse_backward(step.id, 1)
 
     # Generate output to the browser
     image_data = graph.output_to_string(:svg)

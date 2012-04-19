@@ -62,7 +62,7 @@ class StepWatchfolder < Step
       FileUtils.mv(first_file, target_file)
 
     rescue Errno::EACCES
-      msg = "EACCES: access denied"
+      msg = "file move: EACCES: access denied"
       log msg
       return 31, msg
     

@@ -13,8 +13,22 @@ class StepsController < ApplicationController
   def show
   end
 
+  def follow
+    # Find the step we're working on
+    @step = Step.includes(:params).find(params[:id])
+    
+    # Create a new next-step
+    @next_step = @step.nexts.create
+    
+    redirect_to edit_step_path(@next_step), :notice => 'Step was successfully created.'
+  end
+
   def new
     @step = Step.new
+    
+    unless params[:start].blank?
+      @step.type = StepStart
+    end
 
     respond_to do |format|
       format.html # new.html.erb
@@ -25,19 +39,17 @@ class StepsController < ApplicationController
   def edit
     @step = Step.includes(:params).find(params[:id])
 
-    # Prepare the local map
-    step = Step.find(params[:id])
-
     # Prepare graph
     graph = GraphMap.new
     graph.prepare(false)
-    graph.tag_with_step(step)
-    graph.map_recurse_around(step.id, 2)
+    
+    # Highlight the current step and recurse around it
+    graph.highlight_step(@step)
+    graph.map_recurse_around(@step.id, 2)
 
     # Generate output to the browser
     @image_data = graph.output_to_string(:png)
     @image_map = graph.output_to_string(:cmapx)
-
   end
 
   def create
@@ -61,7 +73,7 @@ class StepsController < ApplicationController
     respond_to do |format|
       if @step.update_attributes(params[:step])
         #format.html { render :action => "edit" }
-        format.html { redirect_to (edit_step_path(@step)) }
+        format.html { redirect_to edit_step_path(@step) }
         #format.html { redirect_to edit_step_path(@step), :notice => 'Step was successfully updated.' }
         format.json { head :ok }
       else

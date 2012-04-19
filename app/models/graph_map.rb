@@ -4,6 +4,7 @@ class GraphMap
   def initialize
     #@step_skip = []
     @step_attributes = {}
+    @link_attributes = {}
     @step_history = []
   end
   
@@ -62,12 +63,34 @@ class GraphMap
         })
     end
   end
+  
+  def step_attributes(id, data)
+    @step_attributes[id] = data
+  end
+  
+  def link_attributes(id, data)
+    @link_attributes[id] = data
+  end
     
-  def tag_with_step(step)
+  def highlight_step(step)
     self.step_attributes(step.id, {
       :border_color => COLOR_CURRENT,
+      :pen_width => 3,
       })
   end
+  
+  def highlight_link(link)
+    self.link_attributes(link.id, {
+      :border_color => COLOR_CURRENT,
+      :pen_width => 3,
+      })
+  end
+  
+  # def add_new_link_on(step)
+  #   self.step_attributes(step.id, {
+  #     :add_new_link => true,
+  #     })
+  # end
   
   def output_to_file(format, target)
     @g.output( format => target )
@@ -78,11 +101,7 @@ class GraphMap
     Rails.logger.info @g.output( :imap => String)
     return @g.output( format => String).html_safe
   end
-  
-  def step_attributes(step_id, data)
-    @step_attributes[step_id] = data
-  end
-  
+
   def render
     # Generate output to temp file
     tempfile = Tempfile::open( File.basename(__FILE__) )
@@ -111,10 +130,35 @@ class GraphMap
   protected
 
   def map_add_link(link, from, to)
+    # Default values
+    pen_width = 1
+    border_color = COLOR_DEFAULT
+    link_color = link.color
+    pen_width = link.penwidth
+
+    # Build labels
+    label = []
+    label << "k#{link.id.to_s} #{link.type.to_s}"
+    label << link.label.to_s
+
+    # Use object is attributes given
+    attributes = @link_attributes[link.id]
+    if (attributes.is_a? Hash) && !(attributes.empty?)
+      # Pen width ?
+      pen_width = attributes[:pen_width] unless attributes[:pen_width].nil?
+      
+      # Border color ?
+      link_color = attributes[:border_color] unless attributes[:border_color].nil?
+      
+      # Any errors to draw ?
+      label << "ERROR  #{attributes[:errno]}" unless attributes[:errno].to_i.zero?
+    end
+    
+    # Generate HREF for this step
+    href = Rails.application.routes.url_helpers.edit_link_path(link)
+  
     # Add a link between the current step and the newly created step
-    label1 = "k#{link.id.to_s} #{link.type.to_s}"
-    label2 = link.label.to_s
-    return @g.add_edge(from, to, :label => "#{label1}\n#{label2}", :color => link.color, :penwidth => link.penwidth)
+    return @g.add_edge(from, to, :label => label.join("\n"), :color => link_color, :penwidth => pen_width, :URL => href)
   end
 
   def map_add_step(step)
@@ -128,23 +172,17 @@ class GraphMap
     label << "s#{step.id.to_s} #{step.type.to_s}"
     label << step.label.to_s
     
-    # Tweak node is attributes given
+    # Use object is attributes given
     attributes = @step_attributes[step.id]
     if (attributes.is_a? Hash) && !(attributes.empty?)
-      # If any attribute, double border
-      pen_width = 2
+      # Pen width ?
+      pen_width = attributes[:pen_width] unless attributes[:pen_width].nil?
       
-      # Border color
+      # Border color ?
       border_color = attributes[:border_color] unless attributes[:border_color].nil?
       
-      # Any errors ?
-      #href = @step_attributes[step.id][:href]
+      # Any errors to draw ?
       label << "ERROR  #{attributes[:errno]}" unless attributes[:errno].to_i.zero?
-      
-      # If stealth, thin border and no color
-      # TODO
-      #step_color = "#FFFFFF"
-      #pen_width = 1
     end
     
     # Generate HREF for this step
@@ -156,6 +194,7 @@ class GraphMap
     
     # Add it to the history
     @step_history[step.id] = step_node
+    
     return step_node
   end
     

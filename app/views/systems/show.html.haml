@@ -1,7 +1,7 @@
-.subnav.subnav-fixed
-  %ul.nav.nav-pills
-    %li
-      = link_to "update status", update_status_system_path(@system)
+- set_title "System #{@system.label}"
+
+- add_tool '< back', systems_path
+- add_tool 'update from remote', update_status_system_path(@system)
 
 
 %p#notice= notice

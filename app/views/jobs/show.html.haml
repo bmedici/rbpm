@@ -1,6 +1,7 @@
+- set_title "Job j#{@job.id}"
+
 - map_class =  @job.completed_at.nil? ? 'autorefresh' : 'completed'
 - status_label =  @job.completed_at.nil? ? 'waiting' : 'completed'
-%h1 Showing job j#{@job.id}
 =# link_to 'back', jobs_path
 %p#notice= notice
 

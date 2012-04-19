@@ -7,12 +7,8 @@ class StatusController < ApplicationController
     @jobs_running = Job.running.order('id DESC').all
     @jobs_runnable = Job.runnable.order('id DESC')
     @jobs_failed = Job.failed.order('id DESC')
-
     @workers = Worker.all
-
     @systems = System.order(:label)
-    
-    
   end  
   
   def ajax_workers

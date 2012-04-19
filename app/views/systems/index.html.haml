@@ -1,4 +1,5 @@
-%h1 Listing systems
+- set_title "Systems"
+- add_tool 'new system', new_system_path
 
 %table
   %tr
@@ -16,7 +17,3 @@
       %td= my_datetime system.updated_at
       %td= link_to 'Edit', edit_system_path(system)
       %td= link_to 'Destroy', system, :confirm => 'Are you sure?', :method => :delete
-
-%br
-
-= link_to 'New System', new_system_path

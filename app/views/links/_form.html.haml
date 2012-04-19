@@ -6,21 +6,25 @@
       - @link.errors.full_messages.each do |msg|
         %li= msg
 
-  .field
-    = f.label :label
-    = f.text_field :label
-  .field
-    = f.label :step
-    = f.select :step_id, @steps, { :include_blank => '' }, :class => "large_field"
-  .field
-    = f.label :next
-    = f.select :next_id, @steps, { :include_blank => '' }, :class => "large_field"
-  .field
-    = f.label :class
-    = f.select :type, LINK_CLASSES, {:include_blank => false}
-  .field
-    = f.label 'Params (ruby code, use vars[:name])'
-    = f.text_area :params, :rows => 20
-    =# text_area_tag :params, pretty_json, :rows => 5
+  .row
+    .span3
+      .field
+        = f.label :label
+        = f.text_field :label
+      .field
+        = f.label "Going from step"
+        = f.select :step_id, @steps, { :include_blank => '' }, :class => "large_field"
+      .field
+        = f.label "To step"
+        = f.select :next_id, @steps, { :include_blank => '' }, :class => "large_field"
+      .field
+        = f.label :class
+        = f.select :type, LINK_CLASSES, {:include_blank => false}
+        
+    .span7
+      .field
+        = f.label 'Params (ruby code, use vars[:name])'
+        = f.text_area :params, :rows => 20
+        =# text_area_tag :params, pretty_json, :rows => 5
   .actions
     = f.submit

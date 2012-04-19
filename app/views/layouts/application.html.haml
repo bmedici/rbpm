@@ -41,14 +41,14 @@
               %li= link_to "jobs", jobs_path
               %li= link_to "workers", workers_path
 
-    - if @links.is_a? Hash
-      .subnav
-        %ul.nav.nav-pills
-          - @links.each do |txt, label|
-            %li= link_to txt, label
-      
     .container-fluid
       .content
+        %h1
+          = @title unless @title.blank?
+        %ul.nav.nav-pills
+          - get_tools_array.each do |tool|
+            %li= link_to tool[:label], tool[:href]
+
         - if @sidebar.nil?
           = yield
         - else
@@ -60,10 +60,8 @@
                 %ul.nav.nav-list
                   = render :partial => "layouts/#{@sidebar}" unless @sidebar.blank?
     
-      %footer
-        %br
-        %brand
-        %p &copy; Bruno Medici 2011-2012
+      %footer.footer
+        &copy; Bruno Medici 2011-2012
     /
       Le javascript
       \==================================================

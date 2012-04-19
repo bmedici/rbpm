@@ -29,7 +29,20 @@ class LinksController < ApplicationController
   end
 
   def edit
-    @link = Link.find(params[:id])
+    @link = Link.includes(:step).find(params[:id])
+    link_base_step = @link.step
+
+    # Prepare graph
+    graph = GraphMap.new
+    graph.prepare(false)
+    
+    # Highlight the current step and recurse around base step
+    graph.highlight_link(@link)
+    graph.map_recurse_around(link_base_step.id, 2)
+
+    # Generate output to the browser
+    @image_data = graph.output_to_string(:png)
+    @image_map = graph.output_to_string(:cmapx)
   end
 
   def create
@@ -51,8 +64,8 @@ class LinksController < ApplicationController
 
     respond_to do |format|
       if @link.update_attributes(params[:link])
-        format.html { render :action => "edit" }
-        #format.html { redirect_to links_url, :notice => 'Link was successfully updated.' }
+        #format.html { render :action => "edit" }
+        format.html { redirect_to edit_link_url(@link), :notice => 'Link was successfully updated.' }
         format.json { head :ok }
       else
         format.html { render :action => "edit" }

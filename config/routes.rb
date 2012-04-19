@@ -12,7 +12,12 @@ Rbpm::Application.routes.draw do
     end
   end
 
-  resources :steps
+  resources :steps do
+    member do
+      get :follow
+    end
+  end
+  
   resources :links  
   resources :jobs do
     member do
