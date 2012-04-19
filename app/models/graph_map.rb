@@ -200,8 +200,6 @@ class GraphMap
     
   def map_recurse(step_id, go_backward = false, depth = nil)
     # Do nothing with this iteration if link already in the cache
-    Rails.logger.info "STEP ID: #{step_id}"
-    Rails.logger.info "STEP CLASS: #{step_id.class.to_s}"
     return nil unless @step_history[step_id].nil?
 
     # Read this step
