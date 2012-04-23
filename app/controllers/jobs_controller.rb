@@ -28,43 +28,50 @@ class JobsController < ApplicationController
 
   # GET /jobs/new
   # GET /jobs/new.json
-  def new
-    @job = Job.new
-
-    respond_to do |format|
-      format.html # new.html.erb
-      format.json { render :json => @job }
-    end
-  end
+  # def new
+  #   @job = Job.new
+  # 
+  #   respond_to do |format|
+  #     format.html # new.html.erb
+  #     format.json { render :json => @job }
+  #   end
+  # end
 
   # GET /jobs/1/edit
   def edit
     @job = Job.find(params[:id])
   end
 
-  def create
-    @job = Job.new(params[:job])
-    @job.creator = "manual.admin"
-
-    respond_to do |format|
-      if @job.save
-        format.html { redirect_to @job, :notice => 'Job was successfully created.' }
-        format.json { render :json => @job, :status => :created, :location => @job }
-      else
-        format.html { render :action => "new" }
-        format.json { render :json => @job.errors, :status => :unprocessable_entity }
-      end
-    end
-  end
+  # def create
+  #   @job = Job.new(params[:job])
+  #   @job.creator = "manual.admin"
+  # 
+  #   respond_to do |format|
+  #     if @job.save
+  #       format.html { redirect_to @job, :notice => 'Job was successfully created.' }
+  #       format.json { render :json => @job, :status => :created, :location => @job }
+  #     else
+  #       format.html { render :action => "new" }
+  #       format.json { render :json => @job.errors, :status => :unprocessable_entity }
+  #     end
+  #   end
+  # end
 
   def push
     @job = Job.new()
     @job.creator = "manual.push"
     @job.step_id = params[:id]
-    
 
     respond_to do |format|
       if @job.save
+
+        begin
+          @job.push_to_beanstalk("jobs#push")
+        rescue Beanstalk::NotConnected
+           redirect_to workflows_path, :notice => 'Could not connect to beanstalk server'
+           return
+        end
+
         format.html { redirect_to @job, :notice => 'Job was successfully created.' }
         format.json { render :json => @job, :status => :created, :location => @job }
       else
@@ -106,6 +113,14 @@ class JobsController < ApplicationController
     @job.actions.destroy_all
     @job.init_vars_from_context!
     @job.update_attributes(:completed_at => nil, :errno => 0, :errmsg => '', :worker => nil)
+    
+    begin
+      @job.push_to_beanstalk("jobs#reset")
+    rescue Beanstalk::NotConnected
+       redirect_to jobs_path, :notice => 'Could not connect to beanstalk server'
+       return
+    end
+      
     #render :text => 'done'
     redirect_to @job, :notice => 'Job was successfully reset'
   end

@@ -37,3 +37,4 @@ gem "daemons"
 
 
 gem "rest-client"
+gem "beanstalk-client"

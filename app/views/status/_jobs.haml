@@ -13,6 +13,8 @@
 %h3 Queued jobs
 %p= "No queued job" if @jobs_runnable.empty?
 - @jobs_runnable.each do |job|
+  %p
+    = job_status_image(job)
   - job_label = job.label.blank? ? "(job has no label)" : job.label
   %h5
     = image_tag job.status_image_path
@@ -20,7 +22,7 @@
     = link_to job_label, job
   = link_to job_status_image(job), job
   %hr
-          
+
 
 %h3 Failed/suspended jobs
 %p= "No failed job" if @jobs_failed.empty?

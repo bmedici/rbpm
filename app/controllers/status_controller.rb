@@ -15,6 +15,12 @@ class StatusController < ApplicationController
     @workers = Worker.all
     render :partial => 'workers'
   end  
+  
+  def ajax_beanstalk
+    beanstalk = Beanstalk::Pool.new(QUEUE_SERVERS)
+    @bs_stats = beanstalk.stats()
+    render :partial => 'beanstalk'
+  end  
 
   def ajax_jobs
     @jobs_running = Job.locked.order('id DESC').all

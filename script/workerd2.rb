@@ -2,8 +2,6 @@
 require 'rubygems'
 require 'daemons'
 require 'beanstalk-client'
-USE_BEANSTALK = true
-
 
 # Global init
 app_dir = File.expand_path(File.join(File.dirname(__FILE__), '..'))
@@ -22,8 +20,6 @@ daemon_options = {
 }
 
 
-# Start daemon processes
-Daemons.run_proc('rbpm_worker', daemon_options) do
 
   # Include Rails environment
   require File.expand_path(File.join(app_dir, 'config', 'environment'))
@@ -49,9 +45,6 @@ Daemons.run_proc('rbpm_worker', daemon_options) do
   wlog = ActiveSupport::BufferedLogger.new(logfile_worker)
   wlog.auto_flushing = true
   Rails.logger.info "PID [#{pid}]: logging to file [#{logfile_worker}]"
-  
-  # Connect worker to logger
-  worker.log_to(wlog, "[w#{worker.id}]")
 
   # What to do when asked to terminate
   Signal.trap("TERM") do
@@ -60,27 +53,18 @@ Daemons.run_proc('rbpm_worker', daemon_options) do
     worker.destroy
     exit
   end
-  
+
   # Main endless loop
-  begin
-    
-    if (USE_BEANSTALK==true)
-      beanstalk = Beanstalk::Pool.new(QUEUE_SERVERS)
-      worker.listen_to_beanstalk(beanstalk)
-    else
-      worker.poll_database
-    end
+  worker.log_to(wlog, "[w#{worker.id}]")
+  
+  # Connect to beanstalk queue
+  wlog.info "connecting to beanstalk queue #{QUEUE_SERVERS.to_json}"
+  beanstalk = Beanstalk::Pool.new(QUEUE_SERVERS)
+  #beanstalk.watch(QUEUE_JOBS)
+  #beanstalk.ignore(QUEUE_DEFAULT)
+  wlog.info "connected, waiting for a job to be stacked"
 
-  rescue Beanstalk::NotConnected
-    msg = "PID [#{pid}]: EXITING, unable to connect to beanstalkd"
-    puts msg
-    Rails.logger.info msg
-
-  rescue Exception => exception
-    msg = "PID [#{pid}]: unhandled exception: #{exception.message}"
-    puts msg
-    Rails.logger.info msg
-
-  end    
-
-end
+  # Main endless loop
+  beanstalk = Beanstalk::Pool.new(QUEUE_SERVERS)
+  job_message = beanstalk.reserve
+  puts job_message.to_json

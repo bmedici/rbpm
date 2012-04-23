@@ -4,6 +4,7 @@ class Worker < ActiveRecord::Base
   has_many :jobs
   @logger = nil
   @prefix = ""
+  #@current_beanstalk_message
   
   def log_to(logger, prefix)
     @logger = logger
@@ -32,8 +33,8 @@ class Worker < ActiveRecord::Base
   #   log "[j#{job.id}] #{msg}" unless @job.nil?
   # end
   
-  def work
-    log "starting"
+  def poll_database
+    log "worker#poll_database"
     
     # Main endless loop
     loop do
@@ -54,7 +55,7 @@ class Worker < ActiveRecord::Base
         end
 
         # Now try to get the lock on this record
-        log "found job [j#{job.id}]"
+        log "database: found job [j#{job.id}]"
         job.update_attributes(:worker => self, :started_at => Time.now)
         
         # Do the work on this job
@@ -95,6 +96,60 @@ class Worker < ActiveRecord::Base
         #   print "!"
         #   job = nil
         # end
+    end
+  end
+  
+  def listen_to_beanstalk(queue)
+    # Use a beanstalk queue
+    log "worker#listen_to_beanstalk"
+    beanstalk = Beanstalk::Pool.new(QUEUE_SERVERS)
+
+    # Main endless loop
+    loop do
+      # Reserve a job item to handle
+      log "waiting for a job"
+      job_message = beanstalk.reserve
+      log "received: #{job_message.body.to_json}"
+
+      # Read and lock the job in the database
+      job = Job.find(job_message[:id])
+      job.update_attributes(:worker => self, :started_at => Time.now)
+      log "found and locked job [j#{job.id}]"
+      
+      # Do the work on this job
+      raise "EXITING: jobs:pop expects a starting step" if job.step.nil?
+
+      # Start the process execution on the root step
+      begin
+        job.log_to(@logger, "#{@prefix} [j#{job.id}]")
+        job.start!
+
+      rescue Exceptions::JobFailedParamError => exception
+        job.update_attributes(:worker => nil, :errno => -11 , :errmsg => exception.message)
+        log "JOB [j#{job.id}] ABORTED JobFailedParamError #{exception.message}"
+
+      rescue Exceptions::JobFailedStepRun => exception
+        job.update_attributes(:worker => nil, :errno => -12 , :errmsg => exception.message)
+        log "JOB [j#{job.id}] ABORTED JobFailedStepRun #{exception.message}"
+
+      rescue Exceptions => exception
+        job.update_attributes(:worker => nil, :errno => -1 , :errmsg => exception.message)
+        log "JOB [j#{job.id}] ABORTED: #{exception.message}"
+
+      else
+        # It's done, unlock it, otherwise leave it like that
+        job.update_attributes(:worker => nil, :completed_at => Time.now)
+        log "job [j#{job.id}] completed"
+      end
+
+      # Just have a rest for 1s
+      sleep 1
+      
+      # Work done, update all that stuff
+      job.update_attributes(:worker => nil, :completed_at => Time.now)
+    
+      # Item has been worked out
+      job_message.delete
     end
   end
   

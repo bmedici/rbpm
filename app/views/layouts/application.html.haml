@@ -49,6 +49,8 @@
           - get_tools_array.each do |tool|
             %li= link_to tool[:label], tool[:href]
 
+        %p#notice= notice
+            
         - if @sidebar.nil?
           = yield
         - else
