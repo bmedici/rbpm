@@ -64,7 +64,7 @@ Rbpm::Application.configure do
   WORKERD_ZOMBIE_DELAY = 2 + WORKERD_POLL_DELAY
   #WORKERD_HEARTBEAT_DELAY = 1
   
-  QUEUE_SERVERS = ['10.0.8.128:11300']
+  QUEUE_SERVERS = ['10.0.8.128:11300', '10.0.8.136:11300', '10.0.8.138:11300']
   
   # Environnement-specific constants
   ENV_CONSTANTS = {
