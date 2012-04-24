@@ -41,7 +41,8 @@
             %br
             %i= "took #{job.completed_at - job.created_at}s"
         %td
-          = link_to "w#{job.worker_id}", worker_path(job.worker_id) unless job.worker_id.nil?
+          =# link_to "w#{job.worker_id}", worker_path(job.worker_id) unless job.worker_id.nil?
+          = job.worker
         %td
           - job.actions.order('id DESC').each do |action|
             %b

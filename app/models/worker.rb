@@ -1,6 +1,7 @@
 class Worker
   @logger = nil
   @bs = nil
+  @prefix = ""
   #@jobs_queue = QUEUE_DEFAULT
   @jobs_queue = QUEUE_JOBS
   #@current_beanstalk_message
@@ -8,12 +9,12 @@ class Worker
   def initialize(hostname, pid)
     base = hostname.split('.')[0]
     @name = "#{base}-#{pid}"
-    
     @bs = Q.new
   end
   
-  def log_to(logger)
+  def log_to(logger, prefix="")
     @logger = logger
+    @prefix = "#{@prefix}#{@name}\t"
   end
   
   def name
@@ -65,7 +66,7 @@ class Worker
 
         # Now try to get the lock on this record
         log "database: found job [j#{job.id}]"
-        job.update_attributes(:worker => self, :started_at => Time.now)
+        job.update_attributes(:worker => @name, :started_at => Time.now)
         
         # Do the work on this job
         raise "EXITING: jobs:pop expects a starting step" if job.step.nil?
@@ -115,7 +116,6 @@ class Worker
     @bs.announce_worker(@name)
     log "announced worker [#{@name}]"
     
-    
     # Bind on the jobs queue
     # FIXME
 
@@ -128,7 +128,7 @@ class Worker
 
       # Read and lock the job in the database
       job = Job.find(j[:id]) or raise Exceptions::WorkerFailedJobNotfound("job (#{j[:id]}) not found")
-      job.update_attributes(:worker => self, :started_at => Time.now)
+      job.update_attributes(:worker => @name, :started_at => Time.now)
       log "found and locked job [j#{job.id}]"
       
       # Do the work on this job
@@ -136,7 +136,7 @@ class Worker
 
       # Start the process execution on the root step
       begin
-        job.log_to(@logger, "#{@name} [j#{job.id}]")
+        job.log_to(@logger, @prefix)
         job.start!
 
       rescue Exceptions::JobFailedParamError => exception
@@ -170,7 +170,8 @@ class Worker
   protected
   
   def log(msg="")
-    @logger.info "#{Time.now.strftime(LOGGING_TIMEFORMAT)} \t#{@name} \t#{msg}" unless @logger.nil?
+    stamp = Time.now.strftime(LOGGING_TIMEFORMAT)
+    @logger.info "#{stamp}\t#{@prefix}#{msg}" unless @logger.nil?
   end
   
 end

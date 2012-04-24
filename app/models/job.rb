@@ -2,14 +2,13 @@ class Job < ActiveRecord::Base
   belongs_to :step
   has_many :actions, :dependent => :destroy
   has_many :vars, :dependent => :destroy
-  belongs_to :worker
   
   accepts_nested_attributes_for :vars
   
   #scope :latest_actions, includes(:actions)
   #scope :latest_actions, includes(:actions)
-  scope :locked, where('worker_id IS NOT NULL')
-  scope :not_locked, where(:worker_id => nil)
+  scope :locked, where('NOT worker=""')
+  scope :not_locked, where('worker=""')
   scope :not_completed, where(:completed_at => nil)
   scope :running, locked.not_completed
   scope :runnable, not_locked.not_completed.order(:id)
@@ -21,6 +20,7 @@ class Job < ActiveRecord::Base
   @prefix = ""
   
   after_initialize :init_context
+  after_create :push_to_beanstalk
   
   def init_context
     self.context ||= {}
@@ -75,17 +75,6 @@ class Job < ActiveRecord::Base
   def unlock!
     self.update_attributes(:completed_at => nil, :locked => false)
   end
-  
-  # def evaluate(expression)
-  #   #return     varname = expression.to_s.slice(1..-1)
-  # 
-  #   if (expression.is_a? String) && (expression.chars.first == '$')
-  #     varname = expression.to_s.slice(1..-1)
-  #     return get_var(varname).to_s
-  #   end
-  # 
-  #   return expression.to_s.strip
-  # end
     
   def evaluate(expression)
     # Dont' do any replacement if expression is not a string
@@ -112,16 +101,15 @@ class Job < ActiveRecord::Base
     return expression
   end
     
-  def log_to(logger, prefix)
+  def log_to(logger, prefix="")
     @logger = logger
-    @prefix = prefix
+    @prefix = "#{prefix}[j#{self.id}]\t"
   end
 
   def start!
-    log
-    log "######################################################################################"
-    log "#### STARTING JOB (j#{self.id}) FROM STEP (s#{self.step.id}) #{self.step.label}"
-    log "######################################################################################"
+    log "#############################################################################"
+    log "## STARTING JOB (j#{self.id}) FROM STEP (s#{self.step.id}) #{self.step.label}"
+    log "#############################################################################"
     
     # Initialize initial context into vars, create as many job.var's as needed
     log "initializing job with context: #{self.context.to_json}"
@@ -132,6 +120,20 @@ class Job < ActiveRecord::Base
     return self.run_from(self.step)
   end
   
+  def reset!
+    # Remove all children
+    self.vars.destroy_all
+    self.actions.destroy_all
+    self.init_vars_from_context!
+    
+    # Flag it as clean
+    self.update_attributes(:completed_at => nil, :errno => 0, :errmsg => '', :worker => nil)
+    
+    # Push it again on beanstalk
+    bs = Q.new
+    bs.push_job(self.id, "job.reset")
+  end
+
   protected
   
   def run_from(from_step)
@@ -280,7 +282,13 @@ class Job < ActiveRecord::Base
   end
 
   def log(msg="")
-    @logger.info "#{Time.now.strftime(LOGGING_TIMEFORMAT)} #{@prefix} #{msg}" unless @logger.nil?
+    stamp = Time.now.strftime(LOGGING_TIMEFORMAT)
+    @logger.info "#{stamp}\t#{@prefix}#{msg}" unless @logger.nil?
+  end
+
+  def push_to_beanstalk
+    bs = Q.new
+    bs.push_job(self.id, "job.create")
   end
 
 end

@@ -200,7 +200,7 @@ class GraphMap
     
   def map_recurse(step_id, go_backward = false, depth = nil)
     # Do nothing with this iteration if link already in the cache
-    return nil unless @step_history[step_id].nil?
+    return @step_history[step_id] unless @step_history[step_id].nil?
 
     # Read this step
     step = Step.includes(:links, :ancestors).find(step_id)

@@ -25,10 +25,13 @@
         %td Created
         %td= @job.created_at
       %tr
-        %td Completed
+        %td Completed?
         %td= @job.completed_at
       %tr
-        %td Returned
+        %td Worker?
+        %td= @job.worker
+      %tr
+        %td Result?
         %td
           = @job.errno unless @job.errno.zero?
           %br

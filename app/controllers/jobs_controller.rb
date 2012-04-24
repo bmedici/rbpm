@@ -65,12 +65,12 @@ class JobsController < ApplicationController
     respond_to do |format|
       if @job.save
 
-        begin
-          @job.push_to_beanstalk("jobs#push")
-        rescue Beanstalk::NotConnected
-           redirect_to workflows_path, :notice => 'Could not connect to beanstalk server'
-           return
-        end
+        # begin
+        #   @job.push_to_beanstalk("jobs#push")
+        # rescue Beanstalk::NotConnected
+        #    redirect_to workflows_path, :notice => 'Could not connect to beanstalk server'
+        #    return
+        # end
 
         format.html { redirect_to @job, :notice => 'Job was successfully created.' }
         format.json { render :json => @job, :status => :created, :location => @job }
@@ -109,19 +109,7 @@ class JobsController < ApplicationController
   
   def reset
     @job = Job.find(params[:id])
-    @job.vars.destroy_all
-    @job.actions.destroy_all
-    @job.init_vars_from_context!
-    @job.update_attributes(:completed_at => nil, :errno => 0, :errmsg => '', :worker => nil)
-    
-    begin
-      @job.push_to_beanstalk("jobs#reset")
-    rescue Beanstalk::NotConnected
-       redirect_to jobs_path, :notice => 'Could not connect to beanstalk server'
-       return
-    end
-      
-    #render :text => 'done'
+    @job.reset!
     redirect_to @job, :notice => 'Job was successfully reset'
   end
   

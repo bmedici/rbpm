@@ -30,9 +30,9 @@ class Step < ActiveRecord::Base
     {}
   end
   
-  def log_to(logger, prefix)
+  def log_to(logger, prefix="")
     @logger = logger
-    @prefix = prefix
+    @prefix = "#{prefix}[s#{self.id}]\t"
   end
   
   def pval(name, formatted = nil)
@@ -144,7 +144,8 @@ class Step < ActiveRecord::Base
   end
 
   def log(msg="")
-    @logger.info "#{Time.now.strftime(LOGGING_TIMEFORMAT)} #{@prefix} #{msg}" unless @logger.nil?
+    stamp = Time.now.strftime(LOGGING_TIMEFORMAT)
+    @logger.info "#{stamp}\t#{@prefix}#{msg}" unless @logger.nil?
   end
   
 end
