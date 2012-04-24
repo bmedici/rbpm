@@ -1,5 +1,3 @@
-require 'beanstalk-client'
-
 class Job < ActiveRecord::Base
   belongs_to :step
   has_many :actions, :dependent => :destroy
@@ -38,17 +36,6 @@ class Job < ActiveRecord::Base
     end
   end
 
-  def push_to_beanstalk(reason)
-    beanstalk = Beanstalk::Pool.new(QUEUE_SERVERS)
-    #beanstalk.use(QUEUE_JOBS)
-    beanstalk.yput({
-      :id => self.id,
-      :creator => self.creator,
-      :creator => self.creator,
-      :reason => reason,
-    })
-  end
-    
   def init_vars_from_context!
     return unless self.context.is_a? Hash
 
@@ -137,7 +124,7 @@ class Job < ActiveRecord::Base
     log "######################################################################################"
     
     # Initialize initial context into vars, create as many job.var's as needed
-    log "initializin job with context: #{self.context.to_json}"
+    log "initializing job with context: #{self.context.to_json}"
     self.init_vars_from_context!
      
     # Start execution from job's first step

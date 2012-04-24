@@ -1,23 +1,20 @@
-class Worker
+#require 'daemons'
+
+class Worker < ActiveRecord::Base
+  has_many :jobs
   @logger = nil
+  @prefix = ""
   @bs = nil
-  #@jobs_queue = QUEUE_DEFAULT
-  @jobs_queue = QUEUE_JOBS
   #@current_beanstalk_message
   
   def initialize(hostname, pid)
-    base = hostname.split('.')[0]
-    @name = "#{base}-#{pid}"
-    
     @bs = Q.new
+    @bs.announce_worker(host, pid)
   end
   
-  def log_to(logger)
+  def log_to(logger, prefix)
     @logger = logger
-  end
-  
-  def name
-    @name
+    @prefix = prefix
   end
   
   def last_activity
@@ -72,7 +69,7 @@ class Worker
 
         # Start the process execution on the root step
         begin
-          job.log_to(@logger, "#{@name} [j#{job.id}]")
+          job.log_to(@logger, "#{@prefix} [j#{job.id}]")
           job.start!
 
         rescue Exceptions::JobFailedParamError => exception
@@ -108,35 +105,32 @@ class Worker
     end
   end
   
-  def handle_beanstalk_jobs
-    log "worker#handle_beanstalk_jobs"
-    
-    # Announce the worker
-    @bs.announce_worker(@name)
-    log "announced worker [#{@name}]"
-    
-    
-    # Bind on the jobs queue
-    # FIXME
+  def listen_to_beanstalk(queue)
+    # Use a beanstalk queue
+    log "worker#listen_to_beanstalk"
+    beanstalk = Beanstalk::Pool.new(QUEUE_SERVERS)
 
     # Main endless loop
     loop do
       # Reserve a job item to handle
       log "waiting for a job"
-      j = @bs.reserve_job
-      log "received: #{j.body.to_json}"
+      job_message = beanstalk.reserve
+      log "received: #{job_message.body.to_json}"
 
       # Read and lock the job in the database
-      job = Job.find(j[:id]) or raise Exceptions::WorkerFailedJobNotfound("job (#{j[:id]}) not found")
+      job = Job.find(job_message[:id])
       job.update_attributes(:worker => self, :started_at => Time.now)
       log "found and locked job [j#{job.id}]"
       
       # Do the work on this job
       raise "EXITING: jobs:pop expects a starting step" if job.step.nil?
 
+      # Item has been worked out # FIXME: should be remove only when completed
+      job_message.delete
+
       # Start the process execution on the root step
       begin
-        job.log_to(@logger, "#{@name} [j#{job.id}]")
+        job.log_to(@logger, "#{@prefix} [j#{job.id}]")
         job.start!
 
       rescue Exceptions::JobFailedParamError => exception
@@ -157,10 +151,8 @@ class Worker
         log "job [j#{job.id}] completed"
       end
 
-      # Item has been worked out # FIXME: should be remove only when completed
-      # Just have a rest for 1s, and delete the job
+      # Just have a rest for 1s
       sleep 1
-      j.delete
       
       # Work done, update all that stuff
       job.update_attributes(:worker => nil, :completed_at => Time.now)
@@ -170,7 +162,7 @@ class Worker
   protected
   
   def log(msg="")
-    @logger.info "#{Time.now.strftime(LOGGING_TIMEFORMAT)} \t#{@name} \t#{msg}" unless @logger.nil?
+    @logger.info "#{Time.now.strftime(LOGGING_TIMEFORMAT)} #{@prefix} #{msg}" unless @logger.nil?
   end
   
 end

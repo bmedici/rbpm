@@ -26,8 +26,6 @@ class StepMd5 < Step
     log "file_to_hash (#{file_to_hash}) > (#{evaluated_file_to_hash})"
     log "variable_to_set (#{variable_to_set})"
     return 22, "source file not found (#{file_to_hash}) > (#{evaluated_file_to_hash})" unless File.exists? evaluated_file_to_hash
-    
-    
 
     # Hash this filepath
     md5hash = Digest::MD5.hexdigest(File.read evaluated_file_to_hash)

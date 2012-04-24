@@ -1,4 +1,4 @@
-STEP_CLASSES = %w(StepStart StepEnd StepNoop StepWaiter StepFailer StepWatchfolder StepRest StepMd5 StepSetVariables StepExpectVariables StepFileMove StepIprequest StepFtpPush StepFormatsFromTargets)
+STEP_CLASSES = %w(StepStart StepEnd StepNoop StepWaiter StepFailer StepWatchfolder StepRest StepMd5 StepSetVariables StepExpectVariables StepFileMove StepIprequest StepFtpPush StepFormatsFromTargets StepWindowize)
 LINK_CLASSES = %w(Link LinkNever LinkBlocker LinkFork LinkEvalRuby)
 
 COLOR_CURRENT = '#5555FF'
@@ -9,4 +9,6 @@ COLOR_DEFAULT = '#BBBBBB'
 
 QUEUE_DEFAULT = 'default'
 QUEUE_JOBS = 'jobs'
+
+WORKER_PREFIX = "worker-"
 

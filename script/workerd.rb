@@ -40,8 +40,9 @@ Daemons.run_proc('rbpm_worker', daemon_options) do
   ActiveRecord::Base.logger = ActiveSupport::BufferedLogger.new(logfile_db)
 
   # Register worker in our database
-  worker = Worker.find_or_create_by_hostname_and_pid(hostname, pid)
-  Rails.logger.info "PID [#{pid}]: registered host [#{hostname}] and pid [#{pid}] as worker [w#{worker.id}]"
+  worker = Worker.new(hostname, pid)
+  
+  Rails.logger.info "PID [#{pid}]: registered worker [#{worker.name}]"
 
   # Initialize own logger
   #logfile_worker = File.expand_path(File.join(Rails.root, 'log', 'workers', "worker_#{worker.id}.log"))
@@ -51,12 +52,12 @@ Daemons.run_proc('rbpm_worker', daemon_options) do
   Rails.logger.info "PID [#{pid}]: logging to file [#{logfile_worker}]"
   
   # Connect worker to logger
-  worker.log_to(wlog, "[w#{worker.id}]")
+  worker.log_to(wlog)
 
   # What to do when asked to terminate
   Signal.trap("TERM") do
     Rails.logger.info "PID [#{pid}]: received term signal"
-    Rails.logger.info "PID [#{pid}]: unregistering worker [w#{worker.id}]"
+    Rails.logger.info "PID [#{pid}]: unregistering worker [#{worker.name}]"
     worker.destroy
     exit
   end
@@ -65,14 +66,19 @@ Daemons.run_proc('rbpm_worker', daemon_options) do
   begin
     
     if (USE_BEANSTALK==true)
-      beanstalk = Beanstalk::Pool.new(QUEUE_SERVERS)
-      worker.listen_to_beanstalk(beanstalk)
+      #beanstalk = Beanstalk::Pool.new(QUEUE_SERVERS)
+      worker.handle_beanstalk_jobs
     else
       worker.poll_database
     end
 
+  rescue Exceptions::WorkerFailedJobNotfound
+    msg = "PID [#{pid}]: EXITING: worker failed to find the job: #{exception.message}"
+    puts msg
+    Rails.logger.info msg
+
   rescue Beanstalk::NotConnected
-    msg = "PID [#{pid}]: EXITING, unable to connect to beanstalkd"
+    msg = "PID [#{pid}]: EXITING: connexion to beanstalkd failed"
     puts msg
     Rails.logger.info msg
 

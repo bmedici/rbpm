@@ -7,12 +7,19 @@ class StatusController < ApplicationController
     @jobs_running = Job.running.order('id DESC').all
     @jobs_runnable = Job.runnable.order('id DESC')
     @jobs_failed = Job.failed.order('id DESC')
-    @workers = Worker.all
+    #@workers = Worker.all
     @systems = System.order(:label)
+    
+    # Workers
+    bs = Q.new
+    @workers_list = bs.list_workers
+    
   end  
   
   def ajax_workers
-    @workers = Worker.all
+    #@workers = Worker.all
+    bs = Q.new
+    @workers_list = bs.list_workers
     render :partial => 'workers'
   end  
   

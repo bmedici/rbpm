@@ -32,6 +32,9 @@ gem "sys-cpu"
 gem "facter"
 gem "daemons"
 
+gem "sandbox"
+
+
 # To use debugger
 # gem 'ruby-debug'
 
