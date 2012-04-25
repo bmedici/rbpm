@@ -1,4 +1,9 @@
+# Remove transactions
+
+
 class Job < ActiveRecord::Base
+  #use_transactional_fixtures = false
+
   belongs_to :step
   has_many :actions, :dependent => :destroy
   has_many :vars, :dependent => :destroy
@@ -18,9 +23,8 @@ class Job < ActiveRecord::Base
 
   @logger = nil
   @prefix = ""
-  
+
   after_initialize :init_context
-  after_create :push_to_beanstalk
   
   def init_context
     self.context ||= {}
@@ -67,7 +71,7 @@ class Job < ActiveRecord::Base
     #run_id = run.id unless run.nil?
     vars = {}
     self.vars.each do |var|
-      vars[var.name.to_s] = v.value
+      vars[var.name.to_s] = var.value
     end
     return vars
   end
@@ -79,26 +83,27 @@ class Job < ActiveRecord::Base
   def evaluate(expression)
     # Dont' do any replacement if expression is not a string
     return expression unless expression.is_a? String
-    
-    # If expression is exactly a variable name, just return the raw variable value
-    
+
+    # Make a local copy
+    output = expression.clone
+
     # Replace constants in expression
     ENV_CONSTANTS.each do |name, value|
       pattern = "!#{name.to_s}"
-      return value if (expression == pattern)
-      expression.gsub!(pattern, value.to_s)
+      return value if (output == pattern)
+      output.gsub!(pattern, value.to_s)
     end
 
     # Replace vars in expression
     self.vars.each do |var|
       pattern = "$#{var.name.to_s}"
       #puts "comparing expression(#{expression}) with pattern (#{pattern}), data(#{var.data}) value(#{var.value}) name(#{var.name}) id(#{var.id})" 
-      return var.value if (expression == pattern)
-      expression.gsub!(pattern, var.value.to_s)
+      return var.value if (output == pattern)
+      output.gsub!(pattern, var.value.to_s)
     end
 
     # Return the final string
-    return expression
+    return output
   end
     
   def log_to(logger, prefix="")
@@ -117,6 +122,7 @@ class Job < ActiveRecord::Base
      
     # Start execution from job's first step
     log "running from step (s#{self.step.id})"
+
     return self.run_from(self.step)
   end
   
@@ -125,13 +131,14 @@ class Job < ActiveRecord::Base
     self.vars.destroy_all
     self.actions.destroy_all
     self.init_vars_from_context!
-    
+
     # Flag it as clean
-    self.update_attributes(:completed_at => nil, :errno => 0, :errmsg => '', :worker => nil)
-    
-    # Push it again on beanstalk
-    bs = Q.new
-    bs.push_job(self.id, "job.reset")
+    self.completed_at = nil
+    self.errno = 0
+    self.errmsg = ""
+    self.worker = ""
+
+    self.save!
   end
 
   protected
@@ -285,10 +292,6 @@ class Job < ActiveRecord::Base
     stamp = Time.now.strftime(LOGGING_TIMEFORMAT)
     @logger.info "#{stamp}\t#{@prefix}#{msg}" unless @logger.nil?
   end
-
-  def push_to_beanstalk
-    bs = Q.new
-    bs.push_job(self.id, "job.create")
-  end
+  
 
 end

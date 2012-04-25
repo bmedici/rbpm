@@ -1,4 +1,4 @@
-STEP_CLASSES = %w(StepStart StepEnd StepNoop StepWaiter StepFailer StepWatchfolder StepRest StepMd5 StepSetVariables StepExpectVariables StepFileMove StepIprequest StepFtpPush StepFormatsFromTargets StepWindowize)
+STEP_CLASSES = %w(StepStart StepEnd StepNoop StepWaiter StepFailer StepWatchfolder StepRest StepMd5 StepSetVariables StepExpectVariables StepFileMove StepCplusMut StepFtpPush StepFormatsFromTargets)
 LINK_CLASSES = %w(Link LinkNever LinkBlocker LinkFork LinkEvalRuby)
 
 COLOR_CURRENT = '#5555FF'

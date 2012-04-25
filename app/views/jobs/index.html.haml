@@ -9,6 +9,7 @@
       %th Created
       %th Started
       %th Completed
+      %th BSID
       %th Worker
       %th History
       %th
@@ -40,9 +41,8 @@
             = my_datetime job.completed_at
             %br
             %i= "took #{job.completed_at - job.created_at}s"
-        %td
-          =# link_to "w#{job.worker_id}", worker_path(job.worker_id) unless job.worker_id.nil?
-          = job.worker
+        %td= job.bsid
+        %td= job.worker
         %td
           - job.actions.order('id DESC').each do |action|
             %b

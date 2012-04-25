@@ -1,6 +1,6 @@
 class CreateVars < ActiveRecord::Migration
   def change
-    create_table :vars do |t|
+    create_table :vars, :options => 'engine=MyISAM'  do |t|
       t.references :job
       t.string :name, :null => false
       t.text :data, :null => false, :default => ''

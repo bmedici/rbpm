@@ -26,36 +26,9 @@ class JobsController < ApplicationController
     end
   end
 
-  # GET /jobs/new
-  # GET /jobs/new.json
-  # def new
-  #   @job = Job.new
-  # 
-  #   respond_to do |format|
-  #     format.html # new.html.erb
-  #     format.json { render :json => @job }
-  #   end
-  # end
-
-  # GET /jobs/1/edit
   def edit
     @job = Job.find(params[:id])
   end
-
-  # def create
-  #   @job = Job.new(params[:job])
-  #   @job.creator = "manual.admin"
-  # 
-  #   respond_to do |format|
-  #     if @job.save
-  #       format.html { redirect_to @job, :notice => 'Job was successfully created.' }
-  #       format.json { render :json => @job, :status => :created, :location => @job }
-  #     else
-  #       format.html { render :action => "new" }
-  #       format.json { render :json => @job.errors, :status => :unprocessable_entity }
-  #     end
-  #   end
-  # end
 
   def push
     @job = Job.new()
@@ -72,7 +45,13 @@ class JobsController < ApplicationController
         #    return
         # end
 
-        format.html { redirect_to @job, :notice => 'Job was successfully created.' }
+        # Push this job onto the queue, and update job's bsid
+        bs = Q.new
+        bsid = bs.push_job(@job.id, "job.create")
+        @job.update_attributes(:bsid => bsid)
+
+        format.html { redirect_to jobs_path, :notice => 'Job was successfully created.' }
+        #format.html { redirect_to @job, :notice => 'Job was successfully created.' }
         format.json { render :json => @job, :status => :created, :location => @job }
       else
         format.html { render :action => "new" }
@@ -110,7 +89,13 @@ class JobsController < ApplicationController
   def reset
     @job = Job.find(params[:id])
     @job.reset!
-    redirect_to @job, :notice => 'Job was successfully reset'
+
+    # Push this job onto the queue, and update job's bsid
+    bs = Q.new
+    bsid = bs.push_job(@job.id, "job.reset")
+    @job.update_attributes(:bsid => bsid)
+
+    redirect_to jobs_path, :notice => 'Job was successfully reset'
   end
   
 end

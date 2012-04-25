@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 require 'socket'               # Get sockets from stdlib
-PORT= 5000
+PORT= 5060
 
 puts "Listenning on port #{PORT}"
 

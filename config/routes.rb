@@ -54,7 +54,6 @@ Rbpm::Application.routes.draw do
   get "status/editor" => "status#editor", :as => :workflow_editor
   get "monitor" => "status#monitor", :as => :monitor
 
-  get "status/ajax_beanstalk" => "status#ajax_beanstalk", :as => :ajax_beanstalk
   get "status/ajax_workers" => "status#ajax_workers", :as => :ajax_workers
   get "status/ajax_jobs" => "status#ajax_jobs", :as => :ajax_jobs
   get "status/ajax_system/:id" => "status#ajax_system", :as => :ajax_system

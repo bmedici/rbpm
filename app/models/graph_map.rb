@@ -6,6 +6,7 @@ class GraphMap
     @step_attributes = {}
     @link_attributes = {}
     @step_history = []
+    @link_history = []
   end
   
   def prepare(with_timestamp = false)
@@ -86,19 +87,12 @@ class GraphMap
       })
   end
   
-  # def add_new_link_on(step)
-  #   self.step_attributes(step.id, {
-  #     :add_new_link => true,
-  #     })
-  # end
-  
   def output_to_file(format, target)
     @g.output( format => target )
   end
   
   def output_to_string(format)
     #return @g.output( :png => nil )
-    Rails.logger.info @g.output( :imap => String)
     return @g.output( format => String).html_safe
   end
 
@@ -158,7 +152,11 @@ class GraphMap
     href = Rails.application.routes.url_helpers.edit_link_path(link)
   
     # Add a link between the current step and the newly created step
-    return @g.add_edge(from, to, :label => label.join("\n"), :color => link_color, :penwidth => pen_width, :URL => href)
+    link_node =  @g.add_edge(from, to, :label => label.join("\n"), :color => link_color, :penwidth => pen_width, :URL => href)
+
+    # Add it to the history and return
+    @link_history[link.id] = link_node
+    return link_node
   end
 
   def map_add_step(step)
@@ -192,14 +190,13 @@ class GraphMap
     shape = step.shape unless step.shape.nil?
     step_node = @g.add_node(label.join("\n"), :color => border_color, :fillcolor => step_color, :penwidth => pen_width, :shape => shape, :URL => href )
     
-    # Add it to the history
+    # Add it to the history and return
     @step_history[step.id] = step_node
-    
     return step_node
   end
     
   def map_recurse(step_id, go_backward = false, depth = nil)
-    # Do nothing with this iteration if link already in the cache
+    # Do nothing with this iteration if step already in the cache
     return @step_history[step_id] unless @step_history[step_id].nil?
 
     # Read this step
@@ -227,7 +224,9 @@ class GraphMap
       node = self.map_recurse(edge_id, go_backward, depth)
       
       # Link it to the current one
-      self.map_add_link(link, current_step_node, node) unless node.nil?
+      if @link_history[link.id].nil? and !node.nil?
+        self.map_add_link(link, current_step_node, node)
+      end
     end
     
     # Return now if we don't have to go backward
@@ -246,7 +245,10 @@ class GraphMap
       node = self.map_recurse(edge_id, go_backward, depth)
 
       # Handle the ancestor step and link it to the current one
-      self.map_add_link(link, node, current_step_node) unless node.nil?
+      # Do nothing with this iteration if step already in the cache
+      if @link_history[link.id].nil? and !node.nil?
+        self.map_add_link(link, node, current_step_node)
+      end
     end
     
     # Return current node

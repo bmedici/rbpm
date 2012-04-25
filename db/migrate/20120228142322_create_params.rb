@@ -1,6 +1,6 @@
 class CreateParams < ActiveRecord::Migration
   def change
-    create_table :params do |t|
+    create_table :params, :options => 'engine=MyISAM'  do |t|
       t.references :step
       t.string :name
       t.text :value

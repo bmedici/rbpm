@@ -39,7 +39,7 @@ class Q
     end
     
     # Return workers
-    workers
+    workers.uniq
   end
 
   def push_job(job_id, reason = nil)
@@ -56,7 +56,15 @@ class Q
   end
   
   def list_tubes
-    @bs.list_tubes()
+    @bs.list_tubes
+  end
+  
+  def peek_ready
+    @bs.peek_ready
+  end
+  
+  def stats
+    @bs.stats
   end
   
 end

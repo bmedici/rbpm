@@ -2,3 +2,32 @@
 %ul
 - @workers_list.each do |worker_name|
   %li= worker_name
+
+%h3 Beanstalk status
+
+- if @workers_stats.nil?
+  = "error: no stats returned"
+- else
+
+  %table
+    %tr
+      %td uptime
+      %td= @workers_stats['uptime']
+    %tr
+      %td current-workers
+      %td= @workers_stats['current-workers']
+    %tr
+      %td current-waiting
+      %td= @workers_stats['current-waiting']
+    %tr
+      %td current-jobs-ready
+      %td= @workers_stats['current-jobs-ready']
+    %tr
+      %td total-jobs
+      %td= @workers_stats['total-jobs']
+    %tr
+      %td binlog-current-index
+      %td= @workers_stats['binlog-current-index']
+
+  -# %pre= JSON.pretty_generate(@workers_stats)
+

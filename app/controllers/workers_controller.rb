@@ -45,11 +45,6 @@ class WorkersController < ApplicationController
       # end
       sleep(30)
 
-      # Instanciate database logger
-      #logfile_db = File.join(logs_dir, 'database.log')
-      #ActiveRecord::Base.logger = ActiveSupport::BufferedLogger.new(logfile_db)
-      #ActiveRecord::Base.logger = ActiveSupport::BufferedLogger.new('/tmp/db.log')
-
     end
 
     # Prepare response

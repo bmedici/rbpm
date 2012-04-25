@@ -64,6 +64,8 @@ Rbpm::Application.configure do
   WORKERD_ZOMBIE_DELAY = 2 + WORKERD_POLL_DELAY
   #WORKERD_HEARTBEAT_DELAY = 1
 
+  QUEUE_SERVERS = ['localhost:11300']
+
   # Environnement-specific constants
   ENV_CONSTANTS = {
     :filer => '/home/pfmaf',

@@ -1,6 +1,6 @@
 class CreateJobs < ActiveRecord::Migration
   def change
-    create_table :jobs do |t|
+    create_table :jobs, :options => 'engine=MyISAM'  do |t|
       t.references :step, :as => :step
       t.string :label, :null => false, :default => ''
       t.string :creator, :null => false, :default => ''

@@ -10,9 +10,6 @@
     .refreshable{'data-source' => ajax_workers_path, 'data-period' => DASHBOARD_WORKERS_RATE}
       = render :partial => 'workers'
 
-    .refreshable{'data-source' => ajax_beanstalk_path, 'data-period' => DASHBOARD_BEANSTALK_RATE}
-      = render :partial => 'beanstalk'
-
   .span4
     %h3 Systems status
 

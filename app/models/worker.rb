@@ -124,12 +124,29 @@ class Worker
       # Reserve a job item to handle
       log "waiting for a job"
       j = @bs.reserve_job
-      log "received: #{j.body.to_json}"
+      jdata = j.ybody
+      log "received: #{jdata.to_json}"
+      
+      # Check for job id presence
+      jid = jdata[:id]
+      unless (jid.to_i)>0
+        log "SKIPPING: job id ot found in message"
+        j.bury
+        next
+      end
 
       # Read and lock the job in the database
-      job = Job.find(j[:id]) or raise Exceptions::WorkerFailedJobNotfound("job (#{j[:id]}) not found")
-      job.update_attributes(:worker => @name, :started_at => Time.now)
-      log "found and locked job [j#{job.id}]"
+      begin
+        job = Job.find(jid)
+        #or raise Exceptions::WorkerFailedJobNotfound("job (#{jid}) not found")
+        job.update_attributes(:worker => @name, :started_at => Time.now)
+        log "found and locked job [j#{job.id}]"
+      rescue ActiveRecord::RecordNotFound
+        log "SKIPPING: job [j#{jid}] not found in database"
+        j.bury
+        next
+      end
+      
       
       # Do the work on this job
       raise "EXITING: jobs:pop expects a starting step" if job.step.nil?
@@ -157,13 +174,9 @@ class Worker
         log "job [j#{job.id}] completed"
       end
 
-      # Item has been worked out # FIXME: should be remove only when completed
-      # Just have a rest for 1s, and delete the job
-      sleep 1
-      j.delete
-      
-      # Work done, update all that stuff
+      # Item has been worked out, delete it and update the job status
       job.update_attributes(:worker => nil, :completed_at => Time.now)
+      j.delete
     end
   end
   

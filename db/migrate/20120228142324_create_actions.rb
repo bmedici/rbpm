@@ -1,6 +1,6 @@
 class CreateActions < ActiveRecord::Migration
   def change
-    create_table :actions do |t|
+    create_table :actions, :options => 'engine=MyISAM'  do |t|
       t.references :job
       t.references :step
       t.integer :errno, :default => 0, :null => false
