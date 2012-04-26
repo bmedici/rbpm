@@ -1,8 +1,8 @@
-class StepFileMove < Step
+class StepFileCopy < Step
 
   def paramdef
     {
-    :source => { :description => "File to move (use $var to grab a job variable) *", :format => :text, :lines => 2   },
+    :source => { :description => "File to copy (use $var to grab a job variable) *", :format => :text, :lines => 2   },
     :target => { :description => "Target folder to drop this file *" , :format => :text, :lines => 2   },
     }
   end
@@ -14,7 +14,7 @@ class StepFileMove < Step
   
   def run(current_job, current_action)
     # Check for run context
-    log "StepFileMove start"
+    log "StepFileCopy start"
     return 11, "depends on the run context to gather variables, no valid current_job given" if current_job.nil?
     
     # Evaluate source file and targt dir
@@ -30,14 +30,14 @@ class StepFileMove < Step
     log "listing files in evaluated source: #{evaluated_target}"
     Dir.glob(evaluated_source).each do |source_file|
       filesize = File.size(source_file)
-      log "moving file: #{source_file} (size: #{filesize} bytes)"
-      FileUtils.mv(source_file,  evaluated_target)
+      log "copying file: #{source_file} (size: #{filesize} bytes)"
+      FileUtils.cp(source_file,  evaluated_target)
       moved_files << File.basename(source_file)
     end
     
     # Add detected filename to "locals" returned
-    log "StepFileMove end"
-    return 0, "moved [#{moved_files.join(', ')}] to (#{evaluated_target})"
+    log "StepFileCopy end"
+    return 0, "copied [#{moved_files.join(', ')}] to (#{evaluated_target})"
   end
   
   #private

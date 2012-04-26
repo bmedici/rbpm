@@ -53,7 +53,7 @@ Rbpm::Application.configure do
   
   # Environnement-specific constants
   ENV_CONSTANTS = {
-    :filer => '/Users/bruno/TRASH/',
+    :filer => '/Users/bruno/beta.pfmaf/',
     :transcoder => 'cpws.local',
     :catalog => 'cpws.local',
     :fai1 => 'vodka',

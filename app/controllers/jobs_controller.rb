@@ -50,8 +50,8 @@ class JobsController < ApplicationController
         bsid = bs.push_job(@job.id, "job.create")
         @job.update_attributes(:bsid => bsid)
 
-        format.html { redirect_to jobs_path, :notice => 'Job was successfully created.' }
-        #format.html { redirect_to @job, :notice => 'Job was successfully created.' }
+        #format.html { redirect_to jobs_path, :notice => 'Job was successfully created.' }
+        format.html { redirect_to @job, :notice => 'Job was successfully created.' }
         format.json { render :json => @job, :status => :created, :location => @job }
       else
         format.html { render :action => "new" }

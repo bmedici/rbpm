@@ -229,26 +229,20 @@ class Job < ActiveRecord::Base
       next_step = link.next
       log "s#{from_step.id}: #{link.type} > pushing job (s#{next_step.id}) #{next_step.label}"
       
-      # # Prepare vars for the newly created job, extract label if passed
-      # if locals.is_a? Hash
-      #   # Get a "locals" key of :label as the label 
-      #   job_label = locals[:label].to_s
-      #   # Create as many job.var's as needed
-      #   job_vars = locals.map{|name, value| Var.new(:name => name, :value => value)} 
-      # else
-      #   job_label = ""
-      #   job_vars = []
-      # end
-      #  :vars => job_vars,
-      
       # Get a "locals" key of :label as the label 
       job_label = nil
       job_label = locals[:label].to_s if context.is_a? Hash
       
       # Creating a new, standalone job
-      job = Job.create(:step => next_step, :creator => "job.LinkFork(j#{self.id}, s#{from_step.id})", :label => job_label, :context => locals)
+      job = Job.create(:step => next_step, :creator => "workerd.fork(j#{self.id}, s#{from_step.id})", :label => job_label, :context => locals)
       log "s#{from_step.id}:  - initial vars: locals.to_json"
       log "s#{from_step.id}:  - created job j#{job.id}"
+      
+      # Push this job onto the queue, and update job's bsid
+      bs = Q.new
+      bsid = bs.push_job(job.id, "workerd.fork(j#{self.id}, s#{from_step.id})")
+      log "s#{from_step.id}:  - notified on queue bsid: #{bsid}"
+      job.update_attributes(:bsid => bsid)
 
     end unless typed_links['LinkFork'].nil?
     # FIXME

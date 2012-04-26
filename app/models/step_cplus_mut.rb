@@ -10,7 +10,6 @@ class StepCplusMut < Step
     :source_file => { :description => "Source file to be encoded, POSIX format (use #source in the template)", :format => :text, :lines => 2 },
     :target_dir => { :description => "Target directory receiving output files (use #target in the template)", :format => :text, :lines => 2 },
 
-    :host => { :description => "TCP hostname to connect", :format => :text, :lines => 1  },
     :request_template => { :description => "Body of the request template", :format => :xml, :lines => 25 },
     :timeout => { :description => "Maximum seconds to wait for the synchronous process to finish", :format => :text, :lines => 1  },
     :host => { :description => "TCP hostname to connect", :format => :text, :lines => 1  },
@@ -67,10 +66,15 @@ class StepCplusMut < Step
       request.gsub!(pattern, value.to_s)
     end
     
+    # Store the query for debugging purposes
+    current_job.set_var(:debug_mut_request, request)
+    
+    
     # Begin transaction
     response = []
     begin
       # Connect to remote host
+      log "connecting to [#{host}:#{port}]"
       s = TCPSocket.open(host, port)
     
       # Send the request + empty line to terminate
