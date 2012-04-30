@@ -3,7 +3,7 @@ class StepWatchfolder < Step
   def paramdef
     {
       :watch => { :description => "Incoming folder to watch", :format => :text, :lines => 2  },
-      :target => { :description => "Target folder to drop the detected", :format => :text, :lines => 2  },
+      :target => { :description => "Target folder to move the detected file", :format => :text, :lines => 2  },
       :delay => { :description => "Delay to wait when watching folder (seconds)", :format => :text, :lines => 1  },
     }
   end
@@ -34,7 +34,18 @@ class StepWatchfolder < Step
     
     # Check for directory presence
     return 21, "watch directory not found (#{evaluated_watch})" unless File.directory? evaluated_watch
-    return 22, "target directory not found (#{evaluated_target})" unless File.directory? evaluated_target
+    
+    # Try to make the target directory if not found
+    unless File.directory? evaluated_target 
+      log "making directory (#{evaluated_target})"
+      begin
+        File.mkdir_p(evaluated_target) 
+      rescue Exception => e
+        msg = "uncaught exception: #{e.message}"
+        log msg
+        return 32, msg
+      end
+    end
 
     # Wait for a file in the watchfolder
     filter_watch = "#{evaluated_watch}/*"
