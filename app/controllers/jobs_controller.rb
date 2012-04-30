@@ -92,7 +92,7 @@ class JobsController < ApplicationController
 
     # Push this job onto the queue, and update job's bsid
     bs = Q.new
-    bsid = bs.push_job(@job.id, "job.reset")
+    bsid = bs.push_job(@job.id, "job.reset", 50)
     @job.update_attributes(:bsid => bsid)
 
     redirect_to jobs_path, :notice => 'Job was successfully reset'

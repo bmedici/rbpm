@@ -12,3 +12,5 @@ QUEUE_JOBS = 'jobs'
 
 WORKER_PREFIX = "worker-"
 
+JOB_DEFAULT_RELEASE_TIME = 20
+

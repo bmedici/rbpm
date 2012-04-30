@@ -56,6 +56,14 @@ class Job < ActiveRecord::Base
     self.vars = vars
   end
 
+  def started_since
+    return Time.now - self.started_at
+  end
+
+  def timed_out?
+    return started_since >= JOB_DEFAULT_RELEASE_TIME  
+  end
+
   def set_var(name, value, step = nil, action = nil)
     var = self.vars.find_or_create_by_name(name.to_s, :step => step, :action => action, :value => value)
     var.update_attributes(:step => step, :action => action, :value => value)

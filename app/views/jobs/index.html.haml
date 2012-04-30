@@ -1,6 +1,12 @@
 -# @sidebar = 'execution'
 - set_title "Jobs"
 
+%p
+  A job will be released after running more than #{JOB_DEFAULT_RELEASE_TIME} seconds.
+  %br
+  A released job will me made available to other workers and started again
+  
+
 %table
   %thead
     %tr
@@ -33,7 +39,7 @@
           - else
             = my_datetime job.started_at
             %br
-            %i= seconds_ago(Time.now - job.started_at)
+            %i= seconds_ago(job.started_since)
         %td
           - if job.completed_at.nil?
             ="-"
@@ -55,5 +61,5 @@
           = link_to 'reset', reset_job_path(job), :confirm => 'Are you sure?'
         %td
           = image_tag job.status_image_path
-
+          = job_status_badge(job)
           

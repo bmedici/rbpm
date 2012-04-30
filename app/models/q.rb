@@ -42,12 +42,14 @@ class Q
     workers.uniq
   end
 
-  def push_job(job_id, reason = nil)
-    @bs.use('default')
-    @bs.yput({
+  def push_job(job_id, reason = nil, priority = 100, ttr = JOB_DEFAULT_RELEASE_TIME)
+    delay = 0
+    body = {
       :id => job_id,
       :reason => reason,
-    })
+    }
+    @bs.use('default')
+    @bs.yput(body, priority, delay, ttr)
   end
 
   def reserve_job

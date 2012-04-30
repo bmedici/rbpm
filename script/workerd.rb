@@ -58,7 +58,7 @@ Daemons.run_proc('rbpm_worker', daemon_options) do
   Signal.trap("TERM") do
     Rails.logger.info "PID [#{pid}]: received term signal"
     Rails.logger.info "PID [#{pid}]: unregistering worker [#{worker.name}]"
-    worker.destroy
+    #worker.destroy
     exit
   end
   
