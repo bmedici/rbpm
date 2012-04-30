@@ -12,7 +12,7 @@ class Worker
     @bs = Q.new
   end
   
-  def log_to(logger, prefix="")
+  def use_logger(logger, prefix="")
     @logger = logger
     @prefix = "#{@prefix}#{@name}\t"
   end
@@ -73,7 +73,7 @@ class Worker
 
         # Start the process execution on the root step
         begin
-          job.log_to(@logger, "#{@name} [j#{job.id}]")
+          job.use_logger(@logger, "#{@name} [j#{job.id}]")
           job.start!
 
         rescue Exceptions::JobFailedParamError => exception
@@ -153,7 +153,8 @@ class Worker
 
       # Start the process execution on the root step
       begin
-        job.log_to(@logger, @prefix)
+        job.use_beanstalk_job(j)
+        job.use_logger(@logger, @prefix)
         job.start!
 
       rescue Exceptions::JobFailedParamError => exception

@@ -11,13 +11,18 @@ module JobsHelper
       return badge(:success, "succeeded")
     end
 
-    # completed_at is nil, but we can guess the job has timed out
-    if job.timed_out?            
-      return badge(:warning, "timed out")
+    # # not completed, but we can guess the job has timed out
+    # if job.timed_out?
+    #   return badge(:warning, "timed out")
+    # end
+
+    # not completed, but not started neither
+    if job.started_at.nil?    
+      return badge(nil, "waiting")
     end
         
     # completed_at is nil, job has not timed out, thus it's waiintg
-    return badge(:info, "waiting")
+    return badge(:info, "running")
   end
   
   def badge(klass, text, title = "")

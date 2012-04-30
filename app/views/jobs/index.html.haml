@@ -1,12 +1,6 @@
 -# @sidebar = 'execution'
 - set_title "Jobs"
 
-%p
-  A job will be released after running more than #{JOB_DEFAULT_RELEASE_TIME} seconds.
-  %br
-  A released job will me made available to other workers and started again
-  
-
 %table
   %thead
     %tr
@@ -62,4 +56,12 @@
         %td
           = image_tag job.status_image_path
           = job_status_badge(job)
+
+%br
+.alert.info
+  %strong Notes
+  %p
+    A job will be released after running more than #{JOB_DEFAULT_RELEASE_TIME} seconds without keepalives.
+    %br
+    It will be made available to other workers, and run again
           

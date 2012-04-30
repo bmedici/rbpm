@@ -52,7 +52,7 @@ Daemons.run_proc('rbpm_worker', daemon_options) do
   Rails.logger.info "PID [#{pid}]: logging to file [#{logfile_worker}]"
   
   # Connect worker to logger
-  worker.log_to(wlog)
+  worker.use_logger(wlog)
 
   # What to do when asked to terminate
   Signal.trap("TERM") do

@@ -39,7 +39,7 @@ class StepWatchfolder < Step
     unless File.directory? evaluated_target 
       log "making directory (#{evaluated_target})"
       begin
-        File.mkdir_p(evaluated_target) 
+        FileUtils.mkdir_p(evaluated_target) 
       rescue Exception => e
         msg = "uncaught exception: #{e.message}"
         log msg
@@ -61,6 +61,9 @@ class StepWatchfolder < Step
       # Otherwise, wait before looping
       #log " - nothing"
       sleep delay
+
+      # Touch job
+      self.touch_beanstalk_job
     end while true
       
     # A file has been detected, move it to the target dir

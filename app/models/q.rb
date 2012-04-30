@@ -65,6 +65,10 @@ class Q
     @bs.peek_ready
   end
   
+  def job_stats(job)
+    @bs.job_stats(job)
+  end
+  
   def stats
     @bs.stats
   end

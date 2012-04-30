@@ -22,6 +22,7 @@ class Job < ActiveRecord::Base
   serialize :context, JSON
 
   @logger = nil
+  @beanstalk_job = nil
   @prefix = ""
 
   after_initialize :init_context
@@ -57,10 +58,12 @@ class Job < ActiveRecord::Base
   end
 
   def started_since
+    return nil if self.started_at.nil?
     return Time.now - self.started_at
   end
 
   def timed_out?
+    return false if self.started_at.nil?
     return started_since >= JOB_DEFAULT_RELEASE_TIME  
   end
 
@@ -118,10 +121,18 @@ class Job < ActiveRecord::Base
     # Return the final string
     return output
   end
-    
-  def log_to(logger, prefix="")
+
+  def use_logger(logger, prefix="")
     @logger = logger
     @prefix = "#{prefix}[j#{self.id}]\t"
+  end
+
+  def use_beanstalk_job(beanstalk_job)
+    @beanstalk_job = beanstalk_job
+  end
+
+  def touch_beanstalk_job
+    @beanstalk_job.touch unless @beanstalk_job.nil?
   end
 
   def start!
@@ -147,6 +158,7 @@ class Job < ActiveRecord::Base
 
     # Flag it as clean
     self.completed_at = nil
+    self.started_at = nil
     self.errno = 0
     self.errmsg = ""
     self.worker = ""
@@ -155,11 +167,14 @@ class Job < ActiveRecord::Base
   end
 
   protected
-  
+
   def run_from(from_step)
     # Init
     raise "EXITING: run_from expects a starting step" if from_step.nil?
-    from_step.log_to(@logger, "#{@prefix} [s#{from_step.id}]")
+    
+    # Pass logger, beanstalk job to step
+    from_step.use_logger(@logger, "#{@prefix} [s#{from_step.id}]")
+    from_step.use_beanstalk_job(@beanstalk_job)
 
     #################################
     ### RUNNING LOCAL STEP'S STUFF
@@ -176,6 +191,10 @@ class Job < ActiveRecord::Base
       return
     end
 
+    # Ping job
+    log "s#{from_step.id}: touch job"
+    self.touch_beanstalk_job
+    
     # Run this step and close the action
     log "s#{from_step.id}: running step"
     begin

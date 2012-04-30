@@ -17,6 +17,7 @@ class Step < ActiveRecord::Base
   
   @logger = nil
   @prefix = ""
+  @beanstalk_job = nil
  
   def color
     #'#000000'
@@ -30,9 +31,17 @@ class Step < ActiveRecord::Base
     {}
   end
   
-  def log_to(logger, prefix="")
+  def use_logger(logger, prefix="")
     @logger = logger
     @prefix = "#{prefix}[s#{self.id}]\t"
+  end
+  
+  def use_beanstalk_job(beanstalk_job)
+    @beanstalk_job = beanstalk_job
+  end
+
+  def touch_beanstalk_job
+    @beanstalk_job.touch unless @beanstalk_job.nil?
   end
   
   def pval(name, formatted = nil)
@@ -90,6 +99,9 @@ class Step < ActiveRecord::Base
 
   protected 
   
+  def im_alive!
+  end
+    
   def type_field
     self.type
   end
@@ -100,7 +112,6 @@ class Step < ActiveRecord::Base
   def is_numeric?(s)
       !!Float(s) rescue false
   end
-  
   
   def parse_xml(data, filters, current_job, current_action)
     unless filters.is_a? Hash
