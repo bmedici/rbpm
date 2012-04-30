@@ -1,5 +1,6 @@
 -# pretty_json = JSON.pretty_generate(@step.params)
 -# pretty_json = @step.params.to_yaml
+- job_variables = {:jobid => 'the running job ID', :random => 'a 16-digit random hex string'}
 
 - if @step.errors.any?
   #error_explanation
@@ -26,7 +27,7 @@
         = f.label :class
         = f.select :type_field, STEP_CLASSES, {:include_blank => false}
       .field
-        = f.label "Local constants"
+        = f.label "Local constants (!) and job variables (#)"
         %table
           %tbody
             - ENV_CONSTANTS.each do |name, value|
@@ -34,6 +35,15 @@
                 %td
                   %nobr
                     %b= "!"
+                    = name
+                %td
+                  ="="
+                %td= value
+            - job_variables.each do |name, value|
+              %tr
+                %td
+                  %nobr
+                    %b= "#"
                     = name
                 %td
                   ="="

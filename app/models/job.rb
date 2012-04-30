@@ -95,18 +95,23 @@ class Job < ActiveRecord::Base
     # Make a local copy
     output = expression.clone
 
-    # Replace constants in expression
+    # Replace constants
     ENV_CONSTANTS.each do |name, value|
       pattern = "!#{name.to_s}"
-      return value if (output == pattern)
+      #return value if (output == pattern)
       output.gsub!(pattern, value.to_s)
     end
 
-    # Replace vars in expression
+    # Replace internal values
+    random = ActiveSupport::SecureRandom.hex(16)
+    output.gsub!("#jobid", self.id.to_s) unless self.id.nil?
+    output.gsub!("#random", random)
+
+    # Replace job vars
     self.vars.each do |var|
       pattern = "$#{var.name.to_s}"
       #puts "comparing expression(#{expression}) with pattern (#{pattern}), data(#{var.data}) value(#{var.value}) name(#{var.name}) id(#{var.id})" 
-      return var.value if (output == pattern)
+      #return var.value if (output == pattern)
       output.gsub!(pattern, var.value.to_s)
     end
 
