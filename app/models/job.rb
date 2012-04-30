@@ -109,6 +109,7 @@ class Job < ActiveRecord::Base
     random = ActiveSupport::SecureRandom.hex(16)
     output.gsub!("#jobid", self.id.to_s) unless self.id.nil?
     output.gsub!("#random", random)
+    output.gsub!("#now", Time.now.strftime("%Y%m%d-%H%M%S"))
 
     # Replace job vars
     self.vars.each do |var|

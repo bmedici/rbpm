@@ -1,6 +1,6 @@
 -# pretty_json = JSON.pretty_generate(@step.params)
 -# pretty_json = @step.params.to_yaml
-- job_variables = {:jobid => 'the running job ID', :random => 'a 16-digit random hex string'}
+- job_variables = {:jobid => 'the running job ID', :random => 'a 16-digit random hex string', :now => 'reverse timestamp, eg 2012-04-30-18-10-03'}
 
 - if @step.errors.any?
   #error_explanation

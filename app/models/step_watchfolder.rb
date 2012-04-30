@@ -29,23 +29,9 @@ class StepWatchfolder < Step
     # Evaluate source file and targt dir
     evaluated_watch = current_job.evaluate(watch)
     log "evaluated watch: #{evaluated_watch}"
-    evaluated_target = current_job.evaluate(target)
-    log "evaluated target: #{evaluated_target}"
     
     # Check for directory presence
     return 21, "watch directory not found (#{evaluated_watch})" unless File.directory? evaluated_watch
-    
-    # Try to make the target directory if not found
-    unless File.directory? evaluated_target 
-      log "making directory (#{evaluated_target})"
-      begin
-        FileUtils.mkdir_p(evaluated_target) 
-      rescue Exception => e
-        msg = "uncaught exception: #{e.message}"
-        log msg
-        return 32, msg
-      end
-    end
 
     # Wait for a file in the watchfolder
     filter_watch = "#{evaluated_watch}/*"
@@ -65,13 +51,30 @@ class StepWatchfolder < Step
       # Touch job
       self.touch_beanstalk_job
     end while true
-      
-    # A file has been detected, move it to the target dir
+
+    # A file has been detected
     basename = File.basename(first_file)
     log "detected (#{basename})"
-    target_file = "#{evaluated_target}/#{File.basename(first_file)}"
-    log "moving (#{first_file}) to (#{target_file})"
 
+    # Compute target directory and filename    
+    evaluated_target = current_job.evaluate(target)
+    log "evaluated target: #{evaluated_target}"
+    target_file = "#{evaluated_target}/#{File.basename(first_file)}"
+    
+    # Create the target directory if not found
+    unless File.directory? evaluated_target
+      log "making directory (#{evaluated_target})"
+      begin
+        FileUtils.mkdir_p(evaluated_target) 
+      rescue Exception => e
+        msg = "uncaught exception: #{e.message}"
+        log msg
+        return 32, msg
+      end
+    end
+      
+    # Move file to target dir
+    log "moving (#{first_file}) to (#{target_file})"
     begin
       FileUtils.mv(first_file, target_file)
 
