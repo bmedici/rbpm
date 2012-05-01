@@ -42,19 +42,57 @@ class Q
     workers.uniq
   end
 
-  def push_job(job_id, reason = nil, priority = 100, ttr = JOB_DEFAULT_RELEASE_TIME)
+  # def push_job(job_id, reason = nil, priority = 100, ttr = JOB_DEFAULT_RELEASE_TIME)
+  #   delay = 0
+  #   body = {
+  #     :id => job_id,
+  #     :reason => reason,
+  #   }
+  #   @bs.use('default')
+  #   @bs.yput(body, priority, delay, ttr)
+  # end
+
+  def push_job(job, priority = 100, ttr = JOB_DEFAULT_RELEASE_TIME)
     delay = 0
     body = {
-      :id => job_id,
-      :reason => reason,
+      :id => job.id,
+      :creator => job.creator,
+      :label => job.label,
     }
     @bs.use('default')
     @bs.yput(body, priority, delay, ttr)
   end
 
+  def pop_job(job)
+    bsid = job.worker.to_i
+    #@bs.use('default')
+    @bs.delete(bsid) unless bsid.zero?
+  end
+
   def reserve_job
     @bs.watch('default')
     @bs.reserve
+  end
+  
+  def fetch_queued_jobs
+    # Prepare the queue
+    @bs.watch('default')
+    reserved = []
+    
+    # Collect items in the queue
+    begin
+      while item = @bs.reserve(0)
+        reserved << item
+      end
+    rescue Beanstalk::TimedOut => exception
+    end
+    
+    # Free them back
+    reserved.each do |item|
+      item.release
+    end
+    
+    reserved
   end
   
   def list_tubes

@@ -273,7 +273,7 @@ class Job < ActiveRecord::Base
       
       # Push this job onto the queue, and update job's bsid
       bs = Q.new
-      bsid = bs.push_job(job.id, "workerd.fork(j#{self.id}, s#{from_step.id})")
+      bsid = bs.push_job(job)
       log "s#{from_step.id}:  - notified on queue bsid: #{bsid}"
       job.update_attributes(:bsid => bsid)
 

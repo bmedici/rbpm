@@ -22,7 +22,7 @@ $this.attr("src", src);
 
 function UpdateMap() {
 	$('.autorefresh').reloadSrc();
-  setTimeout(UpdateMap, 500);
+  setTimeout(UpdateMap, 1000);
 	}
 
 function UpdateSystemStatus(theGroup, data_url) {
@@ -89,6 +89,7 @@ $(document).ready(function() {
 
 		source = $(this).attr('data-source')
 		seconds = $(this).attr('data-period')
+		//alert(seconds);
 		UpdateRefreshable($(this), source, seconds);
 	});
 

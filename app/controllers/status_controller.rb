@@ -4,32 +4,53 @@ include Sys
 class StatusController < ApplicationController
   
   def dashboard
-    @jobs_running = Job.running.order('id DESC').all
-    @jobs_runnable = Job.runnable.order('id DESC')
-    @jobs_failed = Job.failed.order('id DESC')
-    #@workers = Worker.all
+    # Connect queue
+    bs = Q.new
+
+    # Prepare system
     @systems = System.order(:label)
     
-    # Workers
-    bs = Q.new
-    @workers_list = bs.list_workers
+    # Collect queued job IDs
+    @queued_jobs_ids = bs.fetch_queued_jobs.map{ |j| j.ybody[:id] }
     
+    # Prepare jobs
+    @jobs_running = Job.locked.order('id DESC').all
+    @jobs_failed = Job.failed.order('id DESC')
+    @jobs_queued = Job.find(@queued_jobs_ids)
+    #@jobs_queued = @jobs_failed
+
+    # Prepare workers
+    @workers_list = bs.list_workers
+    @workers_stats = bs.stats
   end  
   
   def ajax_workers
-    #@workers = Worker.all
+    # Connect queue
     bs = Q.new
+
+    # Prepare workers
     @workers_list = bs.list_workers
     @workers_stats = bs.stats
 
+    # Collect queued job IDs
+    #@queued_jobs = bs.fetch_queued_jobs.map{|j| "j#{j.ybody[:id]}" }
+    @queued_jobs_ids = bs.fetch_queued_jobs.map{ |j| j.ybody[:id] }
+
     render :partial => 'workers'
   end  
-  
 
   def ajax_jobs
+    # Connect queue
+    bs = Q.new
+
+    # Collect queued job IDs
+    @queued_job_ids = bs.fetch_queued_jobs.map{|j| j.ybody[:id] }
+
+    # Prepare jobs
     @jobs_running = Job.locked.order('id DESC').all
-    @jobs_runnable = Job.runnable.order('id DESC')
     @jobs_failed = Job.failed.order('id DESC')
+    @jobs_queued = Job.find(@queued_jobs_ids)
+
     render :partial => 'jobs'
   end  
 
@@ -72,5 +93,6 @@ class StatusController < ApplicationController
   def editor
     @root_step = Step.roots.order('steps.id DESC').first
   end  
+  
   
 end

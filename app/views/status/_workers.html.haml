@@ -3,7 +3,7 @@
 - @workers_list.each do |worker_name|
   %li= worker_name
 
-%h3 Beanstalk status
+%h3 Queue status
 
 - if @workers_stats.nil?
   = "error: no stats returned"
@@ -31,3 +31,6 @@
 
   -# %pre= JSON.pretty_generate(@workers_stats)
 
+
+%h3 Jobs in the queue
+= @queued_jobs_ids.map{|j| "j#{j}" }.join(', ')

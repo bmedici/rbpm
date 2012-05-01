@@ -41,3 +41,5 @@ gem "sandbox"
 
 gem "rest-client"
 gem "beanstalk-client"
+#gem "beanstalk-client-ruby"
+#gem "sugarfly-beanstalk-client-ruby"

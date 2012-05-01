@@ -1,10 +1,11 @@
 require 'base64'
 module StatusHelper
   
-  def job_status_image(job)
+  def job_status_image(job, timestamp = false)
     # Prepare graph
     graph = GraphMap.new
-    graph.prepare(true)
+    #graph.prepare(true)
+    graph.prepare(timestamp)
 
     # Initialize with job information
     graph.tag_with_job_status(job)

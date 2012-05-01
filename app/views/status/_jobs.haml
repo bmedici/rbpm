@@ -9,9 +9,9 @@
   %hr
 
 
-%h3 Queued jobs (#{@jobs_runnable.size})
-%p= "No queued job" if @jobs_runnable.empty?
-- @jobs_runnable.each do |job|
+%h3 Queued jobs (#{@jobs_queued.size})
+%p= "No queued job" if @jobs_queued.empty?
+- @jobs_queued.each do |job|
   - title = "[j#{job.id}] #{job.label}"
   %h5
     = image_tag job.status_image_path
