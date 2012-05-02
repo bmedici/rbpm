@@ -6,6 +6,7 @@ class WorkersController < ApplicationController
   def index
     bs = Q.new
     @workers_list = bs.list_workers
+    bs.close
 
     respond_to do |format|
       format.html # index.html.erb

@@ -50,3 +50,15 @@ table th {
   color: silver;
   padding: 40px 0;
   }
+  
+  
+
+.small, table.small td {
+  font-size: 9pt;
+  line-height: 1.2em;
+  }
+table.small td {
+  padding: 0 4px;
+  margin: 0;
+  border: none;
+  }

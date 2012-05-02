@@ -4,24 +4,22 @@ include Sys
 class StatusController < ApplicationController
   
   def dashboard
-    # Connect queue
-    bs = Q.new
-
     # Prepare system
     @systems = System.order(:label)
-    
-    # Collect queued job IDs
-    @queued_jobs_ids = bs.fetch_queued_jobs.map{ |j| j.ybody[:id] }
+
+    # Connect queue
+    bs = Q.new
     
     # Prepare jobs
-    @jobs_running = Job.locked.order('id DESC').all
-    @jobs_failed = Job.failed.order('id DESC')
-    @jobs_queued = Job.find(@queued_jobs_ids)
+    self.prepare_jobs(bs)
     #@jobs_queued = @jobs_failed
 
     # Prepare workers
     @workers_list = bs.list_workers
     @workers_stats = bs.stats
+
+    # Close connection to the queue and process layout
+    bs.close
   end  
   
   def ajax_workers
@@ -36,21 +34,20 @@ class StatusController < ApplicationController
     #@queued_jobs = bs.fetch_queued_jobs.map{|j| "j#{j.ybody[:id]}" }
     @queued_jobs_ids = bs.fetch_queued_jobs.map{ |j| j.ybody[:id] }
 
+    # Close connection to the queue and process layout
+    bs.close
     render :partial => 'workers'
   end  
 
   def ajax_jobs
     # Connect queue
     bs = Q.new
-
-    # Collect queued job IDs
-    @queued_job_ids = bs.fetch_queued_jobs.map{|j| j.ybody[:id] }
-
+    
     # Prepare jobs
-    @jobs_running = Job.locked.order('id DESC').all
-    @jobs_failed = Job.failed.order('id DESC')
-    @jobs_queued = Job.find(@queued_jobs_ids)
+    self.prepare_jobs(bs)
 
+    # Close connection to the queue and process layout
+    bs.close
     render :partial => 'jobs'
   end  
 
@@ -94,5 +91,27 @@ class StatusController < ApplicationController
     @root_step = Step.roots.order('steps.id DESC').first
   end  
   
+  protected
+  
+  def prepare_jobs(bs)
+    # Simple queries
+    @jobs_running = Job.locked.order('id DESC').all
+    @jobs_failed = Job.failed.order('id DESC')
+    #@jobs_runnable = Job.runnable(@queued_jobs_ids)
+    #@db_jobs_ids = @jobs_runnable.map(&:id) 
+
+    # Collect queued job IDs in beanstalk
+    @bs_jobs_ids = bs.fetch_queued_jobs_ids
+
+
+    @jobs_queued = Job.failsafe_find_in(@bs_jobs_ids)
+
+
+    # Find oprhan jobs
+    @db_jobs_ids = @jobs_queued.map(&:id) 
+    @missing_in_db = @bs_jobs_ids - @db_jobs_ids
+    #@missing_in_bs = @db_jobs_ids - @bs_jobs_ids
+    #@missing_in_db = @queued_jobs_ids
+  end
   
 end

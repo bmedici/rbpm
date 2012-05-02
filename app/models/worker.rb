@@ -12,6 +12,10 @@ class Worker
     @bs = Q.new
   end
   
+  def shutdown
+    @bs.close
+  end
+  
   def use_logger(logger, prefix="")
     @logger = logger
     @prefix = "#{@prefix}#{@name}\t"
@@ -135,7 +139,7 @@ class Worker
         next
       end
 
-      # Read and lock the job in the database
+      # Read and flag the job in the database
       begin
         job = Job.find(jid)
         #or raise Exceptions::WorkerFailedJobNotfound("job (#{jid}) not found")
@@ -147,6 +151,11 @@ class Worker
         next
       end
       
+      # Bury beanstalk' job, so that it's not redistributed in case of failure
+      #j.bury
+
+      #raise "EXITING: temporary stop"
+
       
       # Do the work on this job
       raise "EXITING: jobs:pop expects a starting step" if job.step.nil?
@@ -155,6 +164,8 @@ class Worker
       begin
         job.use_beanstalk_job(j)
         job.use_logger(@logger, @prefix)
+        #raise "MANUAL FILER"
+        
         job.start!
 
       rescue Exceptions::JobFailedParamError => exception

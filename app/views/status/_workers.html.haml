@@ -1,3 +1,7 @@
+- attrs = ['uptime', 'current-workers', 'current-waiting', 'current-connections',
+  'current-jobs-ready', 'current-jobs-reserved', 'current-jobs-buried', 'current-jobs-urgent', 'total-jobs', 'job-timeouts',
+  'binlog-current-index']
+
 %h3 Active workers
 %ul
 - @workers_list.each do |worker_name|
@@ -10,27 +14,17 @@
 - else
 
   %table
-    %tr
-      %td uptime
-      %td= @workers_stats['uptime']
-    %tr
-      %td current-workers
-      %td= @workers_stats['current-workers']
-    %tr
-      %td current-waiting
-      %td= @workers_stats['current-waiting']
-    %tr
-      %td current-jobs-ready
-      %td= @workers_stats['current-jobs-ready']
-    %tr
-      %td total-jobs
-      %td= @workers_stats['total-jobs']
-    %tr
-      %td binlog-current-index
-      %td= @workers_stats['binlog-current-index']
+    - attrs.each do |a|
+      %tr
+        %td= a 
+        %td= @workers_stats[a]
 
-  -# %pre= JSON.pretty_generate(@workers_stats)
+  %xmp=# JSON.pretty_generate(@workers_stats).html_safe
 
+-#
+  %h3 Jobs in the queue
+  = @bs_jobs_ids.map{|j| "j#{j}" }.join(', ')
 
-%h3 Jobs in the queue
-= @queued_jobs_ids.map{|j| "j#{j}" }.join(', ')
+  %h3 Jobs ready in db
+  = @db_jobs_ids.map{|j| "j#{j}" }.join(', ')
+

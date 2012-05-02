@@ -1,7 +1,7 @@
 -# @sidebar = 'execution'
 - set_title "Jobs"
 
-%table
+%table{:width => '100%'}
   %thead
     %tr
       %th ID
@@ -10,6 +10,7 @@
       %th Started
       %th Completed
       %th BSID
+      %th Queue
       %th Worker
       %th History
       %th
@@ -42,8 +43,29 @@
             %br
             %i= "took #{job.completed_at - job.created_at}s"
         %td= job.bsid
-        %td= job.worker
         %td
+          - status = @bs_job_status[job.id]
+          - if status.is_a? Hash
+            %table.small
+              %tr
+                %td ttr
+                %td= status['ttr']
+              %tr
+                %td age
+                %td= status['age']    
+              %tr
+                %td left
+                %td= status['time-left']    
+              %tr
+                %td state
+                %td= status['state']    
+              %tr
+                %td prio
+                %td= status['pri']    
+            =# @bs_job_status.to_json
+          
+        %td= job.worker
+        %td.small
           - job.actions.order('id DESC').each do |action|
             %b
               = my_datetime action.created_at
@@ -55,7 +77,8 @@
           = link_to 'reset', reset_job_path(job), :confirm => 'Are you sure?'
         %td
           = image_tag job.status_image_path
-          = job_status_badge(job)
+          = job_status_badge(job, @bs_jobs_ids)
+
 
 %br
 .alert.info
@@ -64,4 +87,12 @@
     A job will be released after running more than #{JOB_DEFAULT_RELEASE_TIME} seconds without keepalives.
     %br
     It will be made available to other workers, and run again
-          
+%p
+  ttr: time to run the whole jobs before being made ready
+%p
+  left: time left for the current worker to complete
+%p
+  state: one of (reserved, buried, ready)
+%p
+  prio: relative priority index (default is 100, less is more urgent) 
+      

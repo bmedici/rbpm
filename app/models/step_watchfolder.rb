@@ -65,7 +65,7 @@ class StepWatchfolder < Step
     unless File.directory? evaluated_target
       log "making directory (#{evaluated_target})"
       begin
-        FileUtils.mkdir_p(evaluated_target, :mode => 0777) 
+        FileUtils.mkdir_p(evaluated_target, :mode => 0777)
       rescue Exception => e
         msg = "uncaught exception: #{e.message}"
         log msg

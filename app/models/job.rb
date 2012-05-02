@@ -9,6 +9,8 @@ class Job < ActiveRecord::Base
   has_many :vars, :dependent => :destroy
   
   accepts_nested_attributes_for :vars
+  after_initialize :init_context
+  serialize :context, JSON
   
   #scope :latest_actions, includes(:actions)
   #scope :latest_actions, includes(:actions)
@@ -18,14 +20,21 @@ class Job < ActiveRecord::Base
   scope :running, locked.not_completed
   scope :runnable, not_locked.not_completed.order(:id)
   scope :failed, where('errno <> 0')
+
+  # scope :failsafe_find_in, lambda do |job_ids|
+  #   where('id in ?', )
+  # end
   
-  serialize :context, JSON
+  scope :failsafe_find_in, lambda { |ids|
+    where('id in (?)', ids)
+    }
+  
+  
 
   @logger = nil
   @beanstalk_job = nil
   @prefix = ""
 
-  after_initialize :init_context
   
   def init_context
     self.context ||= {}
@@ -274,6 +283,7 @@ class Job < ActiveRecord::Base
       # Push this job onto the queue, and update job's bsid
       bs = Q.new
       bsid = bs.push_job(job)
+      bs.close
       log "s#{from_step.id}:  - notified on queue bsid: #{bsid}"
       job.update_attributes(:bsid => bsid)
 

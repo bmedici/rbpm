@@ -2,6 +2,13 @@ require 'base64'
 module StatusHelper
   
   def job_status_image(job, timestamp = false)
+    # Force loading all steps and lings
+    logger.info "prefetching"
+    Step.includes(:nexts, :params, :links).all
+    Link.includes(:step, :next).all
+    logger.info "done!"
+    
+    
     # Prepare graph
     graph = GraphMap.new
     #graph.prepare(true)

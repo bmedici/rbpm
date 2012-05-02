@@ -5,6 +5,23 @@ class JobsController < ApplicationController
     #@jobs = Job.order('id DESC').includes(:actions)
     @jobs = Job.order('id DESC')
 
+    # Fetch real beanstalk queued IDs
+    bs = Q.new
+    @bs_jobs_ids = bs.fetch_queued_jobs_ids
+    
+    # Parse db jobs with bs job status
+    @bs_job_status = {}
+    begin
+      @jobs.all.each do |job|
+        logger.info "job (#{job.id})"
+        @bs_job_status[job.id] = bs.job_stats(job.bsid)
+      end
+    rescue Beanstalk::NotFoundError
+    end
+    
+    # Close connection to bs
+    bs.close
+
     respond_to do |format|
       format.html # index.html.erb
       format.json { render :json => @jobs }
@@ -48,6 +65,7 @@ class JobsController < ApplicationController
         # Push this job onto the queue, and update job's bsid
         bs = Q.new
         bsid = bs.push_job(@job)
+        bs.close
         @job.update_attributes(:bsid => bsid)
 
         #format.html { redirect_to jobs_path, :notice => 'Job was successfully created.' }
@@ -82,6 +100,7 @@ class JobsController < ApplicationController
     # Remove from BS
     bs = Q.new
     bs.pop_job(@job)
+    bs.close
     
     # Remove from database
     @job.destroy

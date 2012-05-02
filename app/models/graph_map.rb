@@ -7,6 +7,10 @@ class GraphMap
     @link_attributes = {}
     @step_history = []
     @link_history = []
+    
+    @steps = []
+    @links = []
+    
   end
   
   def prepare(with_timestamp = false)
@@ -41,6 +45,22 @@ class GraphMap
     # Timestamp
     @g.add_node(Time.now.to_s(:db), :shape => :plaintext, :fillcolor => '#FFFFFF') if (with_timestamp)
   end
+
+  # def prefetch!
+  #   Link.all.each do |thing|
+  #     @links[thing.id] = thing
+  #   end
+  #   Step.includes(:links).all.each do |thing|
+  #     @steps[thing.id] = thing
+  #   end
+  # end
+  # def find_step(id)
+  #   @steps[id]
+  # end
+  # def find_link(id)
+  #   @links[id]
+  # end
+  
   
   def tag_with_job_status(job)
     # Find all run actions associated to this run
@@ -201,6 +221,7 @@ class GraphMap
 
     # Read this step
     step = Step.includes(:links, :ancestors).find(step_id)
+    #step = self.find_step(step_id)
 
     # Render current step
     current_step_node = self.map_add_step(step)

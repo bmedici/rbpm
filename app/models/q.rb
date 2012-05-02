@@ -59,18 +59,18 @@ class Q
       :creator => job.creator,
       :label => job.label,
     }
-    @bs.use('default')
+    @bs.use(QUEUE_JOBS)
     @bs.yput(body, priority, delay, ttr)
   end
 
   def pop_job(job)
     bsid = job.worker.to_i
-    #@bs.use('default')
+    @bs.use(QUEUE_JOBS)
     @bs.delete(bsid) unless bsid.zero?
   end
 
   def reserve_job
-    @bs.watch('default')
+    @bs.watch(QUEUE_JOBS)
     @bs.reserve
   end
   
@@ -78,9 +78,11 @@ class Q
     # Prepare the queue
     @bs.watch('default')
     reserved = []
+    #return reserved
     
     # Collect items in the queue
     begin
+      @bs.watch(QUEUE_JOBS)
       while item = @bs.reserve(0)
         reserved << item
       end
@@ -95,6 +97,10 @@ class Q
     reserved
   end
   
+  def fetch_queued_jobs_ids
+    return self.fetch_queued_jobs.map{ |j| j.ybody[:id] }
+  end
+  
   def list_tubes
     @bs.list_tubes
   end
@@ -103,12 +109,28 @@ class Q
     @bs.peek_ready
   end
   
-  def job_stats(job)
-    @bs.job_stats(job)
+  def job_stats(id)
+    # Query
+    reply = @bs.job_stats(id)
+    stats = {}
+
+    # Browse reply
+    reply.each do |server, attributes|
+      attributes.each do |name, value|
+        stats[name] = value
+      end
+    end
+
+    # Send result
+    return stats
   end
   
   def stats
     @bs.stats
+  end
+  
+  def close
+    @bs.close
   end
   
 end

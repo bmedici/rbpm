@@ -39,6 +39,9 @@ class StepsController < ApplicationController
   def edit
     @step = Step.includes(:params).find(params[:id])
 
+    # Initialize missing params is not present
+    @step.init_missing_params!
+
     # Prepare graph
     graph = GraphMap.new
     graph.prepare(false)

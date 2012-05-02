@@ -12,7 +12,7 @@ class Step < ActiveRecord::Base
   has_many :actions
   
   scope :roots, where(:type => StepStart)
-  after_find  :init_missing_params!
+  #after_find  :init_missing_params!
   accepts_nested_attributes_for :params, :allow_destroy => true
   
   @logger = nil

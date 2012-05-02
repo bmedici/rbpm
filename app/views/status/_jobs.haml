@@ -1,3 +1,11 @@
+- unless @missing_in_db.size.zero?
+  .alert.info
+    %strong Missing job data
+    %p
+      Some queued jobs disappeared from our database, they will silently fail when made available to a worker:
+      %br
+      #{@missing_in_db.join(', ')}
+      
 %h3 Running jobs (#{@jobs_running.size})
 %p= "No running job" if @jobs_running.empty?
 - @jobs_running.each do |job|
@@ -29,3 +37,4 @@
     = link_to title, job
   = link_to job_status_image(job), job
   %hr
+

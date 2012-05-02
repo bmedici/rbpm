@@ -10,9 +10,16 @@ class GraphController < ApplicationController
   end
   
   def map
+    # Force loading all steps and lings
+    # Step.includes(:nexts, :params).all
+    # Link.all
+
     # Prepare graph
     graph = GraphMap.new
     graph.prepare(false)
+    
+    # Prefetch steps and links
+    #graph.prefetch!
 
     # Recurse
     graph.map_recurse_forward(params[:id])
