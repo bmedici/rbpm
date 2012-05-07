@@ -1,5 +1,5 @@
 - set_title "Systems"
-- add_tool 'new system', new_system_path
+- add_button :add, new_system_path, "new system"
 
 %table
   %tr
@@ -15,5 +15,5 @@
       %td= system.monitor_url
       -#%td%small= system.status_pretty unless system.status.empty?
       %td= my_datetime system.updated_at
-      %td= link_to 'Edit', edit_system_path(system)
-      %td= link_to 'Destroy', system, :confirm => 'Are you sure?', :method => :delete
+      %td= link_to 'edit', edit_system_path(system)
+      %td= link_to 'destroy', system, :confirm => 'Are you sure?', :method => :delete

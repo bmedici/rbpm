@@ -4,16 +4,11 @@
     %meta{:charset => "utf-8"}/
     %title= content_for?(:title) ? yield(:title) : "Rbpm"
     = csrf_meta_tags
-    / Le HTML5 shim, for IE6-8 support of HTML elements
-    /[if lt IE 9]
-      = javascript_include_tag "http://html5shim.googlecode.com/svn/trunk/html5.js"
-    / Le styles
     :css
       body {
         padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
       }
     = stylesheet_link_tag "application", :media => "all"
-    / Le fav and touch icons
     %link{:href => "images/favicon.ico", :rel => "shortcut icon"}/
     %link{:href => "images/apple-touch-icon.png", :rel => "apple-touch-icon"}/
     %link{:href => "images/apple-touch-icon-72x72.png", :rel => "apple-touch-icon", :sizes => "72x72"}/
@@ -45,9 +40,16 @@
       .content
         %h1
           = @title unless @title.blank?
-        %ul.nav.nav-pills
-          - get_tools_array.each do |tool|
-            %li= link_to tool[:label], tool[:href]
+
+        - if @buttons.is_a? Array
+          - @buttons.each do |type, path, text, method|
+            - text = type.to_s if text.blank?
+            - if method == :delete
+              = link_to text, path, :method => :delete, :confirm => "Are you sure?", :class => "button icon #{type.to_s}"
+            - else
+              = link_to text, path, :class => "button icon #{type.to_s}"
+          %br
+          %br
 
         %p#notice= notice
             

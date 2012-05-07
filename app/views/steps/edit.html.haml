@@ -1,6 +1,6 @@
 - set_title "Edit step #{@step.label}"
-- add_tool "< back", steps_path
-- add_tool "add next step", follow_step_path(@step)
+- add_button :back, steps_path
+- add_button :add, follow_step_path(@step), "create following step"
 
 = @image_map
 .well= tag :img, :src => inline_image_src("image/png", @image_data), :usemap => "#G"

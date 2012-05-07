@@ -1,10 +1,7 @@
 - set_title "System #{@system.label}"
 
-- add_tool '< back', systems_path
-- add_tool 'update from remote', update_status_system_path(@system)
-
-
-%p#notice= notice
+- add_button :back, systems_path
+- add_button :link, update_status_system_path(@system), "update remote data"
 
 .row
   .span4

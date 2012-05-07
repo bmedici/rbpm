@@ -73,13 +73,35 @@ module ApplicationHelper
     @title = title
   end
   
-  def add_tool(label, href)
-    @tools ||= []
-    @tools << {:label => label, :href => href}
-  end
   
-  def get_tools_array
-    @tools ||= []
+  # Button helpers
+  def add_button(type, path, text = "")
+    # Map some types to default ones
+    map = {
+      :refresh => :reload,
+      :restore => :reload,
+      :back => :arrowleft,
+      :link => :arrowright,
+      :delete => :remove,
+      :print => :log,
+      #:delete => :remove,
+      nil => :arrowright,
+    }
+    
+    # Force method "delete" if original type is :delete
+    method = :delete if type.to_sym == :delete
+
+    # Catch the original type here, as a fallback
+    text = type if text.blank?
+    
+    # Then map the type if expected
+    type = map[type] unless map[type].nil?
+
+    
+    # Stack this info in the button array  
+    @buttons ||= []
+    @buttons << [type, path, text, method]
   end
+
   
 end
