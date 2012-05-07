@@ -48,7 +48,8 @@ class StepsController < ApplicationController
     
     # Highlight the current step and recurse around it
     graph.highlight_step(@step)
-    graph.map_recurse_around(@step.id, 2)
+    graph.map_recurse_around(@step.id, 3)
+    #graph.map_recurse_around(@step.id, 2)
 
     # Generate output to the browser
     @image_data = graph.output_to_string(:png)
