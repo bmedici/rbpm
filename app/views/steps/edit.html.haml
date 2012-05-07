@@ -1,5 +1,6 @@
 - set_title "Edit step #{@step.label}"
 - add_button :back, steps_path
+- add_button :delete, @step
 - add_button :add, follow_step_path(@step), "create following step"
 
 = @image_map

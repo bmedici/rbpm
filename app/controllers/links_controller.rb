@@ -76,11 +76,12 @@ class LinksController < ApplicationController
 
   def destroy
     @link = Link.find(params[:id])
-    @link.destroy
-
-    respond_to do |format|
-      format.html { redirect_to links_url }
-      format.json { head :ok }
+    if @link.destroy
+      flash[:success] = 'Link was successfully deleted'
+      redirect_to :action => "index"
+    else
+      flash[:error]= 'Failed to delete link'
+      redirect_to edit_link_path(@link)
     end
   end
 

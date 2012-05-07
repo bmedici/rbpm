@@ -88,11 +88,12 @@ class StepsController < ApplicationController
 
   def destroy
     @step = Step.find(params[:id])
-    @step.destroy
-
-    respond_to do |format|
-      format.html { redirect_to steps_url }
-      format.json { head :ok }
+    if @step.destroy
+      flash[:success] = 'Step was successfully deleted'
+      redirect_to :action => "index"
+    else
+      flash[:error]= 'Failed to delete step'
+      redirect_to edit_step_path(@step)
     end
   end
 end

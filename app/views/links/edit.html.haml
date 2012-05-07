@@ -1,5 +1,6 @@
 - set_title "Edit link"
 - add_button :back, links_path
+- add_button :delete, @link
 
 = @image_map
 .well= tag :img, :src => inline_image_src("image/png", @image_data), :usemap => "#G"

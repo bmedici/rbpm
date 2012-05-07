@@ -14,6 +14,8 @@ class Step < ActiveRecord::Base
   scope :roots, where(:type => StepStart)
   #after_find  :init_missing_params!
   accepts_nested_attributes_for :params, :allow_destroy => true
+
+  before_destroy :check_dependencies
   
   @logger = nil
   @prefix = ""
@@ -157,6 +159,15 @@ class Step < ActiveRecord::Base
   def log(msg="")
     stamp = Time.now.strftime(LOGGING_TIMEFORMAT)
     @logger.info "#{stamp}\t#{@prefix}#{msg}" unless @logger.nil?
+  end
+  
+  private
+  
+  def check_dependencies
+    errors.add :step, "has links to following steps" unless nexts.empty?
+    errors.add :step, "is referenced by ancestor steps" unless ancestors.empty?
+    #errors.add_to_base "this account is referenced by #{transactions.size} transaction(s)" unless transactions.empty?
+    return errors.empty?
   end
   
 end

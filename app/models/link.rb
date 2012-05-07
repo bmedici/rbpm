@@ -16,6 +16,8 @@ class Link < ActiveRecord::Base
   scope :blocking, where(:type => ["LinkBlocker", "LinkFork"])
   scope :nonblocking, where('type NOT IN ("LinkBlocker", "LinkFork")')
 
+  before_destroy :check_dependencies
+
   def color
     '#999999'
   end
@@ -49,6 +51,13 @@ class Link < ActiveRecord::Base
     else
         self.params = parsed
     end
+  end
+  
+  
+  private
+  
+  def check_dependencies
+    return errors.empty?
   end
 
 end

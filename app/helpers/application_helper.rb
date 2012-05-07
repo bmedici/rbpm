@@ -96,12 +96,25 @@ module ApplicationHelper
     
     # Then map the type if expected
     type = map[type] unless map[type].nil?
-
     
     # Stack this info in the button array  
     @buttons ||= []
     @buttons << [type, path, text, method]
   end
 
+  def twitterized_type(type)
+    case type
+      when :alert
+        "warning"
+      when :error
+        "error"
+      when :notice
+        "info"
+      when :success
+        "success"
+      else
+        type.to_s
+    end
+  end
   
 end

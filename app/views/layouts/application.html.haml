@@ -51,6 +51,14 @@
           %br
           %br
 
+          - flash.each do |type, message|
+            .alert.fade.in{ "data-alert" => "alert", :class => twitterized_type(type) }
+              %a.close{:href => "#", 'data-dismiss' => 'alert'} ×
+              %strong= type
+              %p
+                = message
+          -# flash.clear
+
         %p#notice= notice
             
         - if @sidebar.nil?
