@@ -85,6 +85,7 @@ Daemons.run_proc('rbpm_worker', daemon_options) do
   rescue Exception => exception
     msg = "PID [#{pid}]: unhandled exception: #{exception.message}"
     puts msg
+    puts exception.to_json
     Rails.logger.info msg
 
   end    

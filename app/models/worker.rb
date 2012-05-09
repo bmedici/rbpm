@@ -164,8 +164,6 @@ class Worker
       begin
         job.use_beanstalk_job(j)
         job.use_logger(@logger, @prefix)
-        #raise "MANUAL FILER"
-        
         job.start!
 
       rescue Exceptions::JobFailedParamError => exception
@@ -176,6 +174,10 @@ class Worker
         job.update_attributes(:worker => nil, :errno => -12 , :errmsg => exception.message)
         log "JOB [j#{job.id}] ABORTED JobFailedStepRun #{exception.message}"
 
+      rescue Mysql2::Error
+        job.update_attributes(:worker => nil, :errno => -3 , :errmsg => exception.message)
+        log "JOB [j#{job.id}] ABORTED Mysql2::Error: #{exception.message}"
+
       rescue Exceptions => exception
         job.update_attributes(:worker => nil, :errno => -1 , :errmsg => exception.message)
         log "JOB [j#{job.id}] ABORTED: #{exception.message}"
@@ -184,6 +186,7 @@ class Worker
         # It's done, unlock it, otherwise leave it like that
         job.update_attributes(:worker => nil, :completed_at => Time.now)
         log "job [j#{job.id}] completed"
+        
       end
 
       # Item has been worked out, delete it and update the job status
