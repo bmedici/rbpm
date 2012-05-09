@@ -2,7 +2,7 @@
   'current-jobs-ready', 'current-jobs-reserved', 'current-jobs-buried', 'current-jobs-urgent', 'total-jobs', 'job-timeouts',
   'binlog-current-index']
 
-%h3 Active workers
+%h3 Active workers (#{@workers_list.size})
 %table
   %tr
     %th worker
@@ -19,7 +19,6 @@
 
 
 %h3 Queue status
-
 - if @workers_stats.nil?
   = "error: no stats returned"
 - else
@@ -34,7 +33,6 @@
         %td= @workers_stats[a]
 
   %xmp=# JSON.pretty_generate(@workers_stats).html_safe
-
 
 %xmp
 =# @workers_jobs.inspect
