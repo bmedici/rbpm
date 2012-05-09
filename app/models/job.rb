@@ -28,8 +28,6 @@ class Job < ActiveRecord::Base
   scope :failsafe_find_in, lambda { |ids|
     where('id in (?)', ids)
     }
-  
-  
 
   @logger = nil
   @beanstalk_job = nil
@@ -77,14 +75,33 @@ class Job < ActiveRecord::Base
   end
 
   def set_var(name, value, step = nil, action = nil)
-    var = self.vars.find_or_create_by_name(name.to_s, :step => step, :action => action, :value => value)
-    var.update_attributes(:step => step, :action => action, :value => value)
+    #Var.uncached do
+      var = self.vars.find_or_create_by_name(name.to_s, :step => step, :action => action, :value => value)
+      var.update_attributes(:step => step, :action => action, :value => value)
+    #end
     return var
   end
   
   def get_var(name)
+    value_normal = self.get_var_normal(name)
+    log "get_var(#{name})   normal: #{value_normal}"
+
+    value_uncached = self.get_var_uncached(name)
+    log "get_var(#{name}) uncached: #{value_uncached}"
+
+    return value_normal
+  end
+  
+  def get_var_normal(name)
     var = self.vars.find_by_name(name)
     return var.value unless var.nil?
+  end
+  
+  def get_var_uncached(name)
+    Var.uncached do
+      var = self.vars.find_by_name(name)
+      return var.value unless var.nil?
+    end
   end
   
   def get_vars_hash
@@ -183,7 +200,8 @@ class Job < ActiveRecord::Base
     raise "EXITING: run_from expects a starting step" if from_step.nil?
     
     # Pass logger, beanstalk job to step
-    from_step.use_logger(@logger, "#{@prefix} [s#{from_step.id}]")
+    from_step.use_logger(@logger, @prefix)
+    #from_step.use_logger(@logger, "#{@prefix} [s#{from_step.id}]")
     from_step.use_beanstalk_job(@beanstalk_job)
 
     #################################
@@ -329,6 +347,5 @@ class Job < ActiveRecord::Base
     stamp = Time.now.strftime(LOGGING_TIMEFORMAT)
     @logger.info "#{stamp}\t#{@prefix}#{msg}" unless @logger.nil?
   end
-  
 
 end

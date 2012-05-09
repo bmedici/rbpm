@@ -77,7 +77,8 @@ class Worker
 
         # Start the process execution on the root step
         begin
-          job.use_logger(@logger, "#{@name} [j#{job.id}]")
+          job.use_logger(@logger, @prefix)
+          #job.use_logger(@logger, "#{@name} [j#{job.id}]")
           job.start!
 
         rescue Exceptions::JobFailedParamError => exception
