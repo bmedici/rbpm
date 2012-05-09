@@ -72,17 +72,17 @@ Daemons.run_proc('rbpm_worker', daemon_options) do
       worker.poll_database
     end
 
-  rescue Exceptions::WorkerFailedJobNotfound
+  rescue Exceptions::WorkerFailedJobNotfound => exception
     msg = "PID [#{pid}]: EXITING: worker failed to find the job: #{exception.message}"
     puts msg
     Rails.logger.info msg
 
-  rescue Beanstalk::NotConnected
+  rescue Beanstalk::NotConnected => exception
     msg = "PID [#{pid}]: EXITING: connexion to beanstalkd failed"
     puts msg
     Rails.logger.info msg
 
-  rescue Interrupt
+  rescue Interrupt => exception
     msg = "PID [#{pid}]: EXITING: received Interrupt"
     puts msg
     Rails.logger.info msg

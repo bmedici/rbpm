@@ -175,7 +175,7 @@ class Worker
         job.update_attributes(:worker => nil, :errno => -12 , :errmsg => exception.message)
         log "JOB [j#{job.id}] ABORTED JobFailedStepRun #{exception.message}"
 
-      rescue Mysql2::Error
+      rescue Mysql2::Error => exception
         job.update_attributes(:worker => nil, :errno => -3 , :errmsg => exception.message)
         log "JOB [j#{job.id}] ABORTED Mysql2::Error: #{exception.message}"
 
