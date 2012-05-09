@@ -3,9 +3,20 @@
   'binlog-current-index']
 
 %h3 Active workers
-%ul
-- @workers_list.each do |worker_name|
-  %li= worker_name
+%table
+  %tr
+    %th worker
+    %th jobs
+  - @workers_list.each do |worker_name|
+    -# @workers_jobs[worker_name] ||= []
+    %tr
+      %td= worker_name
+      - if @workers_jobs[worker_name].is_a? Array
+        %td= @workers_jobs[worker_name].map{ |job| link_to("j#{job.id}", job).html_safe }.join(', ').html_safe
+      - else
+        %td -
+        
+
 
 %h3 Queue status
 
@@ -14,12 +25,19 @@
 - else
 
   %table
+    %tr
+      %th indicator
+      %th value
     - attrs.each do |a|
       %tr
         %td= a 
         %td= @workers_stats[a]
 
   %xmp=# JSON.pretty_generate(@workers_stats).html_safe
+
+
+%xmp
+=# @workers_jobs.inspect
 
 -#
   %h3 Jobs in the queue

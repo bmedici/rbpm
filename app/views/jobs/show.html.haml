@@ -5,7 +5,8 @@
 - add_button :refresh, job_path(@job), 'refresh'
 - add_button :reset, reset_job_path(@job), "reset job"
 
-=# link_to 'back', jobs_path
+%h3= "Status map (#{status_label})"
+= image_tag job_graph_path(@job), :class => map_class
 
 =# 12 cols available here
 .row
@@ -84,11 +85,6 @@
           %td= my_datetime var.updated_at
           %td= "s#{var.step.id} - #{var.step.label}"  unless var.step.nil?
           %td= "a#{var.action.id}" unless var.action.nil?
-
-
-%h3= "Status map (#{status_label})"
-= image_tag job_graph_path(@job), :class => map_class
-
 
 %h3 Actions history
 %table

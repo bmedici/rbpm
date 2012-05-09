@@ -1,19 +1,20 @@
 -# @sidebar = 'execution'
 - set_title "Jobs"
 - add_button :refresh, jobs_path, 'refresh'
+- add_button :link, dashboard_path, "dashboard"
+
 
 %table{:width => '100%'}
   %thead
     %tr
       %th ID
-      %th Label / start step
+      %th Label / bootstrap
       %th Created
       %th Started
       %th Completed
       %th BSID
       %th Queue
       %th Worker
-      %th History
       %th
       %th
   %tbody
@@ -24,7 +25,7 @@
           - label = job.label.blank? ? "job ##{job.id}" : job.label
           = link_to label, job
           %br
-          %i= "(s#{job.step_id}) #{job.step.label}" unless job.step.nil?
+          %i= job.bootstrap
         %td
           = my_datetime job.created_at
           %br
@@ -66,12 +67,13 @@
             =# @bs_job_status.to_json
           
         %td= job.worker
-        %td.small
-          - job.actions.order('id DESC').each do |action|
-            %b
-              = my_datetime action.created_at
-            = " (s#{action.step.id}) #{action.step.label}" unless action.step.nil?
-            %br
+        -#
+          %td.small
+            - job.actions.order('id DESC').each do |action|
+              %b
+                = my_datetime action.created_at
+              = " (s#{action.step.id}) #{action.step.label}" unless action.step.nil?
+              %br
         %td
           = link_to 'destroy', job, :confirm => 'Are you sure?', :method => :delete
           %br

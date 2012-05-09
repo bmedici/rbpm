@@ -7,31 +7,21 @@ class StatusController < ApplicationController
     # Prepare system
     @systems = System.order(:label)
 
-    # Connect queue
+    # Prepare jobs, workers
     bs = Q.new
-    
-    # Prepare jobs
     self.prepare_jobs(bs)
-    #@jobs_queued = @jobs_failed
-
-    # Prepare workers
-    @workers_list = bs.list_workers
-    @workers_stats = bs.stats
+    self.prepare_workers(bs)
 
     # Close connection to the queue and process layout
     bs.close
   end  
   
   def ajax_workers
-    # Connect queue
-    bs = Q.new
-
     # Prepare workers
-    @workers_list = bs.list_workers
-    @workers_stats = bs.stats
+    bs = Q.new
+    self.prepare_workers(bs)
 
     # Collect queued job IDs
-    #@queued_jobs = bs.fetch_queued_jobs.map{|j| "j#{j.ybody[:id]}" }
     @queued_jobs_ids = bs.fetch_queued_jobs.map{ |j| j.ybody[:id] }
 
     # Close connection to the queue and process layout
@@ -40,10 +30,8 @@ class StatusController < ApplicationController
   end  
 
   def ajax_jobs
-    # Connect queue
-    bs = Q.new
-    
     # Prepare jobs
+    bs = Q.new
     self.prepare_jobs(bs)
 
     # Close connection to the queue and process layout
@@ -95,23 +83,24 @@ class StatusController < ApplicationController
   
   def prepare_jobs(bs)
     # Simple queries
-    @jobs_running = Job.locked.order('id DESC').all
-    @jobs_failed = Job.failed.order('id DESC')
-    #@jobs_runnable = Job.runnable(@queued_jobs_ids)
-    #@db_jobs_ids = @jobs_runnable.map(&:id) 
+    @jobs_locked = Job.locked.includes(:step).order('id DESC').all
+    @jobs_failed = Job.failed.includes(:step).order('id DESC').all
 
     # Collect queued job IDs in beanstalk
     @bs_jobs_ids = bs.fetch_queued_jobs_ids
-
-
-    @jobs_queued = Job.failsafe_find_in(@bs_jobs_ids)
-
+    @jobs_queued = Job.failsafe_find_in(@bs_jobs_ids).all
 
     # Find oprhan jobs
     @db_jobs_ids = @jobs_queued.map(&:id) 
     @missing_in_db = @bs_jobs_ids - @db_jobs_ids
-    #@missing_in_bs = @db_jobs_ids - @bs_jobs_ids
-    #@missing_in_db = @queued_jobs_ids
+  end
+  
+  def prepare_workers(bs)
+    @workers_list = bs.list_workers
+    @workers_stats = bs.stats
+    
+    # Resolve jobs locked by one of these workers
+    @workers_jobs = Job.where(:worker => @workers_list).group_by{ |j| j.worker }
   end
   
 end

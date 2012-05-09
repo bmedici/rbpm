@@ -6,35 +6,66 @@
       %br
       #{@missing_in_db.join(', ')}
       
-%h3 Running jobs (#{@jobs_running.size})
-%p= "No running job" if @jobs_running.empty?
-- @jobs_running.each do |job|
-  - title = "[j#{job.id} @ #{job.worker}] #{job.label}"
-  %h5
-    = image_tag job.status_image_path
-    = link_to title, job
-  = link_to job_status_image(job), job
-  %hr
+%h3 Locked jobs (#{@jobs_locked.size})
+- if @jobs_locked.empty?
+  %p= "No locked job" 
+- else
+  %table{:width => '100%'}
+    %tr
+      %th job
+      %th started
+      %th worker
+      %th bootstrap
+      %th label
+    - @jobs_locked.each do |job|
+      %tr
+        %td= link_to "j#{job.id}", job
+        %td= my_datetime job.started_at
+        %td= job.worker
+        %td= job.bootstrap
+        %td= job.label
+    =# image_tag job.status_image_path
+    =# link_to title, job
+    =# link_to job_status_image(job), job
+  
 
 
 %h3 Queued jobs (#{@jobs_queued.size})
-%p= "No queued job" if @jobs_queued.empty?
-- @jobs_queued.each do |job|
-  - title = "[j#{job.id}] #{job.label}"
-  %h5
-    = image_tag job.status_image_path
-    = link_to title, job
-  = link_to job_status_image(job), job
-  %hr
+- if @jobs_queued.empty?
+  %p= "No queued job" 
+- else
+  %table{:width => '100%'}
+    %tr
+      %th job
+      %th created
+      %th worker
+      %th bootstrap
+      %th label
+    - @jobs_queued.each do |job|
+      %tr
+        %td= link_to "j#{job.id}", job
+        %td= my_datetime job.created_at
+        %td -
+        %td= job.bootstrap
+        %td= job.label
 
 
 %h3 Failed/suspended jobs (#{@jobs_failed.size})
-%p= "No failed job" if @jobs_failed.empty?
-- @jobs_failed.each do |job|
-  - title = "[j#{job.id}] #{job.label}"
-  %h5
-    = image_tag job.status_image_path
-    = link_to title, job
-  = link_to job_status_image(job), job
-  %hr
-
+- if @jobs_failed.empty?
+  %p= "No failed job"
+- else
+  %table{:width => '100%'}
+    %tr
+      %th job
+      %th started
+      %th worker
+      %th bootstrap
+      %th label
+    - @jobs_failed.each do |job|
+      %tr
+        %td= link_to "j#{job.id}", job
+        %td= my_datetime job.started_at
+        %td= job.worker
+        %td= job.bootstrap
+        %td= job.label
+  
