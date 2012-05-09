@@ -60,7 +60,7 @@ class StepCplusMut < Step
     request.gsub!('#target', windows_target)
     
     # Replace job variables into the template body
-    job_vars = current_job.get_vars_hash
+    job_vars = current_job.get_vars
     job_vars.each do |name, value|
       pattern = "$#{name.to_s}"
       request.gsub!(pattern, value.to_s)

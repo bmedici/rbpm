@@ -7,7 +7,6 @@ class StepFileCopy < Step
     }
   end
 
-
   def color
     '#C6B299'
   end
@@ -22,7 +21,7 @@ class StepFileCopy < Step
     evaluated_target = current_job.evaluate(self.pval(:target))
     
     # Check for directory presence
-    log "evaluated target: #{evaluated_target})"
+    log "evaluated target (#{evaluated_target})"
     return 22, "target directory not found (#{evaluated_target})" unless File.directory? evaluated_target
 
     # Find and move the flie(s)
@@ -36,7 +35,7 @@ class StepFileCopy < Step
     end
     
     # If no file has been copied, we failed !
-    return 23, "no file has beend moved!" if moved_files.empty?
+    return 23, "no file has beend copied!" if moved_files.empty?
     
     # Add detected filename to "locals" returned
     log "StepFileCopy end"

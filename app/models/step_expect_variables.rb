@@ -18,7 +18,7 @@ class StepExpectVariables < Step
     log "expected: #{expected_variables.join(', ')}"
     
     # Read variables in this run, we get a hash 
-    available_variables = current_job.get_vars_hash.keys
+    available_variables = current_job.get_vars.keys
     log "available: #{available_variables.join(', ')}"
     
     # Check that all expected ar available

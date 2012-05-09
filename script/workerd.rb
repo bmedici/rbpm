@@ -20,7 +20,7 @@ RBPM_DATABASE_LOGFILE = File.join(RBPM_LOGDIR, 'rbpm_db.log')
 daemon_options = {
   :multiple   => true,
   :dir_mode   => :normal,
-  :dir        => File.join(app_dir, 'tmp', 'pids'),
+  :dir        => File.join(RBPM_APPDIR, 'tmp', 'pids'),
   :backtrace  => true,
   :monitor    => true
   #:stop_proc  => :end_proc
@@ -31,7 +31,7 @@ daemon_options = {
 Daemons.run_proc('rbpm_worker', daemon_options) do
 
   # Include Rails environment
-  require File.expand_path(File.join(app_dir, 'config', 'environment'))
+  require File.expand_path(File.join(RBPM_APPDIR, 'config', 'environment'))
 
   # Initialize default logger
   pid = Process.pid

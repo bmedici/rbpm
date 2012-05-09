@@ -35,7 +35,7 @@ class StepFileMove < Step
     end
     
     # If no file has been copied, we failed !
-    return 23, "no file has beend copied!" if moved_files.empty?
+    return 23, "no file has beend moved!" if moved_files.empty?
     
     # Add detected filename to "locals" returned
     log "StepFileMove end"
