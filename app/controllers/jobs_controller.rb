@@ -120,7 +120,8 @@ class JobsController < ApplicationController
     bsid = bs.push_job(@job, 50)
     @job.update_attributes(:bsid => bsid)
 
-    redirect_to jobs_path, :notice => 'Job was successfully reset'
+    #redirect_to jobs_path, :notice => 'Job was successfully reset'
+    redirect_to job_path(@job), :notice => 'Job was successfully reset'
   end
   
 end

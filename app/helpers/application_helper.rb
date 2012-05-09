@@ -84,6 +84,7 @@ module ApplicationHelper
       :link => :arrowright,
       :delete => :remove,
       :print => :log,
+      :reset => :loop,
       #:delete => :remove,
       nil => :arrowright,
     }

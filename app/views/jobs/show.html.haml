@@ -1,7 +1,10 @@
 - set_title "Job j#{@job.id}"
-
 - map_class =  @job.completed_at.nil? ? 'autorefresh' : 'completed'
 - status_label =  @job.completed_at.nil? ? 'waiting' : 'completed'
+- add_button :back, jobs_path
+- add_button :refresh, job_path(@job), 'refresh'
+- add_button :reset, reset_job_path(@job), "reset job"
+
 =# link_to 'back', jobs_path
 
 =# 12 cols available here

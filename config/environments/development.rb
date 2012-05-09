@@ -57,7 +57,7 @@ Rbpm::Application.configure do
     :transcoder => 'cpws.local',
     :catalog => 'cpws.local',
     :fai1 => 'vodka',
-    :fai2 => 'localhost',
+    :fai2 => 'vodka',
   }
   
 end

@@ -35,6 +35,9 @@ class StepFileCopy < Step
       moved_files << File.basename(source_file)
     end
     
+    # If no file has been copied, we failed !
+    return 23, "no file has beend moved!" if moved_files.empty?
+    
     # Add detected filename to "locals" returned
     log "StepFileCopy end"
     return 0, "copied [#{moved_files.join(', ')}] to (#{evaluated_target})"
