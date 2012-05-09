@@ -4,11 +4,16 @@ require 'daemons'
 require 'beanstalk-client'
 USE_BEANSTALK = true
 
-
 # Global init
-app_dir = File.expand_path(File.join(File.dirname(__FILE__), '..'))
-logs_dir = File.join(app_dir, 'log')
+RBPM_APPDIR = File.expand_path(File.join(File.dirname(__FILE__), '..'))
+RBPM_LOGDIR = File.join(RBPM_APPDIR, 'log')
 hostname = `hostname`.chomp
+
+#logfile_worker = File.expand_path(File.join(Rails.root, 'log', 'workers', "worker_#{worker.id}.log"))
+RBPM_GLOBAL_LOGFILE  = File.join(RBPM_LOGDIR, 'rbpm_global.log')
+RBPM_WORKERS_LOGFILE  = File.join(RBPM_LOGDIR, "rbpm_workers.log")
+RBPM_DATABASE_LOGFILE = File.join(RBPM_LOGDIR, 'rbpm_db.log')
+#RBPM_DATABASE_LOGFILE = RBPM_WORKERS_LOGFILE
 
 
 # Daemon options
@@ -30,29 +35,24 @@ Daemons.run_proc('rbpm_worker', daemon_options) do
 
   # Initialize default logger
   pid = Process.pid
-  logfile_rails = File.join(logs_dir, 'rbpm_global.log')
-  Rails.logger = ActiveSupport::BufferedLogger.new(logfile_rails)
-  Rails.logger.info "PID [#{pid}]: starting new worker process"
+  Rails.logger = ActiveSupport::BufferedLogger.new(RBPM_GLOBAL_LOGFILE)
   Rails.logger.auto_flushing = true
+  Rails.logger.info "PID [#{pid}]: starting new worker process"
 
   # Initialize database logger
-  logfile_db = File.join(logs_dir, 'rbpm_db.log')
-  ActiveRecord::Base.logger = ActiveSupport::BufferedLogger.new(logfile_db)
-
-  # Register worker in our database
-  worker = Worker.new(hostname, pid)
-  
-  Rails.logger.info "PID [#{pid}]: registered worker [#{worker.name}]"
+  ActiveRecord::Base.logger = ActiveSupport::BufferedLogger.new(RBPM_DATABASE_LOGFILE)
+  ActiveRecord::Base.logger.auto_flushing = true
+  Rails.logger.info "PID [#{pid}]: logging database to file [#{RBPM_DATABASE_LOGFILE}]"
 
   # Initialize own logger
-  #logfile_worker = File.expand_path(File.join(Rails.root, 'log', 'workers', "worker_#{worker.id}.log"))
-  logfile_worker = File.join(logs_dir, "rbpm_workers.log")
-  wlog = ActiveSupport::BufferedLogger.new(logfile_worker)
+  wlog = ActiveSupport::BufferedLogger.new(RBPM_WORKERS_LOGFILE)
   wlog.auto_flushing = true
-  Rails.logger.info "PID [#{pid}]: logging to file [#{logfile_worker}]"
-  
-  # Connect worker to logger
+  Rails.logger.info "PID [#{pid}]: logging  workers to file [#{RBPM_WORKERS_LOGFILE}]"
+
+  # Initialize worker, register it in our database, init logger
+  worker = Worker.new(hostname, pid)
   worker.use_logger(wlog)
+  Rails.logger.info "PID [#{pid}]: registered worker [#{worker.name}]"
 
   # What to do when asked to terminate
   Signal.trap("TERM") do
@@ -82,10 +82,15 @@ Daemons.run_proc('rbpm_worker', daemon_options) do
     puts msg
     Rails.logger.info msg
 
+  rescue Interrupt
+    msg = "PID [#{pid}]: EXITING: received Interrupt"
+    puts msg
+    Rails.logger.info msg
+
   rescue Exception => exception
     msg = "PID [#{pid}]: unhandled exception: #{exception.message}"
+    msg = "PID [#{pid}]: exception: #{exception.inspect}"
     puts msg
-    puts exception.to_json
     Rails.logger.info msg
 
   end    

@@ -9,7 +9,7 @@ class Job < ActiveRecord::Base
   has_many :vars, :dependent => :destroy
   
   accepts_nested_attributes_for :vars
-  after_initialize :init_context
+  after_initialize :init_context_and_vars
   serialize :context, JSON
   
   #scope :latest_actions, includes(:actions)
@@ -26,16 +26,22 @@ class Job < ActiveRecord::Base
   # end
   
   scope :failsafe_find_in, lambda { |ids|
-    where('id in (?)', ids)
+    where('id in (?)', ids).includes(:step)
     }
 
   @logger = nil
   @beanstalk_job = nil
   @prefix = ""
+  @vars = {}
 
+  # def initialize
+  #   #raise "init"
+  #   self.refresh_vars!
+  # end
   
-  def init_context
+  def init_context_and_vars
     self.context ||= {}
+    #self.refresh_vars!
   end
   
   def status_image_path
@@ -49,19 +55,24 @@ class Job < ActiveRecord::Base
   end
 
   def init_vars_from_context!
+    log "init_vars_from_context: start"
     return unless self.context.is_a? Hash
-
-    # Initial self.vars is empty
-    vars = []
-  
-    # Initialize job vars from initial_vars
-    self.context.each do |name, value|
-      vars << Var.find_or_create_by_name(name.to_s, :step => nil, :action => nil, :value => value)
-      #self.set_var(name, value, nil, nil)
-    end
     
-    # 
-    self.vars = vars
+    # Refresh local vars to avoid a split-brain between rails's record presence and real db presence
+    self.refresh_vars!
+
+    # Set job vars from initial_vars
+    log "init_vars_from_context: context.each starts"
+    self.context.each do |name, value|
+      self.set_var(name, value)
+      #self.vars << Var.find_or_create_by_name(name.to_s, :step => nil, :action => nil, :value => value)
+    end
+    log "init_vars_from_context: context.each done"
+    
+    # Force refresh of vars into object
+    # log "init_vars_from_context: refresh_vars starts"
+    # self.refresh_vars!
+    # log "init_vars_from_context: refresh_vars ends"
   end
 
   def started_since
@@ -73,50 +84,52 @@ class Job < ActiveRecord::Base
     return false if self.started_at.nil?
     return started_since >= JOB_DEFAULT_RELEASE_TIME  
   end
+  
+  
+  def refresh_vars!
+    # Force vars reload from the db, and refresh the array
+    @vars = {}
+    self.vars.reload.each do |var|
+      @vars[var.name.to_s] = var.value
+    end
+  end
 
   def set_var(name, value, step = nil, action = nil)
-    #Var.uncached do
+    # Update var in db
+    Var.uncached do
       var = self.vars.find_or_create_by_name(name.to_s, :step => step, :action => action, :value => value)
       var.update_attributes(:step => step, :action => action, :value => value)
-    #end
-    return var
+    end
+    
+    # Update var in local cache
+    @vars[name.to_s] = value unless name.nil?
   end
   
   def get_var(name)
-    value_normal = self.get_var_normal(name)
-    log "get_var(#{name})   normal: #{value_normal}"
+    return @vars[name.to_s] unless name.nil?
+  end
 
-    value_uncached = self.get_var_uncached(name)
-    log "get_var(#{name}) uncached: #{value_uncached}"
-
-    return value_normal
+  def get_vars
+    return @vars
   end
-  
-  def get_var_normal(name)
-    var = self.vars.find_by_name(name)
-    return var.value unless var.nil?
-  end
-  
-  def get_var_uncached(name)
-    Var.uncached do
-      var = self.vars.find_by_name(name)
-      return var.value unless var.nil?
-    end
-  end
-  
-  def get_vars_hash
-    #run_id = run.id unless run.nil?
-    vars = {}
-    self.vars.each do |var|
-      vars[var.name.to_s] = var.value
-    end
-    return vars
-  end
+  # 
+  # def get_vars_hash
+  #   #run_id = run.id unless run.nil?
+  #   vars = {}
+  #   self.vars.each do |var|
+  #     vars[var.name.to_s] = var.value
+  #   end
+  #   return vars
+  # end
   
   def unlock!
     self.update_attributes(:completed_at => nil, :locked => false)
   end
     
+  def bootstrap
+    return "(s#{self.step.id}) #{self.step.label}" unless self.step.nil?
+  end
+  
   def evaluate(expression)
     # Dont' do any replacement if expression is not a string
     return expression unless expression.is_a? String
@@ -132,22 +145,54 @@ class Job < ActiveRecord::Base
     end
 
     # Replace internal values
-    random = ActiveSupport::SecureRandom.hex(16)
+    random = SecureRandom.hex(16)
     output.gsub!("#jobid", self.id.to_s) unless self.id.nil?
     output.gsub!("#random", random)
     output.gsub!("#now", Time.now.strftime("%Y%m%d-%H%M%S"))
 
     # Replace job vars
-    self.vars.each do |var|
-      pattern = "$#{var.name.to_s}"
+    @vars.each do |name, value|
+      pattern = "$#{name.to_s}"
       #puts "comparing expression(#{expression}) with pattern (#{pattern}), data(#{var.data}) value(#{var.value}) name(#{var.name}) id(#{var.id})" 
       #return var.value if (output == pattern)
-      output.gsub!(pattern, var.value.to_s)
+      output.gsub!(pattern, value.to_s)
     end
 
     # Return the final string
     return output
   end
+
+  # def evaluate_uncached(expression)
+  #   # Dont' do any replacement if expression is not a string
+  #   return expression unless expression.is_a? String
+  # 
+  #   # Make a local copy
+  #   output = expression.clone
+  # 
+  #   # Replace constants
+  #   ENV_CONSTANTS.each do |name, value|
+  #     next if value.nil?
+  #     pattern = "!#{name.to_s}"
+  #     #return value if (output == pattern)
+  #     output.gsub!(pattern, value.to_s)
+  #   end
+  # 
+  #   # Replace internal values
+  #   random = SecureRandom.hex(16)
+  #   output.gsub!("#jobid", self.id.to_s) unless self.id.nil?
+  #   output.gsub!("#random", random)
+  #   output.gsub!("#now", Time.now.strftime("%Y%m%d-%H%M%S"))
+  # 
+  #   # Replace job vars
+  #   self.get_vars_hash_uncached.each do |name, value|
+  #     next if value.nil?
+  #     pattern = "$#{name}"
+  #     output.gsub!(pattern, value)
+  #   end
+  # 
+  #   # Return the final string
+  #   return output
+  # end
 
   def use_logger(logger, prefix="")
     @logger = logger
@@ -164,7 +209,7 @@ class Job < ActiveRecord::Base
 
   def start!
     log "#############################################################################"
-    log "## STARTING JOB (j#{self.id}) FROM STEP (s#{self.step.id}) #{self.step.label}"
+    log "## STARTING JOB (j#{self.id}) BOOSTRAP #{self.bootstrap}"
     log "#############################################################################"
     
     # Initialize initial context into vars, create as many job.var's as needed
@@ -222,6 +267,9 @@ class Job < ActiveRecord::Base
     # Ping job
     log "s#{from_step.id}: touch job"
     self.touch_beanstalk_job
+    
+    # Reload job's vars
+    self.refresh_vars!
     
     # Run this step and close the action
     log "s#{from_step.id}: running step"
@@ -295,7 +343,7 @@ class Job < ActiveRecord::Base
       
       # Creating a new, standalone job
       job = Job.create(:step => next_step, :creator => "workerd.fork(j#{self.id}, s#{from_step.id})", :label => job_label, :context => locals)
-      log "s#{from_step.id}:  - initial vars: locals.to_json"
+      log "s#{from_step.id}:  - initial vars: #{locals.to_json}"
       log "s#{from_step.id}:  - created job j#{job.id}"
       
       # Push this job onto the queue, and update job's bsid
