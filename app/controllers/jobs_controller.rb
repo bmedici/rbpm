@@ -112,6 +112,7 @@ class JobsController < ApplicationController
   end
   
   def reset
+    # Reset data for this job
     @job = Job.find(params[:id])
     @job.reset!
 
@@ -122,6 +123,26 @@ class JobsController < ApplicationController
 
     #redirect_to jobs_path, :notice => 'Job was successfully reset'
     redirect_to job_path(@job), :notice => 'Job was successfully reset'
+  end
+  
+  def cleanup_successful
+    jobs = Job.successful
+    jobs.destroy_all
+    redirect_to jobs_path, :notice => "Successful jobs have been cleaned up (total: #{jobs.count} jobs)"
+  end
+  
+  def reset_failed
+    jobs = Job.failed
+    jobs.each do |job|
+      # Reset data for this job
+      job.reset!
+
+      # Push this job onto the queue, and update job's bsid
+      bs = Q.new
+      bsid = bs.push_job(job, 50)
+      job.update_attributes(:bsid => bsid)
+    end
+    redirect_to jobs_path, :notice => "Failed jobs have been reset (total: #{jobs.count} jobs)"
   end
   
 end

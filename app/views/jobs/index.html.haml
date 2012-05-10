@@ -3,6 +3,9 @@
 - add_button :refresh, jobs_path, 'refresh'
 - add_button :link, dashboard_path, "dashboard"
 
+- add_button :link, cleanup_successful_jobs_path, "cleanup successful jobs"
+- add_button :link, reset_failed_jobs_path, "reset failed jobs"
+
 
 %table{:width => '100%'}
   %thead
@@ -79,23 +82,26 @@
           %br
           = link_to 'reset', reset_job_path(job), :confirm => 'Are you sure?'
         %td
-          = image_tag job.status_image_path
+          =# image_tag job.status_image_path
           = job_status_badge(job, @bs_jobs_ids)
 
 
 %br
-.alert.info
-  %strong Notes
-  %p
-    A job will be released after running more than #{JOB_DEFAULT_RELEASE_TIME} seconds without keepalives.
-    %br
-    It will be made available to other workers, and run again
+%h4 Notes
 %p
-  ttr: time to run the whole jobs before being made ready
+  A job will be released after running more than #{JOB_DEFAULT_RELEASE_TIME} seconds without keepalives.
+  %br
+  It will be made available to other workers, and run again
 %p
-  left: time left for the current worker to complete
+  %strong ttr =
+  time to run the whole jobs before being made ready
 %p
-  state: one of (reserved, buried, ready)
+  %strong left =
+  time left for the current worker to complete
 %p
-  prio: relative priority index (default is 100, less is more urgent) 
+  %strong state =
+  one of (reserved, buried, ready)
+%p
+  %strong prio =
+  relative priority index (default is 100, less is more urgent) 
       

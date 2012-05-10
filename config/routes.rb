@@ -24,6 +24,13 @@ Rbpm::Application.routes.draw do
       get :reset
       get :push
     end
+    collection do
+      get :cleanup_successful
+      get :reset_failed
+    end
+    collection do
+      get :reset_failed
+    end
   end
   
   resources :actions

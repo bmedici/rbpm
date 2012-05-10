@@ -8,7 +8,7 @@ module JobsHelper
       
     # the job has already completed
     if !job.completed_at.nil?    
-      return badge(:success, "succeeded")
+      return badge(:success, "completed")
     end
 
     # # not completed, but we can guess the job has timed out
@@ -22,8 +22,8 @@ module JobsHelper
     end
 
     # not completed, but not started neither, and we have no queued job array
-    if job.started_at.nil?    
-      return badge(nil, "stale")
+    if job.started_at.nil?
+      return badge(nil, "stale (not queued)")
     end
         
     # completed_at is nil, job has not timed out, thus it's waiintg

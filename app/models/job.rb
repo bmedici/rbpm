@@ -12,14 +12,18 @@ class Job < ActiveRecord::Base
   after_initialize :init_context_and_vars
   serialize :context, JSON
   
-  #scope :latest_actions, includes(:actions)
-  #scope :latest_actions, includes(:actions)
   scope :locked, where('NOT worker=""')
   scope :not_locked, where('worker=""')
+
+  scope :completed, where('completed_at IS NOT NULL')
   scope :not_completed, where(:completed_at => nil)
+
+  scope :failed, where('errno <> 0')
+  scope :not_failed, where('NOT errno')
+
   scope :running, locked.not_completed
   scope :runnable, not_locked.not_completed.order(:id)
-  scope :failed, where('errno <> 0')
+  scope :successful, not_failed.not_locked.completed
 
   # scope :failsafe_find_in, lambda do |job_ids|
   #   where('id in ?', )
@@ -44,15 +48,15 @@ class Job < ActiveRecord::Base
     #self.refresh_vars!
   end
   
-  def status_image_path
-    if (self.errno != 0)
-      return '/images/clock_red.png'
-    elsif self.completed_at.nil?
-      return '/images/clock.png'
-    else
-      return '/images/accept.png'
-    end
-  end
+  # def status_image_path
+  #   if (self.errno != 0)
+  #     return '/images/clock_red.png'
+  #   elsif self.completed_at.nil?
+  #     return '/images/clock.png'
+  #   else
+  #     return '/images/accept.png'
+  #   end
+  # end
 
   def init_vars_from_context!
     log "init_vars_from_context: start"
