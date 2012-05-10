@@ -50,10 +50,13 @@
         %td= job.label
 
 
-%h3 Failed/suspended jobs (#{@jobs_failed.size})
-- if @jobs_failed.empty?
+%h3 Failed/suspended jobs (#{@jobs_failed_count})
+- if @jobs_failed_limited.empty?
   %p= "No failed job"
 - else
+  - if (DASHBOARD_JOBS_LIMITFAILED < @jobs_failed_count)
+    = "Showing only #{DASHBOARD_JOBS_LIMITFAILED} first jobs out of #{@jobs_failed_count} in database"
+
   %table{:width => '100%'}
     %tr
       %th job
@@ -61,7 +64,7 @@
       %th worker
       %th bootstrap
       %th label
-    - @jobs_failed.each do |job|
+    - @jobs_failed_limited.each do |job|
       %tr
         %td= link_to "j#{job.id}", job
         %td= my_datetime job.started_at

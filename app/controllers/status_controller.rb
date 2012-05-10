@@ -83,8 +83,11 @@ class StatusController < ApplicationController
   
   def prepare_jobs(bs)
     # Simple queries
-    @jobs_locked = Job.locked.includes(:step).order('id DESC').all
-    @jobs_failed = Job.failed.includes(:step).order('id DESC').all
+    @jobs_locked = Job.locked.includes(:step).order('id DESC')
+    @jobs_failed = Job.failed.includes(:step).order('id DESC')
+
+    @jobs_failed_count = @jobs_failed.count
+    @jobs_failed_limited = @jobs_failed.limit(DASHBOARD_JOBS_LIMITFAILED)
 
     # Collect queued job IDs in beanstalk
     @bs_jobs_ids = bs.fetch_queued_jobs_ids
