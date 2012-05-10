@@ -82,19 +82,24 @@ class StatusController < ApplicationController
   protected
   
   def prepare_jobs(bs)
-    # Simple queries
-    @jobs_locked = Job.locked.includes(:step).order('id DESC')
-    @jobs_failed = Job.failed.includes(:step).order('id DESC')
-
-    @jobs_failed_count = @jobs_failed.count
-    @jobs_failed_limited = @jobs_failed.limit(DASHBOARD_JOBS_LIMITFAILED)
-
     # Collect queued job IDs in beanstalk
     @bs_jobs_ids = bs.fetch_queued_jobs_ids
-    @jobs_queued = Job.failsafe_find_in(@bs_jobs_ids).all
+
+    # Read jobs locked
+    @jobs_locked = Job.locked.includes(:step).order('id DESC')
+
+    # Read jobs failed
+    jobs_failed = Job.failed.includes(:step).order('id DESC')
+    @jobs_failed_count = jobs_failed.count
+    @jobs_failed_limited = jobs_failed.limit(DASHBOARD_JOBS_LIMIT)
+    
+    # Read jobs queued
+    jobs_queued = Job.failsafe_find_in(@bs_jobs_ids)
+    @jobs_queued_count = jobs_queued.count
+    @jobs_queued_limited = jobs_queued.limit(DASHBOARD_JOBS_LIMIT)
 
     # Find oprhan jobs
-    @db_jobs_ids = @jobs_queued.map(&:id) 
+    @db_jobs_ids = jobs_queued.map(&:id) 
     @missing_in_db = @bs_jobs_ids - @db_jobs_ids
   end
   

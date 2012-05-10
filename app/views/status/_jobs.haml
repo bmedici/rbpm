@@ -29,9 +29,8 @@
     =# link_to job_status_image(job), job
   
 
-
-%h3 Queued jobs (#{@jobs_queued.size})
-- if @jobs_queued.empty?
+%h3 Queued jobs (#{@jobs_queued_count}) #{"showing first #{DASHBOARD_JOBS_LIMIT}" if (DASHBOARD_JOBS_LIMIT < @jobs_queued_count)}
+- if @jobs_queued_limited.empty?
   %p= "No queued job" 
 - else
   %table{:width => '100%'}
@@ -41,7 +40,7 @@
       %th worker
       %th bootstrap
       %th label
-    - @jobs_queued.each do |job|
+    - @jobs_queued_limited.each do |job|
       %tr
         %td= link_to "j#{job.id}", job
         %td= my_datetime job.created_at
@@ -50,12 +49,12 @@
         %td= job.label
 
 
-%h3 Failed/suspended jobs (#{@jobs_failed_count})
+%h3 Failed/suspended jobs (#{@jobs_failed_count}) #{"showing first #{DASHBOARD_JOBS_LIMIT}" if (DASHBOARD_JOBS_LIMIT < @jobs_failed_count)}
 - if @jobs_failed_limited.empty?
   %p= "No failed job"
 - else
-  - if (DASHBOARD_JOBS_LIMITFAILED < @jobs_failed_count)
-    = "Showing only #{DASHBOARD_JOBS_LIMITFAILED} first jobs out of #{@jobs_failed_count} in database"
+  - if (DASHBOARD_JOBS_LIMIT < @jobs_failed_count)
+    = "Showing only #{DASHBOARD_JOBS_LIMIT} first jobs out of #{@jobs_failed_count} in database"
 
   %table{:width => '100%'}
     %tr
