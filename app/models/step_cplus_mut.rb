@@ -35,7 +35,7 @@ class StepCplusMut < Step
     target_dir = self.pval(:target_dir)
 
     request_template = self.pval(:request_template)
-    timeout = self.pval(:timeout)
+    timeout = self.pval(:timeout).to_i
     host = self.pval(:host)
     port = self.pval(:port)
     
@@ -76,6 +76,7 @@ class StepCplusMut < Step
       # Connect to remote host
       log "connecting to [#{host}:#{port}]"
       s = TCPSocket.open(host, port)
+      s.setsockopt(Socket::SOL_SOCKET, Socket::SO_RCVTIMEO, timeout)
     
       # Send the request + empty line to terminate
       s.puts(request)

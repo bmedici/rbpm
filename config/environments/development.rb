@@ -34,8 +34,7 @@ Rbpm::Application.configure do
   
   #GRAPH_AUTOUPDATE = 1.0
   GRAPHVIZ_BINPATH = '/usr/local/bin/'
-  RESTCLIENT_OPEN_TIMEOUT = 7
-  RESTCLIENT_REQ_TIMEOUT = 30
+  QUEUE_SERVERS = ['localhost:11300']
 
   MONITOR_MIN_UPDATE_PERIOD = 2
   DASHBOARD_SYSTEM_RATE = MONITOR_MIN_UPDATE_PERIOD + 1
@@ -45,10 +44,9 @@ Rbpm::Application.configure do
   
   WORKERD_POLL_DELAY = 1
   WORKERD_ZOMBIE_DELAY = 2 + WORKERD_POLL_DELAY
-  #WORKERD_HEARTBEAT_DELAY = 1
-  
-  QUEUE_SERVERS = ['localhost:11300']
-  #QUEUE_SERVERS = ['vodka:11300']
+
+  RESTCLIENT_OPEN_TIMEOUT = 8
+  RESTCLIENT_REQ_TIMEOUT = 30
   
   # Environnement-specific constants
   ENV_CONSTANTS = {
