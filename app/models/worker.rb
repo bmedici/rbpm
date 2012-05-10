@@ -33,15 +33,15 @@ class Worker
     return last_activity > WORKERD_ZOMBIE_DELAY
   end
   
-  def status_image_path
-    if (self.last_activity <= WORKERD_ZOMBIE_DELAY)
-      return '/images/accept.png'
-    elsif (self.jobs.size > 0)
-      return '/images/clock.png'
-    else
-      return '/images/clock_red.png'
-    end
-  end
+  # def status_image_path
+  #   if (self.last_activity <= WORKERD_ZOMBIE_DELAY)
+  #     return '/images/accept.png'
+  #   elsif (self.jobs.size > 0)
+  #     return '/images/clock.png'
+  #   else
+  #     return '/images/clock_red.png'
+  #   end
+  # end
 
   # def logjob(job, msg)
   #   log "[j#{job.id}] #{msg}" unless @job.nil?
