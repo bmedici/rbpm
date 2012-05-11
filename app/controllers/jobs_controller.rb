@@ -3,7 +3,7 @@ class JobsController < ApplicationController
   # GET /jobs.json
   def index
     #@jobs = Job.order('id DESC').includes(:actions)
-    @jobs = Job.order('id DESC')
+    @jobs = Job.includes(:step).order('id DESC')
 
     # Fetch real beanstalk queued IDs
     bs = Q.new

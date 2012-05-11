@@ -227,9 +227,11 @@ class Job < ActiveRecord::Base
   end
   
   def reset!
-    # Remove all children
-    self.vars.destroy_all
-    self.actions.destroy_all
+    # Remove all children, the powerfull way
+    Var.delete_all(:job_id => self.id)
+    Action.delete_all(:job_id => self.id)
+    #self.actions.destroy_all
+    #self.vars.destroy_all
     self.init_vars_from_context!
 
     # Flag it as clean
