@@ -179,6 +179,10 @@ class Worker
         job.update_attributes(:worker => nil, :errno => -3 , :errmsg => exception.message)
         log "JOB [j#{job.id}] ABORTED Mysql2::Error: #{exception.message}"
 
+      rescue ActiveRecord::StatementInvalid => exception
+        job.update_attributes(:worker => nil, :errno => -9 , :errmsg => exception.message)
+        log "JOB [j#{job.id}] ABORTED: ActiveRecord::StatementInvalid: #{exception.message}"
+
       rescue Exceptions => exception
         job.update_attributes(:worker => nil, :errno => -1 , :errmsg => exception.message)
         log "JOB [j#{job.id}] ABORTED: #{exception.message}"
