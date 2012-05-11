@@ -73,22 +73,22 @@ Daemons.run_proc('rbpm_worker', daemon_options) do
     end
 
   rescue Exceptions::WorkerFailedJobNotfound => exception
-    msg = "PID [#{pid}]: EXITING: worker failed to find the job: #{exception.message}"
+    msg = "PID [#{pid}]: WORKERD EXITING: worker failed to find the job: #{exception.message}"
     puts msg
     Rails.logger.info msg
 
   rescue Beanstalk::NotConnected => exception
-    msg = "PID [#{pid}]: EXITING: connexion to beanstalkd failed"
+    msg = "PID [#{pid}]: WORKERD EXITING: connexion to beanstalkd failed"
     puts msg
     Rails.logger.info msg
 
   rescue Interrupt => exception
-    msg = "PID [#{pid}]: EXITING: received Interrupt"
+    msg = "PID [#{pid}]: WORKERD EXITING: received Interrupt"
     puts msg
     Rails.logger.info msg
 
   rescue Exception => exception
-    msg = "PID [#{pid}]: unhandled exception: #{exception.message}"
+    msg = "PID [#{pid}]: WORKERD unhandled exception: #{exception.message}"
     puts msg
     Rails.logger.info msg
 

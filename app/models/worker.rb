@@ -169,34 +169,31 @@ class Worker
 
       rescue Exceptions::JobFailedParamError => exception
         job.update_attributes(:worker => nil, :errno => -11 , :errmsg => exception.message)
-        log "JOB [j#{job.id}] ABORTED JobFailedParamError #{exception.message}"
+        log "JOB [j#{job.id}] JOB ABORTED JobFailedParamError #{exception.message}"
 
       rescue Exceptions::JobFailedStepRun => exception
         job.update_attributes(:worker => nil, :errno => -12 , :errmsg => exception.message)
-        log "JOB [j#{job.id}] ABORTED JobFailedStepRun #{exception.message}"
+        log "JOB [j#{job.id}] JOB ABORTED JobFailedStepRun #{exception.message}"
 
       rescue Mysql2::Error => exception
         job.update_attributes(:worker => nil, :errno => -3 , :errmsg => exception.message)
-        log "JOB [j#{job.id}] ABORTED Mysql2::Error: #{exception.message}"
+        log "JOB [j#{job.id}] JOB ABORTED Mysql2::Error: #{exception.message}"
 
       rescue ActiveRecord::StatementInvalid => exception
         job.update_attributes(:worker => nil, :errno => -9 , :errmsg => exception.message)
-        log "JOB [j#{job.id}] ABORTED: ActiveRecord::StatementInvalid: #{exception.message}"
+        log "JOB [j#{job.id}] JOB ABORTED: ActiveRecord::StatementInvalid: #{exception.message}"
 
       rescue Exceptions => exception
         job.update_attributes(:worker => nil, :errno => -1 , :errmsg => exception.message)
-        log "JOB [j#{job.id}] ABORTED: #{exception.message}"
+        log "JOB [j#{job.id}] JOB ABORTED: #{exception.message}"
 
       else
         # It's done, unlock it, otherwise leave it like that
         job.update_attributes(:worker => nil, :completed_at => Time.now)
-        log "job [j#{job.id}] completed"
+        j.delete
+        log "job [j#{job.id}] completed and deleted"
         
       end
-
-      # Item has been worked out, delete it and update the job status
-      job.update_attributes(:worker => nil, :completed_at => Time.now)
-      j.delete
     end
   end
   
