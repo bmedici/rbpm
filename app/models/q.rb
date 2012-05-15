@@ -42,7 +42,7 @@ class Q
     workers.uniq
   end
 
-  # def push_job(job_id, reason = nil, priority = 100, ttr = JOB_DEFAULT_RELEASE_TIME)
+  # def push_job(job_id, reason = nil, priority = 100, ttr = JOB_RELEASE_DEFAULT)
   #   delay = 0
   #   body = {
   #     :id => job_id,
@@ -52,7 +52,7 @@ class Q
   #   @bs.yput(body, priority, delay, ttr)
   # end
 
-  def push_job(job, priority = 100, ttr = JOB_DEFAULT_RELEASE_TIME)
+  def push_job(job, priority = JOB_PRIORITY_DEFAULT, ttr = JOB_RELEASE_DEFAULT)
     delay = 0
     body = {
       :id => job.id,

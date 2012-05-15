@@ -49,7 +49,7 @@ class JobsController < ApplicationController
 
   def push
     @job = Job.new()
-    @job.creator = "manual.push"
+    @job.creator = "admin.push"
     @job.step_id = params[:id]
 
     respond_to do |format|
@@ -64,7 +64,7 @@ class JobsController < ApplicationController
 
         # Push this job onto the queue, and update job's bsid
         bs = Q.new
-        bsid = bs.push_job(@job)
+        bsid = bs.push_job(@job, JOB_PRIORITY_PUSHED)
         bs.close
         @job.update_attributes(:bsid => bsid)
 

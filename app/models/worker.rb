@@ -115,8 +115,6 @@ class Worker
   end
   
   def handle_beanstalk_jobs
-    log "worker#handle_beanstalk_jobs"
-    
     # Announce the worker
     @bs.announce_worker(@name)
     log "announced worker [#{@name}]"
@@ -200,7 +198,7 @@ class Worker
   protected
   
   def log(msg="")
-    stamp = Time.now.strftime(LOGGING_TIMEFORMAT)
+    stamp = Time.now.strftime(WORKER_LOGFORMAT)
     @logger.info "#{stamp}\t#{@prefix}#{msg}" unless @logger.nil?
   end
   

@@ -157,7 +157,7 @@ class Step < ActiveRecord::Base
   end
 
   def log(msg="")
-    stamp = Time.now.strftime(LOGGING_TIMEFORMAT)
+    stamp = Time.now.strftime(WORKER_LOGFORMAT)
     @logger.info "#{stamp}\t#{@prefix}#{msg}" unless @logger.nil?
   end
   

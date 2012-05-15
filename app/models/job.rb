@@ -59,24 +59,15 @@ class Job < ActiveRecord::Base
   # end
 
   def init_vars_from_context!
-    log "init_vars_from_context: start"
     return unless self.context.is_a? Hash
     
     # Refresh local vars to avoid a split-brain between rails's record presence and real db presence
     self.refresh_vars!
 
     # Set job vars from initial_vars
-    log "init_vars_from_context: context.each starts"
     self.context.each do |name, value|
       self.set_var(name, value)
-      #self.vars << Var.find_or_create_by_name(name.to_s, :step => nil, :action => nil, :value => value)
     end
-    log "init_vars_from_context: context.each done"
-    
-    # Force refresh of vars into object
-    # log "init_vars_from_context: refresh_vars starts"
-    # self.refresh_vars!
-    # log "init_vars_from_context: refresh_vars ends"
   end
 
   def started_since
@@ -86,7 +77,7 @@ class Job < ActiveRecord::Base
 
   def timed_out?
     return false if self.started_at.nil?
-    return started_since >= JOB_DEFAULT_RELEASE_TIME  
+    return started_since >= JOB_RELEASE_DEFAULT  
   end
   
   
@@ -354,7 +345,7 @@ class Job < ActiveRecord::Base
       
       # Push this job onto the queue, and update job's bsid
       bs = Q.new
-      bsid = bs.push_job(job)
+      bsid = bs.push_job(job, JOB_PRIORITY_FORKED)
       bs.close
       log "s#{from_step.id}:  - notified on queue bsid: #{bsid}"
       job.update_attributes(:bsid => bsid)
@@ -398,7 +389,7 @@ class Job < ActiveRecord::Base
   end
 
   def log(msg="")
-    stamp = Time.now.strftime(LOGGING_TIMEFORMAT)
+    stamp = Time.now.strftime(WORKER_LOGFORMAT)
     @logger.info "#{stamp}\t#{@prefix}#{msg}" unless @logger.nil?
   end
 
