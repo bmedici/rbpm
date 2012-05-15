@@ -126,9 +126,13 @@ class JobsController < ApplicationController
   end
   
   def cleanup_successful
-    jobs = Job.successful
-    jobs.destroy_all
-    redirect_to jobs_path, :notice => "Successful jobs have been cleaned up (total: #{jobs.count} jobs)"
+    job_ids = Job.successful.map(&:id)
+    
+    # Batch-delete their vars and actions
+    Var.delete_all(:job_id => job_ids)
+    Action.delete_all(:job_id => job_ids)
+    
+    redirect_to jobs_path, :notice => "Successful jobs have been cleaned up (total: #{job_ids.count} jobs)"
   end
   
   def reset_failed

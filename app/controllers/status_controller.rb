@@ -72,7 +72,7 @@ class StatusController < ApplicationController
   end  
   
   def workflows
-    @root_steps = Step.roots.includes(:links => :next).order('steps.id DESC')
+    @root_steps = Step.roots.includes(:links => :next).order('steps.label ASC')
   end  
   
   def editor
