@@ -9,7 +9,14 @@ class StepFailer < Step
   end
   
   def run(current_job, current_action)
-    log "StepFailer.run failing as expected"
+    # Starting
+    log "StepFailer.start"
+    
+    # Raise an unhandled exception
+    raise Exceptions::UnhandledException, "failing as expected"
+    
+    # Finished
+    log "StepFailer.end failing as expected"
     return 1, "failed the perfect way"
   end
   
