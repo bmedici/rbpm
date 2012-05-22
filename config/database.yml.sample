@@ -1,0 +1,25 @@
+defaults: &defaults
+  adapter: mysql2
+  encoding: utf8
+  username: rbpm
+  password:
+  port: 3306
+  pool: 100
+  
+development:
+  <<: *defaults
+  database: rbpm_dev
+  host: localhost
+
+beta:
+  <<: *defaults
+  database: rbpm_beta
+  host: 10.0.8.1
+
+labo:
+  <<: *defaults
+  database: rbpm_labo
+  host: vodka
+  
+production:
+  <<: *defaults

@@ -1,0 +1,72 @@
+#############################################################
+# Global config
+#############################################################
+
+set :application, "rbpm"
+set :scm, :git
+set :branch, "master"
+set :deploy_via, :remote_cache
+set :user, "capistrano"
+set :group, "www-data"
+set :use_sudo, false
+set :normalize_asset_timestamps, false
+
+
+#############################################################
+# Local config
+#############################################################
+
+set :repository,  ""
+set :deploy_to, ""
+
+
+#############################################################
+# Remote job management
+#############################################################
+
+desc "run a remote worker"
+namespace :workerd do
+  task :start, :roles => [:app] do
+    run("cd #{current_path}/; RAILS_ENV=#{rails_env} script/workerd.rb start")
+  end
+  task :stop, :roles => [:app] do
+    run("cd #{current_path}/; RAILS_ENV=#{rails_env} script/workerd.rb stop")
+  end
+  task :runit, :roles => [:app] do
+    run("cd #{current_path}/; RAILS_ENV=#{rails_env} script/workerd.rb run")
+  end
+  task :log, :roles => [:app] do
+    run("cd #{current_path}/; tail -f log/rbpm_global.log log/rbpm_workers.log")
+  end
+end
+
+
+#############################################################
+# Bundler and passenger
+#############################################################
+
+namespace :bundler do
+  task :create_symlink, :roles => :app do
+    shared_dir = File.join(shared_path, 'bundle')
+    release_dir = File.join(current_release, '.bundle')
+    run("mkdir -p #{shared_dir} && ln -s #{shared_dir} #{release_dir}")
+  end
+ 
+  task :bundle_new_release, :roles => :app do
+    bundler.create_symlink
+    run "cd #{release_path} && bundle install --without test"
+  end
+end
+
+namespace :deploy do 
+  desc "Restarting mod_rails with restart.txt"
+  task :restart, :roles => :app, :except => { :no_release => true } do
+    run "touch #{current_path}/tmp/restart.txt"
+  end
+  [:start, :stop].each do |t|
+    desc "#{t} task is a no-op with mod_rails"
+    task t, :roles => :app do ; end
+  end
+end
+
+after 'deploy:update_code', 'bundler:bundle_new_release'

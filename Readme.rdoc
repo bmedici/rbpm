@@ -1,4 +1,4 @@
-= RBPM - A Ruby/Rails based Business Process Management system
+= RBPM - A Ruby/Rails Business Process Management system
 
 RBP is a simple BPM solution, used to handle execution of generic processes in various environments.
 It is used as a lab-project for a major French-television broadcaster, to orchestrate video-on-demand production on a large-scale platform.
