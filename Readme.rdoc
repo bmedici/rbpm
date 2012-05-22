@@ -8,11 +8,36 @@ It is used as a lab-project for a major French-television broadcaster, to orches
 
 == Presentation and architecture
 
-== Installation
+== Installation and prerequisites
+RBPM uses Beanstalk for job queuing and workers monitoring. It can be found here
+http://kr.github.com/beanstalkd/
+
+
 
 == Setup
+Prepare database config file and edit to fit your configuration
+	cp config/database.yml.sample config/database.yml
+
+Create database and RBPM tables
+	rake db:setup
+	rake db:migrate
+
+Update and/or install gems using Bundler
+	bundle update
+
 
 == Usage
+For a development setup, just run Beanstalk in a verbose mode, with: 
+	beanstalkd -V
+
+Start a webserver to access the administration interface
+	rails server
+
+Finally, start one or more workers to handle new jobs
+	script/workerd.rb start
+
+It's now time to setup ome workflow and submit a job
+
 
 == Bug Reports
 

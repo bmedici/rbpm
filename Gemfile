@@ -11,35 +11,20 @@ gem 'ruby-graphviz'
 # Views
 gem "haml-rails"
 gem 'jquery-rails'
-gem "twitter-bootstrap-rails"
-
+#gem "twitter-bootstrap-rails", "2.0.6"
+gem "twitter-bootstrap-rails", :git => "https://github.com/seyhunak/twitter-bootstrap-rails"
+#gem 'therubyracer', :platform => :ruby
 
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets do
-  #gem 'sass-rails', "~> 3.1.0.rc"
-  #gem 'coffee-rails', "~> 3.1.0.rc"
   gem 'sass-rails'
   gem 'coffee-rails'
   gem 'uglifier'
 end
 
-# Use unicorn as the web server
-# gem 'unicorn'
-
-
 gem "sys-cpu"
 gem "facter"
 gem "daemons"
-
-gem "sandbox"
-
-
-# To use debugger
-# gem 'ruby-debug'
-
-
 gem "rest-client"
 gem "beanstalk-client"
-#gem "beanstalk-client-ruby"
-#gem "sugarfly-beanstalk-client-ruby"
