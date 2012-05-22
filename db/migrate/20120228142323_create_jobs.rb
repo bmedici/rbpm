@@ -4,9 +4,12 @@ class CreateJobs < ActiveRecord::Migration
       t.references :step, :as => :step
       t.string :label, :null => false, :default => ''
       t.string :creator, :null => false, :default => ''
-      t.references :worker
       t.integer :errno, :default => 0, :null => false
       t.string :errmsg, :null => false, :default => ''
+      t.text :context, :null => false, :default => ''
+      t.text :worker, :null => false, :default => ''
+      t.integer :bsid, :null => true, :default => nil
+
       t.datetime :started_at, :null => true
       t.datetime :completed_at, :null => true
       t.timestamps

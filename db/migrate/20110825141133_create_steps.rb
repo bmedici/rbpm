@@ -4,7 +4,7 @@ class CreateSteps < ActiveRecord::Migration
       t.string :label
       t.text :description
       t.text :params_old
-      t.string :type
+      t.string :type, :null => false, :default => "StepNoop"
       t.timestamps
     end
   end

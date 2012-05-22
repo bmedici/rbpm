@@ -1,6 +1,13 @@
 .bundle
-db/*.sqlite3
 log/*
+doc/*
 tmp/
 .sass-cache/
 .DS_Store
+
+db/*.sqlite3
+
+config/database.yml
+config/deploy.rb
+doc/
+Gemfile.lock

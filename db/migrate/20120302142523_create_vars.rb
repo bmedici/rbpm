@@ -6,7 +6,7 @@ class CreateVars < ActiveRecord::Migration
       t.text :data, :null => false, :default => ''
       t.references :action, :null => true, :default => nil
       t.references :step, :null => true, :default => nil
-
+      t.boolean :json, :default => false
       t.timestamps
     end
   add_index :vars, [:job_id, :name], :unique => true
