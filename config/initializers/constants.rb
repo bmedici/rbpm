@@ -7,12 +7,13 @@ COLOR_FAILED = '#FF0000'
 COLOR_RUNNING = '#ff7000'
 COLOR_DEFAULT = '#BBBBBB'
 
+# Defaults
+DEFAULT_TIMEOUT = 3
+
 
 # Basic workerd config
 WORKER_LOGFORMAT = "%Y/%m/%d %H:%M:%S"
 WORKER_REBOOT_DELAY = 5
-
-
 WORKER_PREFIX = "worker-"
 
 QUEUE_DEFAULT = 'default'
