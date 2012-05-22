@@ -146,6 +146,7 @@ class Job < ActiveRecord::Base
     output.gsub!("#now", Time.now.strftime("%Y%m%d-%H%M%S"))
 
     # Replace job vars
+    @vars ||= {}
     @vars.each do |name, value|
       pattern = "$#{name.to_s}"
       #puts "comparing expression(#{expression}) with pattern (#{pattern}), data(#{var.data}) value(#{var.value}) name(#{var.name}) id(#{var.id})" 
@@ -204,15 +205,15 @@ class Job < ActiveRecord::Base
 
   def start!
     log "#############################################################################"
-    log "## STARTING JOB (j#{self.id}) BOOSTRAP #{self.bootstrap}"
+    log "## STARTING JOB (j#{self.id}) FROM #{self.bootstrap}"
     log "#############################################################################"
     
     # Initialize initial context into vars, create as many job.var's as needed
-    log "initializing job with context: #{self.context.to_json}"
+    log "initializing context: #{self.context.to_json}"
     self.init_vars_from_context!
      
     # Start execution from job's first step
-    log "running from step (s#{self.step.id})"
+    log "running from (s#{self.step.id})"
 
     return self.run_from(self.step)
   end

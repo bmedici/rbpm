@@ -35,11 +35,11 @@ class StepCplusMut < Step
     target_dir = self.pval(:target_dir)
 
     request_template = self.pval(:request_template)
-    timeout = self.pval(:timeout).to_i
+    timeout_delay = self.pval(:timeout).to_i ||= DEFAULT_TIMEOUT
     host = self.pval(:host)
     port = self.pval(:port)
     
-    # Evaluate vriables
+    # Evaluate variables
     evaluated_posix = current_job.evaluate(base_posix)
     evaluated_windows = current_job.evaluate(base_windows)
     evaluated_source = current_job.evaluate(source_file)
@@ -50,7 +50,6 @@ class StepCplusMut < Step
     windows_target = unix_path_to_windows(evaluated_target, evaluated_posix, evaluated_windows)
     log "source_file: (#{source_file}) > (#{evaluated_source}) > (#{windows_source})"
     log "target_dir: (#{target_dir}) > (#{evaluated_target}) > (#{windows_target})"
-
 
     # Prepare template
     request = request_template.clone
@@ -69,24 +68,27 @@ class StepCplusMut < Step
     # Store the query for debugging purposes
     current_job.set_var(:debug_mut_request, request)
     
-    
     # Begin transaction
     response = []
     begin
-      # Connect to remote host
-      log "connecting to [#{host}:#{port}]"
-      s = TCPSocket.open(host, port)
-      s.setsockopt(Socket::SOL_SOCKET, Socket::SO_RCVTIMEO, timeout)
+      timeout(timeout_delay) do
+        # Connect to remote host
+        log "connecting to [#{host}:#{port}] with timeout of (#{timeout_delay}s)"
+        s = TCPSocket.open(host, port)
     
-      # Send the request + empty line to terminate
-      s.puts(request)
-      s.puts("")
+        # Send the request + empty line to terminate
+        s.puts(request)
+        s.puts("")
     
-      # Wait for the response
-      while line = s.gets
-        response << line.strip!
+        # Wait for the response
+        while line = s.gets
+          response << line.strip!
+        end
+        
+        # Close connection if not already closed
+        #s.close
       end
-
+    
     rescue Errno::ECONNREFUSED
       msg = "ECONNREFUSED: connection refused by remote host"
       log msg
@@ -96,6 +98,12 @@ class StepCplusMut < Step
       msg = "ECONNRESET: connection closed by remote host"
       log msg
       return 32, msg
+
+    rescue Timeout::Error
+      msg = "Timeout::Error after (#{timeout_delay}s)"
+      log msg
+      return 33, msg
+
 
     end
     
