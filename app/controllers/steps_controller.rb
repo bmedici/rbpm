@@ -43,31 +43,23 @@ class StepsController < ApplicationController
     @step.init_missing_params!
 
     # Prepare graph
-    graph = GraphMap.new
-    graph.prepare(false)
-    
+    graph = ProcessGraph.new
+
     # Highlight the current step and recurse around it
-    graph.highlight_step(@step)
-    graph.map_recurse_around(@step.id, 3)
-    #graph.map_recurse_around(@step.id, 2)
+    graph.map_recurse_around(@step.id, 2)
 
-    # Generate output to the browser
-    @image_data = graph.output_to_string(:png)
-    @image_map = graph.output_to_string(:cmapx)
-  end
+    # Mark current node active
+    graph.node_add_class(@step.id, 'active')
 
-  def create
-    @step = Step.new(params[:step])
+    # @graph_nodes[@step.id] ||= {}
+    # @graph_nodes[@step.id][:style] ||= ""
+    # @graph_nodes[@step.id][:style] << " active"
 
-    respond_to do |format|
-      if @step.save
-        format.html { redirect_to (edit_step_path(@step)), :notice => 'Step was successfully created.' }
-        format.json { render :json => @step, :status => :created, :location => @step }
-      else
-        format.html { render :action => "new" }
-        format.json { render :json => @step.errors, :status => :unprocessable_entity }
-      end
-    end
+    # @graph_nodes = graph.get_nodes
+    # @graph_edges = graph.get_edges
+    @graph_nodes = graph.get_nodes.values
+    @graph_edges = graph.get_edges.values
+
   end
 
   def update

@@ -1,0 +1,23 @@
+- set_title "Available workflows"
+- add_button :add, new_step_path(:start => true), "start a new workflow"
+
+
+- content_for :javascript do
+  - @root_steps.each do |root_step|
+    = render partial: '/dagre', locals: {nodes: @graph_nodes, edges: @graph_edges, target: "workflow#{root_step.id}"}
+
+
+- @root_steps.each do |root_step|
+  %hr
+  =# image_tag map_graph_path(root_step)
+
+  / $("svg#graph #node3").attr("class", "active");
+
+
+
+  %br
+  = link_to "push job", push_job_path(root_step), :target => "_blank"
+  |
+  = link_to "edit", edit_step_path(root_step)
+  |
+  = link_to "show", step_path(root_step)

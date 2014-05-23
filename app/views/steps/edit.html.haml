@@ -3,7 +3,30 @@
 - add_button :delete, @step
 - add_button :add, follow_step_path(@step), "create following step"
 
+
+
+- content_for :javascript do
+  =# render partial: '/dagre', locals: {nodes: @graph_nodes, edges: @graph_edges, target: "svg#graph"}
+  / $("svg#graph #node3").attr("class", "active");
+
 = @image_map
 .well= tag :img, :src => inline_image_src("image/png", @image_data), :usemap => "#G"
+:javascript
+
+  var graph = new joint.dia.Graph;
+  var paper = new joint.dia.Paper({
+      el: $('#graph'),
+      width: '100%',
+      height: 400,
+      gridSize: 5,
+      model: graph
+  });
+
+  // Inject data
+  var cells4 = cells_from_hash(#{@graph_nodes.to_json.html_safe}, #{@graph_edges.to_json.html_safe});
+  graph.resetCells(cells4);
+
+  // Layout
+  graph_layout(graph);
 
 = render 'form'

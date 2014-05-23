@@ -8,7 +8,7 @@ class JobsController < ApplicationController
     # Fetch real beanstalk queued IDs
     bs = Q.new
     @bs_jobs_ids = bs.fetch_queued_jobs_ids
-    
+
     # Parse db jobs with bs job status
     @bs_job_status = {}
     begin
@@ -18,7 +18,7 @@ class JobsController < ApplicationController
       end
     rescue Beanstalk::NotFoundError
     end
-    
+
     # Close connection to bs
     bs.close
 

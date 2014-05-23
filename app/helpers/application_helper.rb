@@ -1,5 +1,5 @@
 module ApplicationHelper
-  
+
   # Dates and times: date generator
   def my_date(param, format = :short)
     return "-"  if param.nil?
@@ -46,12 +46,12 @@ module ApplicationHelper
     return "-"  if param.nil?
     return "#{my_date(param, format)} #{my_time(param, format)}"
   end
-  
+
   def seconds_ago(seconds)
     rounded = sprintf "%.1f", seconds
     return "#{rounded}s ago"
   end
-  
+
   # Dates and times: misc helpers
   def my_date_short(param)
    return my_date(param, :short)
@@ -68,7 +68,7 @@ module ApplicationHelper
       end
     end
   end
-  
+
   def set_title(title)
     @title = title
   end

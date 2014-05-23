@@ -73,14 +73,27 @@ class StatusController < ApplicationController
   
   def workflows
     @root_steps = Step.roots.includes(:links => :next).order('steps.label ASC')
-  end  
-  
+
+    # Prepare graph
+    graph = ProcessGraph.new
+
+    # Highlight the current step and recurse around it
+    #@step = @root_steps.first
+
+    #@graph.map_recurse_around(@step.id, 2)
+    graph.map_whole_database
+
+    @graph_nodes = graph.get_nodes.values
+    @graph_edges = graph.get_edges.values
+
+  end
+
   def editor
     @root_step = Step.roots.order('steps.id DESC').first
-  end  
-  
+  end
+
   protected
-  
+
   def prepare_jobs(bs)
     # Collect queued job IDs in beanstalk
     @bs_jobs_ids = bs.fetch_queued_jobs_ids

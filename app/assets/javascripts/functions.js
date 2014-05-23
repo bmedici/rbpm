@@ -1,21 +1,14 @@
-// This is a manifest file that'll be compiled into including all the files listed below.
-// Add new JavaScript/Coffee code in separate files in this directory and they'll automatically
-// be included in the compiled file accessible from http://example.com/assets/application.js
-// It's not advisable to add code directly here, but if you do, it'll appear at the bottom of the
-// the compiled file.
-//
-//= require jquery
-//= require jquery_ujs
-//= require jquery.ui.all
-//= require_tree .
+function render(src, target, engine) {
+  try {
+    result = Viz(src, "svg", engine);
+  } catch(e) {
+    result = inspect(e.toString());
+  }
 
-$.fn.reloadSrc = function(){
-var $this = $(this);
-var src = $this.attr("src");
-if(src != undefined){
-//$this.attr("src", src + (src.indexOf('?') >= 0 ? "&" : "?") + "tq=" + (new Date()).getTime());
-$this.attr("src", src);
-}
+  $(target).html(result);
+
+  // alert(result);
+
 }
 
 
@@ -30,7 +23,7 @@ function UpdateSystemStatus(theGroup, data_url) {
 	var theProgress = 	theGroup.find('.progress')
 	var theBar = 	theGroup.find('.bar')
 	theProgress.addClass('progress-striped');
-	
+
 	// Query the source URL to get data
 	$.ajax({
 		url: data_url,
@@ -56,7 +49,7 @@ function UpdateRefreshable(thePanel, data_url, seconds) {
 	// Init
 	//thePanel.fadeTo(0, .5);
 	thePanel.addClass("updating");
-	
+
 	// Query the source URL to get data
 	$.ajax({
 		url: data_url,
@@ -71,28 +64,3 @@ function UpdateRefreshable(thePanel, data_url, seconds) {
 			}
 		});
 	}
-
-$(document).ready(function() {
-
-	// Try to update the workflow map if present
-	UpdateMap();
-
-	// Bind a refresh task on each system status
-	$('#dashboard .systemstatus').each(function(index, value) {
-		source = $(this).attr('data-source')
-		UpdateSystemStatus($(this), source);
-	});
-
-// Activate every refreshable panel
-	$('.refreshable').each(function(index, value) {
-
-		source = $(this).attr('data-source')
-		seconds = $(this).attr('data-period')
-		//alert(seconds);
-		UpdateRefreshable($(this), source, seconds);
-	});
-
-});
-
-
-
