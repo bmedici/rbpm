@@ -1,0 +1,13 @@
+$font-size-base: 12px;
+$padding-base-vertical: 1px;
+$padding-base-horizontal: 5px;
+$navbar-height: 40px;
+/* $body-bg: #EEE; */
+$alert-padding: none;
+
+@import "bootstrap";
+
+.alert {
+  margin-bottom: 3px;
+  padding: 3px 5px;
+  }

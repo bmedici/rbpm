@@ -3,62 +3,6 @@
  * and any sub-directories. You're free to add application-wide styles to this file and they'll appear at
  * the top of the compiled file, but it's generally better to create a new file per style scope.
  *= require_self
- *= require_tree . 
+ *= require_tree .
 */
 
-
-table td {
-  border: 1px solid silver;
-  margin: 0;
-  padding: 1px 4px;
-  vertical-align: top;
-  }
-
-table {
-  border-collapse: collapse;
-  }  
-
-table th {
-  text-align: left;
-  }  
-
-.step {
-  border: 1px solid gray;
-  width: 100px;
-  height: 60px;
-  display: block;
-}
-
-.nowrap {
-  white-space: nowrap;
-}
-
-.refreshable {
-  border-left: 4px solid transparent;
-  padding-left: 4px;
-}
-.updating {
-  border-left: 4px solid #ffcccc;
-  }
-  
-.job_status_image {
-  max-width: 380px;
-}
-
-.footer {
-  font-size: 0.85em;
-  color: silver;
-  padding: 40px 0;
-  }
-  
-  
-
-.small, table.small td {
-  font-size: 9pt;
-  line-height: 1.2em;
-  }
-table.small td {
-  padding: 0 4px;
-  margin: 0;
-  border: none;
-  }

@@ -1,0 +1,98 @@
+#graph {
+/*
+  width: 100%;
+  margin: 20px;
+  border: 1px solid orange;
+*/
+  padding: 0;
+  }
+
+#graph svg {
+/*
+  width: 100%;
+  height: 200px;
+  margin: 20px;
+  margin: 10px;
+  display: block;
+  height: 350px;
+  border: 1px dotted orange;
+*/
+  }
+
+
+svg {
+  overflow: hidden;
+  }
+
+.edgeLabel rect {
+  fill: #fff;
+  }
+
+.edgePath {
+  stroke: #333;
+  stroke-width: 1.5px;
+  fill: none;
+  }
+
+#graph .step {
+  /*
+  stroke: #fff;
+  stroke-width: 1.5px;
+  */
+  stroke: #fff;
+  fill: #999;
+  }
+
+#graph .step.active {
+  stroke: blue;
+  stroke-width: 2px;
+  }
+
+#graph .step_start {
+  fill: #393;
+  }
+#graph .step_end {
+  fill: #F8F087;
+  }
+
+#graph .step_watchfolder {
+  fill: #C6B299;
+  }
+
+#graph .step_condition {
+  fill: #43E0F5;
+  }
+
+#graph .step_expect_variables {
+  fill: #FFF4E3;
+  }
+
+#graph .step_failer {
+  fill: #ffC070;
+  }
+
+#graph .step_file_copy,
+#graph .step_file_move,
+ {
+  fill: #C6B299;
+  }
+
+#graph .step_ftp_push {
+  fill: #B7E3C0;
+  }
+
+#graph .step_join {
+  fill: #B8D0DD;
+  }
+
+#graph .step_rest {
+  fill: #B7E3C0;
+  }
+
+#graph .step_waiter {
+  fill: #E6D5C1;
+  }
+
+#graph .step_noop {
+  x_fill: #F6F6F6;
+  }
