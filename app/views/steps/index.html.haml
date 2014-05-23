@@ -3,37 +3,32 @@
 - add_button :add, new_step_path, "new step"
 
 %table
+
+
+%table.table
   %thead
     %tr
       %th ID
-      %th Label
-      %th Ancestors
-      %th Next steps
+      %th Name
       %th Class
       %th Params
-      %th
-      %th
+      %th Ancestors
+      %th Next steps
   %tbody
 
     - @steps.each do |step|
       %tr
         %td
           = "s#{step.id}"
+
         %td
-          = link_to step.label, edit_step_path(step)
+          = link_to step.display_name, edit_step_path(step)
           %br
           %small
             = step.description
-        
-        %td
-          - step.ancestors.each do |p|
-            = p.label
-            %br
-        %td
-          - step.nexts.each do |n|
-            = n.label
-            %br
+
         %td= step.type
+
         %td
           - step.params.each do |p|
             - if p.value.lines.count <= 1
@@ -42,8 +37,26 @@
             - else
               = p.name
               %pre=p.value
-        -#%pre= JSON.pretty_generate(JSON::parse(step.params_old)) unless step.params_old.empty?
+
         %td
-          = link_to 'edit', edit_step_path(step)
+          - if step.ancestors.empty?
+            .label.label-warning= "|< HEAD"
+          - else
+            - step.ancestors.each do |p|
+              .label.label-info= "s#{p.id}"
+              = p.label
+              %br
+
         %td
-          = link_to 'destroy', step, :confirm => 'Are you sure?', :method => :delete
+          - if step.nexts.empty?
+            .label.label-warning= "TRAIL >|"
+          - else
+            - step.nexts.each do |p|
+              .label.label-info= "s#{p.id}"
+              = p.label
+              %br
+
+        -#%td
+          =# link_to 'edit', edit_step_path(step)
+        -#%td
+          =# link_to 'destroy', step, :confirm => 'Are you sure?', :method => :delete

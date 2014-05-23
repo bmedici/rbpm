@@ -74,6 +74,14 @@ module ApplicationHelper
   end
   
   
+  # def text_or_empty(text)
+  #     return '()' if (text.nil? or text.blank?)
+  #   else
+  #     return text
+  #   end
+
+  # end
+
   # Button helpers
   def add_button(type, path, text = "")
     # Map some types to default ones

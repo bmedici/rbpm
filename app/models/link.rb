@@ -30,6 +30,11 @@ class Link < ActiveRecord::Base
     self.params_json
   end
 
+
+  def display_name
+    label.to_s.blank? ? "[link ##{id}]" : label
+  end
+
   protected
 
   def init_params    

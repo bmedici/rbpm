@@ -46,6 +46,11 @@ class Step < ActiveRecord::Base
     @beanstalk_job.touch unless @beanstalk_job.nil?
   end
   
+
+  def display_name
+    label.to_s.blank? ? "[step ##{id}]" : label
+  end
+
   def pval(name, formatted = nil)
     # Read the param
     p = self.params.find_by_name(name.to_s)

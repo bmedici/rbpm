@@ -2,32 +2,45 @@
 - set_title "Links"
 - add_button :add, new_link_path, "new link"
 
-%table
+%table.table
   %thead
     %tr
       %th ID
-      %th Label
-      %th From step
-      %th To step
+      %th Name
       %th Class
       %th Params
-      %th
-      %th
+      %th From step
+      %th To step
   %tbody
     - @links.each do |link|
       %tr
         %td= "k#{link.id}"
-        %td
-          - unless link.label.blank?
-            = link_to link.label, edit_link_path(link)
-        %td= "s#{link.step.id} - #{link.step.label}" unless link.step.nil?
-        %td= "s#{link.next.id} - #{link.next.label}" unless link.next.nil?
-        -#%td= link_to 'Show', link
+
+        %td= link_to link.display_name, edit_link_path(link)
+
         %td= link.type
+
         %td
           %small
             = link.pretty_json
+
+
         %td
+          - if link.step.nil?
+            .label.label-warning MISSING
+          - else
+            .label.label-info= "s#{link.step.id}"
+            = link.step.label
+
+        %td
+          - if link.next.nil?
+            .label.label-warning MISSING
+          - else
+            .label.label-info= "s#{link.next.id}"
+            = link.next.label
+        -#%td= link_to 'Show', link
+
+        -#%td
           = link_to 'edit', edit_link_path(link)
-        %td
+        -#%td
           = link_to 'destroy', link, :confirm => 'Are you sure?', :method => :delete
